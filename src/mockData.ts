@@ -20,10 +20,6 @@ export interface Student {
   college: string;
   hostelRoom: string;
   attendance: number;
-  donorId: string;
-  donorName: string;
-  mentorId: string;
-  mentorName: string;
   avatar: string;
   location: {
     status: 'In Hostel' | 'In College' | 'Out of Bounds' | 'On Leave';
@@ -35,20 +31,9 @@ export interface Student {
   leaveRequests: LeaveRequest[];
   academicProgress: { semester: string; gpa: number }[];
   subjects: { name: string; score: number; grade: string }[];
-  mentorNotes: { id: string; date: string; author: string; note: string; type: string }[];
+  notes: { id: string; date: string; author: string; note: string; type: string }[];
   parentName: string;
   parentPhone: string;
-}
-
-export interface Donor {
-  id: string;
-  name: string;
-  email: string;
-  level: 'Platinum' | 'Gold' | 'Silver';
-  totalDonated: number;
-  activeSponsorships: number;
-  avatar: string;
-  history: { date: string; amount: number; purpose: string }[];
 }
 
 export interface Volunteer {
@@ -61,15 +46,6 @@ export interface Volunteer {
   phone: string;
 }
 
-export interface Mentor {
-  id: string;
-  name: string;
-  email: string;
-  expertise: string;
-  phone: string;
-  menteesCount: number;
-}
-
 export interface Parent {
   id: string;
   name: string;
@@ -80,31 +56,13 @@ export interface Parent {
   occupation: string;
 }
 
-export interface Alumnus {
-  id: string;
-  name: string;
-  email: string;
-  graduationYear: number;
-  currentCompany: string;
-  designation: string;
-  contributions: string;
-}
-
-export interface BoardMember {
-  id: string;
-  name: string;
-  role: string;
-  email: string;
-  joinedDate: string;
-}
-
 export interface ActivityLog {
   id: string;
   user: string;
   role: string;
   action: string;
   time: string;
-  category: 'leave' | 'academic' | 'donation' | 'attendance' | 'general';
+  category: 'leave' | 'academic' | 'attendance' | 'general';
 }
 
 export const initialStudents: Student[] = [
@@ -117,10 +75,6 @@ export const initialStudents: Student[] = [
     college: 'St. Xavier Engineering College',
     hostelRoom: 'Block B - Room 204',
     attendance: 94.5,
-    donorId: 'DON001',
-    donorName: 'Dr. Ramesh Kumar',
-    mentorId: 'MEN001',
-    mentorName: 'Prof. Ananya Sen',
     avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120',
     location: {
       status: 'In College',
@@ -168,18 +122,18 @@ export const initialStudents: Student[] = [
       { name: 'Discrete Mathematics', score: 94, grade: 'O' },
       { name: 'Environmental Sciences', score: 78, grade: 'B+' }
     ],
-    mentorNotes: [
+    notes: [
       {
         id: 'N-201',
         date: '2026-04-18',
-        author: 'Prof. Ananya Sen',
+        author: 'Admin',
         note: 'Aravind has shown exceptional progress in programming. He is taking part in college hackathons and managing studies well.',
         type: 'academic'
       },
       {
         id: 'N-202',
         date: '2026-05-02',
-        author: 'Prof. Ananya Sen',
+        author: 'Admin',
         note: 'Spoke with him regarding his health. Recommended dietary changes for his recurring stomach issues.',
         type: 'health'
       }
@@ -196,10 +150,6 @@ export const initialStudents: Student[] = [
     college: 'Apollo Institute of Nursing',
     hostelRoom: 'Block A - Room 102',
     attendance: 88.2,
-    donorId: 'DON002',
-    donorName: 'Deepa Foundation',
-    mentorId: 'MEN002',
-    mentorName: 'Dr. Suresh Nair',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120',
     location: {
       status: 'In Hostel',
@@ -236,11 +186,11 @@ export const initialStudents: Student[] = [
       { name: 'Pharmacology', score: 76, grade: 'B+' },
       { name: 'Community Health Nursing', score: 89, grade: 'A+' }
     ],
-    mentorNotes: [
+    notes: [
       {
         id: 'N-203',
         date: '2026-05-10',
-        author: 'Dr. Suresh Nair',
+        author: 'Admin',
         note: 'Priya performed very well in her ward internship. Head nurse gave highly positive feedback about her empathy and work ethic.',
         type: 'academic'
       }
@@ -257,10 +207,6 @@ export const initialStudents: Student[] = [
     college: 'Loyola College of Commerce',
     hostelRoom: 'Block B - Room 408',
     attendance: 92.1,
-    donorId: 'DON003',
-    donorName: 'Global Giving Corp',
-    mentorId: 'MEN003',
-    mentorName: 'C.A. Rajesh Mehta',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120',
     location: {
       status: 'Out of Bounds',
@@ -293,11 +239,11 @@ export const initialStudents: Student[] = [
       { name: 'Principles of Management', score: 82, grade: 'A' },
       { name: 'Business Communication', score: 88, grade: 'A+' }
     ],
-    mentorNotes: [
+    notes: [
       {
         id: 'N-204',
         date: '2026-04-20',
-        author: 'C.A. Rajesh Mehta',
+        author: 'Admin',
         note: 'Rehan is slightly struggling with Financial Accounting concepts. Initiated special remedial tutoring with senior commerce volunteers.',
         type: 'academic'
       }
@@ -314,10 +260,6 @@ export const initialStudents: Student[] = [
     college: 'St. Xavier Engineering College',
     hostelRoom: 'Block A - Room 311',
     attendance: 96.8,
-    donorId: 'DON001',
-    donorName: 'Dr. Ramesh Kumar',
-    mentorId: 'MEN001',
-    mentorName: 'Prof. Ananya Sen',
     avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120',
     location: {
       status: 'On Leave',
@@ -351,57 +293,17 @@ export const initialStudents: Student[] = [
       { name: 'Network Theory', score: 98, grade: 'O' },
       { name: 'Digital Electronics', score: 94, grade: 'O' }
     ],
-    mentorNotes: [
+    notes: [
       {
         id: 'N-205',
         date: '2026-05-15',
-        author: 'Prof. Ananya Sen',
+        author: 'Admin',
         note: 'Divya is a top performer. Approved emergency travel to Pune to support her family due to mother surgery. Keep monitoring her emotional well-being.',
         type: 'personal'
       }
     ],
     parentName: 'Sanjay Deshmukh',
     parentPhone: '+91 88888 77777'
-  }
-];
-
-export const initialDonors: Donor[] = [
-  {
-    id: 'DON001',
-    name: 'Dr. Ramesh Kumar',
-    email: 'ramesh.kumar@medicare.org',
-    level: 'Platinum',
-    totalDonated: 1250000,
-    activeSponsorships: 2,
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=120',
-    history: [
-      { date: '2026-04-10', amount: 150000, purpose: 'Sem 4 Hostel Fees Sponsorship' },
-      { date: '2026-01-15', amount: 200000, purpose: 'Annual College Tuition Sponsorship' }
-    ]
-  },
-  {
-    id: 'DON002',
-    name: 'Deepa Foundation',
-    email: 'trustee@deepafoundation.com',
-    level: 'Gold',
-    totalDonated: 750000,
-    activeSponsorships: 1,
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=120',
-    history: [
-      { date: '2026-03-05', amount: 120000, purpose: 'Nursing Lab Kits & Material Fees' }
-    ]
-  },
-  {
-    id: 'DON003',
-    name: 'Global Giving Corp',
-    email: 'giving@globalcorp.com',
-    level: 'Platinum',
-    totalDonated: 2500000,
-    activeSponsorships: 1,
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=120',
-    history: [
-      { date: '2026-02-12', amount: 500000, purpose: 'NGO Hostel Infrastructure Fund' }
-    ]
   }
 ];
 
@@ -435,33 +337,6 @@ export const initialVolunteers: Volunteer[] = [
   }
 ];
 
-export const initialMentors: Mentor[] = [
-  {
-    id: 'MEN001',
-    name: 'Prof. Ananya Sen',
-    email: 'ananya.sen@xavier.edu',
-    expertise: 'Computer Science, Career Guidance',
-    phone: '+91 98321 04567',
-    menteesCount: 2
-  },
-  {
-    id: 'MEN002',
-    name: 'Dr. Suresh Nair',
-    email: 'suresh.nair@hospital.org',
-    expertise: 'Medical & Clinical Nursing, Life Coach',
-    phone: '+91 94432 09876',
-    menteesCount: 1
-  },
-  {
-    id: 'MEN003',
-    name: 'C.A. Rajesh Mehta',
-    email: 'rajesh.mehta@auditcorp.in',
-    expertise: 'Chartered Accountancy, Finance & Taxation',
-    phone: '+91 98200 44556',
-    menteesCount: 1
-  }
-];
-
 export const initialParents: Parent[] = [
   {
     id: 'PAR001',
@@ -492,67 +367,14 @@ export const initialParents: Parent[] = [
   }
 ];
 
-export const initialAlumni: Alumnus[] = [
-  {
-    id: 'ALU001',
-    name: 'Vikram Seth',
-    email: 'vikram.seth@tcs.com',
-    graduationYear: 2023,
-    currentCompany: 'Tata Consultancy Services',
-    designation: 'Software Development Engineer I',
-    contributions: 'Volunteers 4 hours/month mentoring CSE sophomores. Co-donated Rs 50,000 for hostel computer laboratory upgrade.'
-  },
-  {
-    id: 'ALU002',
-    name: 'Sneha Reddy',
-    email: 'sneha.reddy@fortis.org',
-    graduationYear: 2022,
-    currentCompany: 'Fortis Healthcare Group',
-    designation: 'Senior Ward Staff Nurse',
-    contributions: 'Conducted healthcare hygiene seminars for first-year female nursing students and donated clinical stethoscope kits.'
-  }
-];
-
-export const initialBoardMembers: BoardMember[] = [
-  {
-    id: 'BM001',
-    name: 'Justice (Retd.) G. Raghavan',
-    role: 'President & Chairman of the Board',
-    email: 'g.raghavan@hope3.org',
-    joinedDate: '2020-01-10'
-  },
-  {
-    id: 'BM002',
-    name: 'Dr. (Mrs.) Sheela Krishnan',
-    role: 'Vice President & Social Worker Representative',
-    email: 'sheela.krishnan@hope3.org',
-    joinedDate: '2020-04-15'
-  },
-  {
-    id: 'BM003',
-    name: 'V. Srikant Iyer',
-    role: 'Honorary Treasurer & Ex-Bank Director',
-    email: 'srikant.iyer@hope3.org',
-    joinedDate: '2021-08-20'
-  }
-];
-
 export const initialActivityLogs: ActivityLog[] = [
   {
     id: 'ACT001',
-    user: 'Prof. Ananya Sen',
-    role: 'Mentor',
+    user: 'Admin',
+    role: 'Admin',
     action: 'Added academic progress note for student Aravind Swamy',
     time: '2 hours ago',
     category: 'academic'
-  },
-  {
-    id: 'ACT002',
-    user: 'Dr. Ramesh Kumar',
-    role: 'Donor',
-    action: 'Disbursed tuition scholarship amount of Rs. 1,50,000 to STU001',
-    time: '5 hours ago',
-    category: 'donation'
   },
   {
     id: 'ACT003',

@@ -4,9 +4,6 @@ import {
   Users,
   Heart,
   Award,
-  BookOpen,
-  GraduationCap,
-  Landmark,
   Calendar,
   Clock,
   FileText,
@@ -14,33 +11,21 @@ import {
   Bell,
   Sun,
   Moon,
-  CheckCircle2,
-  XCircle,
   User,
   Send,
   Menu,
   X,
   ClipboardList,
-  Plus,
-  Mail
-} from 'lucide-react';
+  Plus} from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import {
   initialStudents,
-  initialDonors,
   initialVolunteers,
-  initialMentors,
   initialParents,
-  initialAlumni,
-  initialBoardMembers,
   initialActivityLogs,
   type Student,
-  type Donor,
   type Volunteer,
-  type Mentor,
   type Parent,
-  type Alumnus,
-  type BoardMember,
   type ActivityLog,
   type LeaveRequest
 } from './mockData';
@@ -56,17 +41,6 @@ export interface SchoolClass {
   schedule: string;
 }
 
-export interface AlumniClassRequest {
-  id: string;
-  alumnusName: string;
-  alumnusId: string;
-  subject: string;
-  skills: string[];
-  gradeTarget: string;
-  description: string;
-  status: 'Pending' | 'Approved' | 'Rejected';
-}
-
 export interface StudentRequest {
   id: string;
   studentId: string;
@@ -79,43 +53,17 @@ export interface StudentRequest {
   date: string;
 }
 
-export interface ExpenseReport {
-  id: string;
-  volunteerName: string;
-  donorId: string;
-  donorName: string;
-  amount: number;
-  category: string;
-  description: string;
-  status: 'Pending' | 'Funded' | 'Rejected';
-  date: string;
-}
-
-export interface BoardPoll {
-  id: string;
-  question: string;
-  options: { text: string; votes: number }[];
-  status: 'Active' | 'Closed';
-  createdBy: string;
-  date: string;
-  votedUsers: string[];
-}
-
 function App() {
   // App-wide state
-  const [activeRole, setActiveRole] = useState<'Admin' | 'Student' | 'Parent' | 'Donor' | 'Volunteer' | 'Mentor' | 'Alumni' | 'Board Member'>('Admin');
+  const activeRole = 'Admin' as 'Admin' | 'Student' | 'Parent' | 'Volunteer';
   const [activeTab, setActiveTab] = useState<string>('Dashboard');
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   
   // Data State
   const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [donors, setDonors] = useState<Donor[]>(initialDonors);
   const [volunteers, setVolunteers] = useState<Volunteer[]>(initialVolunteers);
-  const [mentors, setMentors] = useState<Mentor[]>(initialMentors);
   const [parents, setParents] = useState<Parent[]>(initialParents);
-  const [alumni, setAlumni] = useState<Alumnus[]>(initialAlumni);
-  const [boardMembers, setBoardMembers] = useState<BoardMember[]>(initialBoardMembers);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(initialActivityLogs);
 
   const [creationModal, setCreationModal] = useState<{ type: string; isOpen: boolean }>({ type: '', isOpen: false });
@@ -123,25 +71,13 @@ function App() {
   const handleCreateEntity = (type: string, data: any) => {
     switch (type) {
       case 'Student':
-        setStudents([{ id: `STU00${students.length + 1}`, ...data, attendance: 100, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120', location: { status: 'In Hostel', lastUpdated: 'Just now', coordinates: '0,0', hostelDistance: '0', collegeDistance: '0' }, leaveRequests: [], academicProgress: [], subjects: [], mentorNotes: [], donorId: '', donorName: '', mentorId: '', mentorName: '', parentName: '', parentPhone: '', hostelRoom: '' }, ...students]);
+        setStudents([{ id: `STU00${students.length + 1}`, ...data, attendance: 100, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120', location: { status: 'In Hostel', lastUpdated: 'Just now', coordinates: '0,0', hostelDistance: '0', collegeDistance: '0' }, leaveRequests: [], academicProgress: [], subjects: [], notes: [], parentName: '', parentPhone: '', hostelRoom: '' }, ...students]);
         break;
       case 'Parent':
         setParents([{ id: `PAR00${parents.length + 1}`, ...data }, ...parents]);
         break;
-      case 'Donor':
-        setDonors([{ id: `DON00${donors.length + 1}`, ...data, activeSponsorships: 0, totalDonated: 0, avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=120', history: [] }, ...donors]);
-        break;
       case 'Volunteer':
         setVolunteers([{ id: `VOL00${volunteers.length + 1}`, ...data, hoursContributed: 0, status: 'Active' }, ...volunteers]);
-        break;
-      case 'Mentor':
-        setMentors([{ id: `MEN00${mentors.length + 1}`, ...data, menteesCount: 0 }, ...mentors]);
-        break;
-      case 'Alumnus':
-        setAlumni([{ id: `ALU00${alumni.length + 1}`, ...data, contributions: '' }, ...alumni]);
-        break;
-      case 'Board Member':
-        setBoardMembers([{ id: `BM00${boardMembers.length + 1}`, ...data, joinedDate: new Date().toISOString().split('T')[0] }, ...boardMembers]);
         break;
     }
   };
@@ -172,29 +108,6 @@ function App() {
     }
   ]);
 
-  const [alumniRequests, setAlumniRequests] = useState<AlumniClassRequest[]>([
-    {
-      id: 'REQ001',
-      alumnusName: 'Vikram Seth',
-      alumnusId: 'ALU001',
-      subject: 'Data Structures Practicum',
-      skills: ['C++', 'Algorithms'],
-      gradeTarget: 'B.Tech - 2nd Year',
-      description: 'Interactive session focusing on complex data structures, trees, and graphs for coding interviews.',
-      status: 'Pending'
-    },
-    {
-      id: 'REQ002',
-      alumnusName: 'Sneha Reddy',
-      alumnusId: 'ALU002',
-      subject: 'Nursing Hygiene & Sanitation Methods',
-      skills: ['Clinical Nursing', 'Hygiene'],
-      gradeTarget: 'B.Sc - 1st Year (Nursing)',
-      description: 'A practical demonstration of hospital hygiene protocols, bed-making, and primary care.',
-      status: 'Approved'
-    }
-  ]);
-
   const [studentRequests, setStudentRequests] = useState<StudentRequest[]>([
     {
       id: 'SREQ001',
@@ -219,89 +132,19 @@ function App() {
     }
   ]);
 
-  const [expenseReports, setExpenseReports] = useState<ExpenseReport[]>([
-    {
-      id: 'EXP001',
-      volunteerName: 'Meera Deshpande',
-      donorId: 'DON001',
-      donorName: 'Dr. Ramesh Kumar',
-      amount: 8500,
-      category: 'Study Materials',
-      description: 'Purchasing 12 copies of JavaScript Programming textbooks and notebook bundles for CLS001 students.',
-      status: 'Pending',
-      date: '2026-05-19'
-    },
-    {
-      id: 'EXP002',
-      volunteerName: 'Rahul Sen',
-      donorId: 'DON002',
-      donorName: 'Deepa Foundation',
-      amount: 3200,
-      category: 'Lab Kits',
-      description: 'Purchasing primary stethoscope kits and disposable gloves for nursing clinical mock labs.',
-      status: 'Funded',
-      date: '2026-05-14'
-    }
-  ]);
-
-  const [boardPolls, setBoardPolls] = useState<BoardPoll[]>([
-    {
-      id: 'POL001',
-      question: 'Should we allocate ₹5,00,000 from reserves for upgrading the Block B Computer Lab network infrastructure?',
-      options: [
-        { text: 'Yes, proceed immediately', votes: 4 },
-        { text: 'Yes, but delay to next term', votes: 1 },
-        { text: 'No, seek direct donor mapping instead', votes: 2 }
-      ],
-      status: 'Active',
-      createdBy: 'Justice (Retd.) G. Raghavan',
-      date: '2026-05-18',
-      votedUsers: ['Admin', 'Board Member']
-    },
-    {
-      id: 'POL002',
-      question: 'Select final date for Annual Board Governance & Progress Meeting:',
-      options: [
-        { text: 'June 10, 2026', votes: 5 },
-        { text: 'June 15, 2026', votes: 3 }
-      ],
-      status: 'Closed',
-      createdBy: 'V. Srikant Iyer',
-      date: '2026-05-10',
-      votedUsers: ['Board Member']
-    }
-  ]);
-
   // Form States for Class Creation
   const [newClassName, setNewClassName] = useState('');
-  const [selectedClassMentor, setSelectedClassMentor] = useState('');
+  
   const [selectedClassVolunteer, setSelectedClassVolunteer] = useState('');
   const [newClassDescription, setNewClassDescription] = useState('');
   const [newClassSchedule, setNewClassSchedule] = useState('');
   const [selectedClassStudents, setSelectedClassStudents] = useState<string[]>([]);
-
-  // Form States for Alumni Class Request
-  const [newAlumniSubject, setNewAlumniSubject] = useState('');
-  const [newAlumniDescription, setNewAlumniDescription] = useState('');
-  const [newAlumniGrade, setNewAlumniGrade] = useState('');
-  const [selectedAlumniSkills, setSelectedAlumniSkills] = useState<string[]>([]);
 
   // Form States for Student Request
   const [newStudentRequestType, setNewStudentRequestType] = useState<'Leave' | 'Fee Support' | 'Achievement'>('Leave');
   const [newStudentRequestTitle, setNewStudentRequestTitle] = useState('');
   const [newStudentRequestDetails, setNewStudentRequestDetails] = useState('');
   const [newStudentRequestAmount, setNewStudentRequestAmount] = useState('');
-
-  // Form States for Volunteer Expenses
-  const [newExpenseDonor, setNewExpenseDonor] = useState('');
-  const [newExpenseAmount, setNewExpenseAmount] = useState('');
-  const [newExpenseCategory, setNewExpenseCategory] = useState('Study Materials');
-  const [newExpenseDescription, setNewExpenseDescription] = useState('');
-
-  // Form States for Board Polls
-  const [newPollQuestion, setNewPollQuestion] = useState('');
-  const [newPollOption1, setNewPollOption1] = useState('');
-  const [newPollOption2, setNewPollOption2] = useState('');
 
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(() => {
     return initialStudents.flatMap(s => s.leaveRequests);
@@ -310,8 +153,7 @@ function App() {
 
   // Selected Student Profile State
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
-  const [profileTab, setProfileTab] = useState<'Overview' | 'Attendance' | 'Current Location' | 'Leave Requests' | 'Donor Information' | 'Academic Details' | 'Mentor Notes'>('Overview');
+  const [profileTab, setProfileTab] = useState<'Overview' | 'Attendance' | 'Current Location' | 'Leave Requests' | 'Academic Details' | 'Notes'>('Overview');
   const [newNoteText, setNewNoteText] = useState<string>('');
   const [newNoteType, setNewNoteType] = useState<string>('academic');
 
@@ -358,22 +200,16 @@ function App() {
   }, [darkMode]);
 
   // Handle active role logic mapping modules
-  // Admins & Board members can see all tabs. Others get curated views.
+  // Admins can see all tabs. Others get curated views.
   const isTabVisibleForRole = (tabName: string) => {
-    if (activeRole === 'Admin' || activeRole === 'Board Member') return true;
+    if (activeRole === 'Admin') return true;
     switch (activeRole) {
       case 'Student':
         return ['Dashboard', 'Class Management', 'Settings'].includes(tabName);
       case 'Parent':
         return ['Dashboard', 'Students', 'Settings'].includes(tabName);
-      case 'Donor':
-        return ['Dashboard', 'Students', 'Reports', 'Settings'].includes(tabName);
       case 'Volunteer':
         return ['Dashboard', 'Students', 'Class Management', 'Settings'].includes(tabName);
-      case 'Mentor':
-        return ['Dashboard', 'Students', 'Class Management', 'Settings'].includes(tabName);
-      case 'Alumni':
-        return ['Dashboard', 'Class Management', 'Reports', 'Settings'].includes(tabName);
       default:
         return true;
     }
@@ -391,57 +227,11 @@ function App() {
     { name: 'Dashboard', icon: LayoutDashboard },
     { name: 'Students', icon: Users },
     { name: 'Parents', icon: User },
-    { name: 'Donors', icon: Heart },
     { name: 'Volunteers', icon: Award },
-    { name: 'Mentors', icon: BookOpen },
-    { name: 'Alumni', icon: GraduationCap },
-    { name: 'Board Members', icon: Landmark },
     { name: 'Class Management', icon: ClipboardList },
     { name: 'Reports', icon: FileText },
     { name: 'Settings', icon: Settings },
   ];
-
-  // Vote on Board Poll
-  const handleVote = (pollId: string, optionIndex: number) => {
-    setBoardPolls(prev => prev.map(p => {
-      if (p.id === pollId) {
-        if (p.votedUsers.includes(activeRole)) return p;
-        const updatedOptions = [...p.options];
-        updatedOptions[optionIndex] = {
-          ...updatedOptions[optionIndex],
-          votes: updatedOptions[optionIndex].votes + 1
-        };
-        return {
-          ...p,
-          options: updatedOptions,
-          votedUsers: [...p.votedUsers, activeRole]
-        };
-      }
-      return p;
-    }));
-  };
-
-  // Create Board Poll
-  const handleCreatePoll = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPollQuestion || !newPollOption1 || !newPollOption2) return;
-    const newPoll: BoardPoll = {
-      id: `POL00${boardPolls.length + 1}`,
-      question: newPollQuestion,
-      options: [
-        { text: newPollOption1, votes: 0 },
-        { text: newPollOption2, votes: 0 }
-      ],
-      status: 'Active',
-      createdBy: activeRole === 'Board Member' ? 'Justice (Retd.) G. Raghavan' : 'Admin Staff',
-      date: new Date().toISOString().split('T')[0],
-      votedUsers: []
-    };
-    setBoardPolls(prev => [...prev, newPoll]);
-    setNewPollQuestion('');
-    setNewPollOption1('');
-    setNewPollOption2('');
-  };
 
   // Submit Student Request to Volunteer
   const handleStudentRequestSubmit = (e: React.FormEvent) => {
@@ -489,56 +279,6 @@ function App() {
       action: `${status} student request "${target?.title}" from ${target?.studentName}`,
       time: 'Just now',
       category: target?.type === 'Leave' ? 'leave' : 'general'
-    };
-    setActivityLogs(prev => [newLog, ...prev]);
-  };
-
-  // Submit Volunteer Expense Report to Donor
-  const handleExpenseSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newExpenseDonor || !newExpenseAmount || !newExpenseDescription) return;
-    const donorObj = donors.find(d => d.id === newExpenseDonor);
-    const newExp: ExpenseReport = {
-      id: `EXP00${expenseReports.length + 1}`,
-      volunteerName: 'Meera Deshpande',
-      donorId: newExpenseDonor,
-      donorName: donorObj?.name || 'Sponsor',
-      amount: parseFloat(newExpenseAmount) || 0,
-      category: newExpenseCategory,
-      description: newExpenseDescription,
-      status: 'Pending',
-      date: new Date().toISOString().split('T')[0]
-    };
-    setExpenseReports(prev => [...prev, newExp]);
-
-    // Add activity log
-    const newLog: ActivityLog = {
-      id: `ACT${Date.now()}`,
-      user: 'Meera Deshpande',
-      role: 'Volunteer',
-      action: `Posted expense report of ₹${newExpenseAmount} to Donor ${donorObj?.name}`,
-      time: 'Just now',
-      category: 'donation'
-    };
-    setActivityLogs(prev => [newLog, ...prev]);
-
-    setNewExpenseAmount('');
-    setNewExpenseDescription('');
-  };
-
-  // Donor funds / rejects volunteer expense reports
-  const handleExpenseAction = (expId: string, status: 'Funded' | 'Rejected') => {
-    setExpenseReports(prev => prev.map(e => e.id === expId ? { ...e, status } : e));
-    
-    // Add activity log
-    const target = expenseReports.find(e => e.id === expId);
-    const newLog: ActivityLog = {
-      id: `ACT${Date.now()}`,
-      user: 'Dr. Ramesh Kumar',
-      role: 'Donor',
-      action: `${status} expense report of ₹${target?.amount} posted by volunteer ${target?.volunteerName}`,
-      time: 'Just now',
-      category: 'donation'
     };
     setActivityLogs(prev => [newLog, ...prev]);
   };
@@ -608,7 +348,7 @@ function App() {
     const newNote = {
       id: `N-${Date.now()}`,
       date: new Date().toISOString().split('T')[0],
-      author: activeRole === 'Mentor' ? 'Prof. Ananya Sen' : 'Administrator',
+      author: activeRole === 'Volunteer' ? 'Prof. Ananya Sen' : 'Administrator',
       note: newNoteText,
       type: newNoteType
     };
@@ -617,7 +357,7 @@ function App() {
       if (student.id === studentId) {
         const updatedStudent = {
           ...student,
-          mentorNotes: [newNote, ...student.mentorNotes]
+          notes: [newNote, ...student.notes]
         };
         setSelectedStudent(updatedStudent);
         return updatedStudent;
@@ -628,7 +368,7 @@ function App() {
     // Add activity log
     const newLog: ActivityLog = {
       id: `ACT${Date.now()}`,
-      user: activeRole === 'Mentor' ? 'Prof. Ananya Sen' : 'Administrator',
+      user: activeRole === 'Volunteer' ? 'Prof. Ananya Sen' : 'Administrator',
       role: activeRole,
       action: `Added a ${newNoteType} note for student ${selectedStudent?.name}`,
       time: 'Just now',
@@ -696,7 +436,6 @@ function App() {
   };
 
   // Calculated Stats
-  const totalSponsorship = donors.reduce((sum, d) => sum + d.totalDonated, 0);
   const pendingLeaves = leaveRequests.filter(r => r.status === 'Pending').length;
   const avgAttendance = parseFloat((students.reduce((sum, s) => sum + s.attendance, 0) / students.length).toFixed(1));
 
@@ -706,10 +445,6 @@ function App() {
     student.rollNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
     student.college.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const filteredDonors = donors.filter(donor => {
-    return donor.name.toLowerCase().includes(searchQuery.toLowerCase()) || donor.email.toLowerCase().includes(searchQuery.toLowerCase());
-  });
 
 
 
@@ -751,7 +486,7 @@ function App() {
                 onClick={() => {
                   setActiveTab(item.name);
                   setSelectedStudent(null); // Clear selected profile when switching modules
-                  setSelectedDonor(null); // Clear selected donor
+                  
                   if (window.innerWidth < 1024) setSidebarOpen(false); // Auto close sidebar on mobile
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200
@@ -865,10 +600,7 @@ function App() {
                   {activeRole === 'Admin' && 'Here is your operational snapshot of Hope3 NGO. Monitor real-time student check-ins, approve pending leaves, and track fundraising.'}
                   {activeRole === 'Student' && 'Review your overall attendance records, submit new leaves, and view comments left by your mentor.'}
                   {activeRole === 'Parent' && 'Monitor your child academic performance, check their hostel residency logs, and contact their mentor.'}
-                  {activeRole === 'Donor' && 'Track the impact of your sponsorships, view detailed report summaries, and manage active fundings.'}
-                  {activeRole === 'Mentor' && 'Coordinate with your assigned mentees, review and recommend leaves, and add counseling notes.'}
-                  {activeRole === 'Board Member' && 'Access strategic governance metrics, verify donation volumes, and review quarterly NGO output logs.'}
-                  {['Volunteer', 'Alumni'].includes(activeRole) && 'Contribute to tutorials, record your session hours, and support student development.'}
+                  {activeRole === 'Volunteer' && 'Contribute to tutorials, record your session hours, and support student development.'}
                 </p>
               </div>
 
@@ -879,10 +611,10 @@ function App() {
                 <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      {activeRole === 'Donor' ? 'Total Sponsored' : 'Total Students'}
+                      Total Students
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Donor' ? '2 Students' : `${students.length} Enrolled`}
+                      {students.length} Enrolled
                     </h4>
                     <span className="text-[10px] text-green-500 flex items-center gap-1 mt-2 font-medium">
                       <span className="bg-green-500/10 p-0.5 rounded">+12%</span> vs last semester
@@ -915,13 +647,13 @@ function App() {
                 <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      {activeRole === 'Donor' ? 'My Funding' : activeRole === 'Student' ? 'Sponsor' : 'Total Donations'}
+                      {activeRole === 'Student' ? 'Sponsor' : 'Total Volunteers'}
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Donor' ? '₹12.5L' : activeRole === 'Student' ? 'Dr. Ramesh K' : `₹${(totalSponsorship / 100000).toFixed(1)}L`}
+                      {activeRole === 'Student' ? 'Hope3 Foundation' : `${volunteers.length} Active`}
                     </h4>
                     <span className="text-[10px] text-blue-500 flex items-center gap-1 mt-2 font-medium">
-                      {activeRole === 'Student' ? 'Full tuition & hostel covered' : '98.5% allocated to students'}
+                      {activeRole === 'Student' ? 'Full tuition & hostel covered' : 'Dedicated to supporting students'}
                     </span>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-950/50 text-pink-600 dark:text-pink-400 flex items-center justify-center">
@@ -1038,7 +770,7 @@ function App() {
                           <div key={log.id} className="flex gap-4 relative">
                             <div className={`w-7.5 h-7.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10
                               ${log.category === 'leave' ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400' :
-                                log.category === 'donation' ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
+                                log.category === 'general' ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
                                 log.category === 'academic' ? 'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400' :
                                 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
                             >
@@ -1101,114 +833,10 @@ function App() {
                         )}
                       </div>
                     </div>
-
-                    {/* Post Expense Report Form */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Post Expense to Donor</h4>
-                        <p className="text-[11px] text-slate-400">Log educational & medical expenses for Donor funding approvals</p>
-                      </div>
-
-                      <form onSubmit={handleExpenseSubmit} className="space-y-3">
-                        <div>
-                          <label className="text-[9px] font-bold text-slate-400 block mb-1">SELECT MAPPED DONOR</label>
-                          <select value={newExpenseDonor} onChange={(e) => setNewExpenseDonor(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required>
-                            <option value="">Select Donor...</option>
-                            {donors.map(d => <option key={d.id} value={d.id}>{d.name} ({d.level})</option>)}
-                          </select>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="text-[9px] font-bold text-slate-400 block mb-1">CATEGORY</label>
-                            <select value={newExpenseCategory} onChange={(e) => setNewExpenseCategory(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none">
-                              <option value="Study Materials">Study Materials</option>
-                              <option value="Lab Kits">Lab Kits</option>
-                              <option value="Medical Bills">Medical Bills</option>
-                              <option value="Travel Allowance">Travel Allowance</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="text-[9px] font-bold text-slate-400 block mb-1">AMOUNT (₹)</label>
-                            <input type="number" placeholder="₹ Value" value={newExpenseAmount} onChange={(e) => setNewExpenseAmount(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-[9px] font-bold text-slate-400 block mb-1">DESCRIPTION DETAILS</label>
-                          <textarea rows={2} placeholder="Explain what the expense is for..." value={newExpenseDescription} onChange={(e) => setNewExpenseDescription(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                        </div>
-                        <button type="submit" className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold p-2 rounded-lg text-xs transition-all shadow-sm">
-                          Post Expense Report to Donor
-                        </button>
-                      </form>
-                    </div>
                   </>
                 )}
 
-                {/* DONOR VIEW: approve expense reports & view mapped student progress */}
-                {activeRole === 'Donor' && (
-                  <>
-                    {/* Expense Approvals */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Expenses Pending Funding Approvals</h4>
-                        <p className="text-[11px] text-slate-400">Review expenses logged by your mapped student volunteers</p>
-                      </div>
 
-                      <div className="space-y-3">
-                        {expenseReports.filter(e => e.status === 'Pending').length === 0 ? (
-                          <div className="text-center py-6 text-xs text-slate-400">No pending expenses. Thank you for your support!</div>
-                        ) : (
-                          expenseReports.filter(e => e.status === 'Pending').map(exp => (
-                            <div key={exp.id} className="p-3 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex flex-col gap-2">
-                              <div className="flex justify-between items-start">
-                                <div>
-                                  <h5 className="font-bold text-xs">{exp.volunteerName} (Volunteer)</h5>
-                                  <span className="text-[9px] font-semibold text-purple-600 bg-purple-500/10 px-2 py-0.5 rounded mt-1 inline-block">{exp.category}</span>
-                                </div>
-                                <span className="text-sm font-extrabold text-blue-600 dark:text-blue-400">₹{exp.amount}</span>
-                              </div>
-                              <p className="text-xs text-slate-500 leading-normal">{exp.description}</p>
-                              <div className="flex gap-2 justify-end mt-1">
-                                <button onClick={() => handleExpenseAction(exp.id, 'Funded')} className="bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition-all shadow-sm">
-                                  Fund / Approve
-                                </button>
-                                <button onClick={() => handleExpenseAction(exp.id, 'Rejected')} className="bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] px-3 py-1 rounded-lg transition-colors">
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Mapped Scholar Progress */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Sponsored Scholars Progress Log</h4>
-                        <p className="text-[11px] text-slate-400">Live academic and attendance telemetry overview</p>
-                      </div>
-
-                      <div className="space-y-3">
-                        {students.slice(0, 2).map(st => (
-                          <div key={st.id} className="p-3 border border-slate-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/50 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <img src={st.avatar} className="w-8.5 h-8.5 rounded-full object-cover" />
-                              <div>
-                                <h5 className="font-bold text-xs text-slate-800 dark:text-white">{st.name}</h5>
-                                <span className="text-[9px] text-slate-400">{st.college}</span>
-                              </div>
-                            </div>
-                            <div className="text-right text-[10px] space-y-1">
-                              <div><strong>GPA:</strong> <span className="text-blue-600 dark:text-blue-400 font-bold">{st.academicProgress[st.academicProgress.length - 1]?.gpa || 0}</span></div>
-                              <div><strong>Attendance:</strong> <span className="text-green-600 dark:text-green-400 font-bold">{st.attendance}</span></div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
 
                 {/* STUDENT VIEW: Request submission form & requests status */}
                 {activeRole === 'Student' && (
@@ -1278,85 +906,7 @@ function App() {
                   </>
                 )}
 
-                {/* BOARD MEMBER VIEW: Vote on governance polls & create new poll */}
-                {(activeRole === 'Board Member') && (
-                  <>
-                    {/* View Governance Polls */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Board Governance & Directives Polls</h4>
-                        <p className="text-[11px] text-slate-400">Cast votes on strategic reserve funding and directive schedules</p>
-                      </div>
 
-                      <div className="space-y-4">
-                        {boardPolls.map(poll => {
-                          const totalVotes = poll.options.reduce((sum, o) => sum + o.votes, 0) || 1;
-                          const hasVoted = poll.votedUsers.includes(activeRole);
-
-                          return (
-                            <div key={poll.id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl bg-white dark:bg-slate-900/30 space-y-3">
-                              <div className="flex justify-between items-start">
-                                <span className={`text-[9px] font-bold px-2 py-0.5 rounded ${poll.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{poll.status}</span>
-                                <span className="text-[9px] text-slate-400">Posted by {poll.createdBy}</span>
-                              </div>
-                              <h5 className="font-bold text-xs text-slate-800 dark:text-white leading-normal">{poll.question}</h5>
-                              
-                              <div className="space-y-2">
-                                {poll.options.map((opt, oIdx) => {
-                                  const percentage = Math.round((opt.votes / totalVotes) * 100);
-                                  return (
-                                    <div key={oIdx} className="space-y-1">
-                                      <div className="flex justify-between text-[11px]">
-                                        <span className="font-medium text-slate-700 dark:text-slate-350">{opt.text}</span>
-                                        <span className="font-bold">{opt.votes} votes ({percentage}%)</span>
-                                      </div>
-                                      <div className="flex items-center gap-2">
-                                        <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                          <div className="h-full bg-blue-600 rounded-full" style={{ width: `${percentage}%` }}></div>
-                                        </div>
-                                        {poll.status === 'Active' && !hasVoted && (
-                                          <button onClick={() => handleVote(poll.id, oIdx)} className="bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded text-[10px] transition-colors">
-                                            Vote
-                                          </button>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Propose/Create New Poll */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Propose Strategic Poll Option</h4>
-                        <p className="text-[11px] text-slate-400">Publish a new binary policy query for board voting</p>
-                      </div>
-
-                      <form onSubmit={handleCreatePoll} className="space-y-3">
-                        <div>
-                          <label className="text-[9px] font-bold text-slate-400 block mb-1">POLL QUESTION</label>
-                          <textarea rows={2} placeholder="e.g. Approve the renewal of the rental agreement for Block C hostel?" value={newPollQuestion} onChange={(e) => setNewPollQuestion(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                        </div>
-                        <div>
-                          <label className="text-[9px] font-bold text-slate-400 block mb-1">OPTION 1</label>
-                          <input type="text" placeholder="e.g. Yes, approve lease renewal" value={newPollOption1} onChange={(e) => setNewPollOption1(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                        </div>
-                        <div>
-                          <label className="text-[9px] font-bold text-slate-400 block mb-1">OPTION 2</label>
-                          <input type="text" placeholder="e.g. No, seek alternative layouts" value={newPollOption2} onChange={(e) => setNewPollOption2(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                        </div>
-                        <button type="submit" className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold p-2 rounded-lg text-xs transition-all flex items-center justify-center gap-1 shadow-sm">
-                          <Plus size={14} /> Propose Board Poll
-                        </button>
-                      </form>
-                    </div>
-                  </>
-                )}
 
                 {/* PARENT VIEW: child telemetry overview & mentor contacts */}
                 {activeRole === 'Parent' && (
@@ -1398,87 +948,9 @@ function App() {
                   </>
                 )}
 
-                {/* MENTOR VIEW: mentee list & counsel activities */}
-                {activeRole === 'Mentor' && (
-                  <>
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Assigned Mentees Summary</h4>
-                        <p className="text-[11px] text-slate-400">Overall academic progress for students under your guidance</p>
-                      </div>
-                      <div className="space-y-3">
-                        {students.slice(0, 2).map(st => (
-                          <div key={st.id} className="p-3 border border-slate-100 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/50 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <img src={st.avatar} className="w-8.5 h-8.5 rounded-full object-cover" />
-                              <div>
-                                <h5 className="font-bold text-xs text-slate-800 dark:text-white">{st.name}</h5>
-                                <span className="text-[9px] text-slate-400 font-mono">{st.id}</span>
-                              </div>
-                            </div>
-                            <div className="text-right text-[10px]">
-                              <div>GPA: <span className="font-bold text-blue-600">{st.academicProgress[st.academicProgress.length - 1]?.gpa || 0}</span></div>
-                              <div>Attendance: <span className="font-bold text-green-600">{st.attendance}</span></div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
 
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Timeline Counsel Events</h4>
-                        <p className="text-[11px] text-slate-400">Review guidance triggers logged across classes</p>
-                      </div>
-                      <div className="space-y-3 text-xs text-slate-500">
-                        <div className="p-3 bg-slate-50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/50 rounded-xl">
-                          <strong>Aravind Swamy:</strong> Volunteer Meera marked homework as fully complete with distinction.
-                        </div>
-                        <div className="p-3 bg-slate-50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/50 rounded-xl">
-                          <strong>Mohamed Rehan:</strong> Left campus limits for library checkouts yesterday.
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
 
-                {/* ALUMNI VIEW: Propose training link & class statuses */}
-                {activeRole === 'Alumni' && (
-                  <>
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <h4 className="font-bold text-sm">Alumni Class Proposals Status</h4>
-                        <p className="text-[11px] text-slate-400">See status of requests submitted to the Admin for teaching classes</p>
-                      </div>
-                      <div className="space-y-3">
-                        {alumniRequests.map(r => (
-                          <div key={r.id} className="p-3 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex justify-between items-center">
-                            <div>
-                              <span className="font-bold text-xs block">{r.subject}</span>
-                              <span className="text-[10px] text-slate-400">{r.gradeTarget}</span>
-                            </div>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded
-                              ${r.status === 'Approved' ? 'bg-green-150 text-green-700' :
-                                r.status === 'Pending' ? 'bg-amber-150 text-amber-700' : 'bg-red-150 text-red-700'}`}
-                            >
-                              {r.status}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
 
-                    <div className="glass-panel rounded-2xl p-5 space-y-4 flex flex-col justify-between">
-                      <div>
-                        <h4 className="font-bold text-sm">Technical Training Seminars</h4>
-                        <p className="text-[11px] text-slate-400">Conduct special skill transfer and career preparation bootcamps for active students.</p>
-                      </div>
-                      <button onClick={() => setActiveTab('Class Management')} className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold p-2.5 rounded-lg text-xs transition-all text-center shadow-sm">
-                        Propose New Class Track
-                      </button>
-                    </div>
-                  </>
-                )}
 
               </div>
             </div>
@@ -1621,8 +1093,8 @@ function App() {
                       </div>
                     </div>
 
-                    {/* Quick simulation buttons (Admin/Mentor role check) */}
-                    {(activeRole === 'Admin' || activeRole === 'Mentor') && (
+                    {/* Quick simulation buttons (Admin role check) */}
+                    {(activeRole === 'Admin') && (
                       <div className="flex flex-wrap gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-slate-200/50 dark:border-slate-800/50">
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block w-full">Simulate Check-in:</span>
                         <button 
@@ -1649,7 +1121,7 @@ function App() {
 
                   {/* PROFILE TAB BUTTONS */}
                   <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto gap-2 pb-1 scrollbar-none">
-                    {(['Overview', 'Attendance', 'Current Location', 'Leave Requests', 'Donor Information', 'Academic Details', 'Mentor Notes'] as const).map(tab => (
+                    {(['Overview', 'Attendance', 'Current Location', 'Leave Requests', 'Academic Details', 'Notes'] as const).map(tab => (
                       <button
                         key={tab}
                         onClick={() => setProfileTab(tab)}
@@ -1685,14 +1157,6 @@ function App() {
                             <div>
                               <span className="text-slate-400 block font-semibold text-[10px] uppercase">Roll Number</span>
                               <span className="font-mono font-bold text-slate-700 dark:text-slate-200">{selectedStudent.rollNo}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Sponsor Donor</span>
-                              <span className="font-bold text-blue-600 dark:text-blue-400">{selectedStudent.donorName}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Mentor Counselor</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.mentorName}</span>
                             </div>
                             <div>
                               <span className="text-slate-400 block font-semibold text-[10px] uppercase">Age</span>
@@ -1875,7 +1339,7 @@ function App() {
                                 </div>
 
                                 {/* Decision actions directly on profile */}
-                                {req.status === 'Pending' && (activeRole === 'Admin' || activeRole === 'Mentor') && (
+                                {req.status === 'Pending' && (activeRole === 'Admin') && (
                                   <div className="flex items-center gap-2">
                                     <button 
                                       onClick={() => handleLeaveAction(req.id, 'Approved')}
@@ -1895,66 +1359,6 @@ function App() {
                             ))
                           )}
                         </div>
-                      </div>
-                    )}
-
-                    {/* PROFILE TAB: DONOR INFORMATION */}
-                    {profileTab === 'Donor Information' && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
-                        {/* Mapped Donor Details */}
-                        <div className="glass-panel rounded-2xl p-5 space-y-4">
-                          <h4 className="font-bold text-sm">Sponsor Profile</h4>
-                          
-                          <div className="flex flex-col items-center text-center p-4 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/30">
-                            <div className="w-16 h-16 rounded-full bg-blue-500/10 text-blue-600 font-bold flex items-center justify-center text-xl mb-3 border border-blue-500/20">
-                              {selectedStudent.donorName.substring(0, 2)}
-                            </div>
-                            <h5 className="font-bold text-sm">{selectedStudent.donorName}</h5>
-                            <span className="text-[10px] bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded-full font-bold mt-1">Platinum Level Donor</span>
-                          </div>
-
-                          <div className="space-y-2 text-xs">
-                            <div className="flex justify-between">
-                              <span className="text-slate-400 font-semibold text-[10px]">DONOR CODE</span>
-                              <span className="font-mono font-bold">{selectedStudent.donorId}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-400 font-semibold text-[10px]">SPONSORSHIP TYPE</span>
-                              <span className="font-bold">Full Academic + Lodging</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Funding Ledger History */}
-                        <div className="glass-panel rounded-2xl p-5 md:col-span-2 space-y-4">
-                          <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2">Tuition Funding Disbursements</h4>
-                          
-                          <div className="space-y-3">
-                            <div className="flex justify-between items-center text-xs p-2 border-b border-slate-100 dark:border-slate-800/40">
-                              <div>
-                                <span className="font-bold text-slate-800 dark:text-slate-200">Sem 4 Enrollment Fees</span>
-                                <span className="text-[10px] text-slate-400 block">Disbursed on April 10, 2026</span>
-                              </div>
-                              <span className="font-bold text-green-600 dark:text-green-400">₹75,000.00</span>
-                            </div>
-                            <div className="flex justify-between items-center text-xs p-2 border-b border-slate-100 dark:border-slate-800/40">
-                              <div>
-                                <span className="font-bold text-slate-800 dark:text-slate-200">Sem 4 Hostel Residency Fees</span>
-                                <span className="text-[10px] text-slate-400 block">Disbursed on April 10, 2026</span>
-                              </div>
-                              <span className="font-bold text-green-600 dark:text-green-400">₹75,000.00</span>
-                            </div>
-                            <div className="flex justify-between items-center text-xs p-2 border-b border-slate-100 dark:border-slate-800/40">
-                              <div>
-                                <span className="font-bold text-slate-800 dark:text-slate-200">Sem 3 Tuition & Exam Registration</span>
-                                <span className="text-[10px] text-slate-400 block">Disbursed on October 12, 2025</span>
-                              </div>
-                              <span className="font-bold text-green-600 dark:text-green-400">₹1,20,000.00</span>
-                            </div>
-                          </div>
-                        </div>
-
                       </div>
                     )}
 
@@ -2044,8 +1448,8 @@ function App() {
                       </div>
                     )}
 
-                    {/* PROFILE TAB: MENTOR NOTES */}
-                    {profileTab === 'Mentor Notes' && (
+                    {/* PROFILE TAB: NOTES */}
+                    {profileTab === 'Notes' && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         
                         {/* Note feed */}
@@ -2053,10 +1457,10 @@ function App() {
                           <h4 className="font-bold text-sm">Counseling & Guidance Log</h4>
                           
                           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                            {selectedStudent.mentorNotes.length === 0 ? (
+                            {selectedStudent.notes.length === 0 ? (
                               <p className="text-xs text-slate-400 py-4 text-center">No counseling logs filed yet.</p>
                             ) : (
-                              selectedStudent.mentorNotes.map(note => (
+                              selectedStudent.notes.map(note => (
                                 <div key={note.id} className="p-3.5 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 space-y-1">
                                   <div className="flex justify-between items-center text-[10px]">
                                     <span className="font-bold text-slate-800 dark:text-slate-350">{note.author}</span>
@@ -2184,144 +1588,6 @@ function App() {
             </div>
           )}
 
-          {/* MODULE: DONORS */}
-          {activeTab === 'Donors' && (
-            <div className="space-y-6">
-              
-              {!selectedDonor ? (
-                <div className="glass-panel rounded-2xl p-5 space-y-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                      <h4 className="font-bold text-base">Donor Registry</h4>
-                      <p className="text-xs text-slate-400">Total active fundraising capital: ₹{(totalSponsorship/100000).toFixed(1)}L</p>
-                    </div>
-                    <button onClick={() => setCreationModal({ type: 'Donor', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                      <Plus size={14} /> Add Donor
-                    </button>
-                    
-
-                  </div>
-
-                  <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                          <th className="p-4">Donor</th>
-                          <th className="p-4">Sponsored Scholars</th>
-                          <th className="p-4">Total Funding</th>
-                          <th className="p-4">Verification</th>
-                          <th className="p-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredDonors.map(don => (
-                          <tr key={don.id} onClick={() => setSelectedDonor(don)} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 cursor-pointer">
-                            <td className="p-4 flex items-center gap-3">
-                              <img src={don.avatar} alt={don.name} className="w-8.5 h-8.5 rounded-lg object-cover border border-slate-200 dark:border-slate-700" />
-                              <div>
-                                <span className="font-bold text-slate-800 dark:text-white block">{don.name}</span>
-                                <span className="text-[10px] text-slate-400 font-mono">{don.email}</span>
-                              </div>
-                            </td>
-
-                            <td className="p-4 font-bold text-slate-700 dark:text-slate-300">{don.activeSponsorships} Student Scholars</td>
-                            <td className="p-4 font-mono font-bold text-slate-800 dark:text-slate-200">₹{don.totalDonated.toLocaleString()}</td>
-                            <td className="p-4">
-                              <span className="text-[10px] text-green-600 bg-green-500/10 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 max-w-fit">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> Verified Tax exemption
-                              </span>
-                            </td>
-                            <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                              <button className="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 font-bold px-3 py-1.5 rounded-lg transition-colors">
-                                Send Statement
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* DETAILED DONOR PROFILE */}
-                  <div className="glass-panel rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-                    <button 
-                      onClick={() => setSelectedDonor(null)} 
-                      className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                      title="Back to Registry"
-                    >
-                      <X size={18} />
-                    </button>
-
-                    <div className="flex items-center gap-5">
-                      <img src={selectedDonor.avatar} alt={selectedDonor.name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md" />
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{selectedDonor.name}</h3>
-                          <span className="text-[10px] font-mono bg-slate-200 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded">{selectedDonor.id}</span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-1">{selectedDonor.email}</p>
-                        
-                        <div className="flex gap-2 mt-3 flex-wrap">
-                          <span className="text-[10px] font-semibold bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded border border-green-200/30">
-                            Verified Tax Exemption
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-slate-200/50 dark:border-slate-800/50">
-                      <a 
-                        href={`mailto:${selectedDonor.email}`}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors shadow-sm"
-                      >
-                        <Mail size={14} />
-                        Contact Donor
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2">Donation Overview</h4>
-                      <div className="space-y-3 text-xs">
-                        <div>
-                          <span className="text-slate-400 block font-semibold text-[10px] uppercase">Active Sponsored Scholars</span>
-                          <span className="font-bold text-slate-700 dark:text-slate-200 text-lg">{selectedDonor.activeSponsorships}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-400 block font-semibold text-[10px] uppercase">Total Lifetime Donated</span>
-                          <span className="font-bold text-green-600 dark:text-green-400 text-lg">₹{selectedDonor.totalDonated.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
-                      <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2">Donation History</h4>
-                      <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
-                        {selectedDonor.history.length === 0 ? (
-                          <p className="text-xs text-slate-400 py-4 text-center">No donation history recorded yet.</p>
-                        ) : (
-                          selectedDonor.history.map((record, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-xs border-b border-slate-100 dark:border-slate-800/40 pb-2">
-                              <div>
-                                <span className="font-bold text-slate-700 dark:text-slate-300">{record.date}</span>
-                                <span className="text-[10px] text-slate-400 block">{record.purpose}</span>
-                              </div>
-                              <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-2 py-0.5 rounded">₹{record.amount.toLocaleString()}</span>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            </div>
-          )}
-
           {/* MODULE: VOLUNTEERS */}
           {activeTab === 'Volunteers' && (
             <div className="glass-panel rounded-2xl p-5 space-y-4">
@@ -2378,135 +1644,6 @@ function App() {
             </div>
           )}
 
-          {/* MODULE: MENTORS */}
-          {activeTab === 'Mentors' && (
-            <div className="glass-panel rounded-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-bold text-base">Mentor Counselors</h4>
-                  <p className="text-xs text-slate-400">Assigned academics, health advisors, and life coaches</p>
-                </div>
-                <button onClick={() => setCreationModal({ type: 'Mentor', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                  <Plus size={14} /> Add Mentor
-                </button>
-              </div>
-
-              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                      <th className="p-4">Mentor Name</th>
-                      <th className="p-4">Expertise Area</th>
-                      <th className="p-4">Active Mentees</th>
-                      <th className="p-4">Contact Phone</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mentors.map(men => (
-                      <tr key={men.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
-                        <td className="p-4">
-                          <span className="font-bold text-slate-800 dark:text-white block">{men.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">{men.email}</span>
-                        </td>
-                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-350">{men.expertise}</td>
-                        <td className="p-4 font-mono font-bold text-purple-600 dark:text-purple-400">{men.menteesCount} Mentees</td>
-                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{men.phone}</td>
-                        <td className="p-4 text-right">
-                          <button className="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 font-bold px-3 py-1.5 rounded-lg transition-colors">
-                            Schedule Call
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* MODULE: ALUMNI */}
-          {activeTab === 'Alumni' && (
-            <div className="glass-panel rounded-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-bold text-base">Alumni Impact Network</h4>
-                  <p className="text-xs text-slate-400">Former students paying it forward through contributions and careers mentoring</p>
-                </div>
-                <button onClick={() => setCreationModal({ type: 'Alumnus', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                  <Plus size={14} /> Add Alumnus
-                </button>
-              </div>
-
-              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                      <th className="p-4">Alumnus Name</th>
-                      <th className="p-4">Graduation</th>
-                      <th className="p-4">Company & Role</th>
-                      <th className="p-4">Impact / Support Contribution</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {alumni.map(alu => (
-                      <tr key={alu.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
-                        <td className="p-4">
-                          <span className="font-bold text-slate-800 dark:text-white block">{alu.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">{alu.email}</span>
-                        </td>
-                        <td className="p-4 font-bold text-slate-500">{alu.graduationYear}</td>
-                        <td className="p-4">
-                          <span className="font-bold text-slate-700 dark:text-slate-300 block">{alu.currentCompany}</span>
-                          <span className="text-[10px] text-slate-400 block">{alu.designation}</span>
-                        </td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400 max-w-[280px] leading-normal">{alu.contributions}</td>
-                        <td className="p-4 text-right">
-                          <button className="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 font-bold px-3 py-1.5 rounded-lg transition-colors">
-                            Send Invite
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* MODULE: BOARD MEMBERS */}
-          {activeTab === 'Board Members' && (
-            <div className="glass-panel rounded-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h4 className="font-bold text-base">Board of Directors & Governance</h4>
-                  <p className="text-xs text-slate-400">NGO strategic advisory board representing law, audit, bank, and social works</p>
-                </div>
-                <button onClick={() => setCreationModal({ type: 'Board Member', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                  <Plus size={14} /> Add Board Member
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-                {boardMembers.map(bm => (
-                  <div key={bm.id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl bg-white dark:bg-slate-900 flex flex-col justify-between h-44 shadow-sm relative overflow-hidden">
-                    <div className="absolute right-0 top-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl"></div>
-                    <div>
-                      <span className="font-mono text-[9px] text-slate-400 font-bold block uppercase">{bm.id}</span>
-                      <h5 className="font-extrabold text-sm mt-1">{bm.name}</h5>
-                      <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 block mt-1">{bm.role}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-[10px] border-t border-slate-100 dark:border-slate-800 pt-3 text-slate-500">
-                      <span>Joined: {bm.joinedDate}</span>
-                      <span className="font-mono">{bm.email}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* MODULE: CLASS MANAGEMENT */}
           {activeTab === 'Class Management' && (
             <div className="space-y-6">
@@ -2516,7 +1653,6 @@ function App() {
                   <h3 className="text-lg font-bold text-slate-900 dark:text-white">Class & Training Programs</h3>
                   <p className="text-xs text-slate-400">
                     {activeRole === 'Admin' ? 'Create new classes, enroll students, and review teaching applications' :
-                     activeRole === 'Alumni' ? 'Request to lead a technical training or skill seminar' :
                      activeRole === 'Student' ? 'My enrolled learning tracks and daily courses' :
                      'Assigned schedules and classes tracker'}
                   </p>
@@ -2524,7 +1660,7 @@ function App() {
               </div>
 
               {/* ADMIN VIEW */}
-              {(activeRole === 'Admin' || activeRole === 'Board Member') && (
+              {(activeRole === 'Admin') && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Classes List */}
                   <div className="glass-panel rounded-2xl p-5 lg:col-span-2 space-y-4">
@@ -2572,16 +1708,15 @@ function App() {
                     {activeRole === 'Admin' ? (
                       <form onSubmit={(e) => {
                         e.preventDefault();
-                        if (!newClassName || !selectedClassMentor || !selectedClassVolunteer) return;
+                        if (!newClassName || !selectedClassVolunteer) return;
                         
-                        const mentorObj = mentors.find(m => m.id === selectedClassMentor);
                         const volunteerObj = volunteers.find(v => v.id === selectedClassVolunteer);
                         
                         const newClass: SchoolClass = {
                           id: `CLS00${classes.length + 1}`,
                           name: newClassName,
-                          mentorId: selectedClassMentor,
-                          mentorName: mentorObj?.name || 'Assigned Mentor',
+                          mentorId: 'MEN000',
+                          mentorName: 'Assigned Mentor',
                           volunteerId: selectedClassVolunteer,
                           volunteerName: volunteerObj?.name || 'Assigned Volunteer',
                           studentIds: selectedClassStudents,
@@ -2611,13 +1746,6 @@ function App() {
                         <div>
                           <label className="text-[10px] font-bold text-slate-400 block mb-1">CLASS/PROGRAM NAME</label>
                           <input type="text" placeholder="e.g. Intermediate Algebra" value={newClassName} onChange={(e) => setNewClassName(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 block mb-1">ASSIGN MENTOR COUNSELOR</label>
-                          <select value={selectedClassMentor} onChange={(e) => setSelectedClassMentor(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required>
-                            <option value="">Select Mentor...</option>
-                            {mentors.map(m => <option key={m.id} value={m.id}>{m.name} ({m.expertise.split(',')[0]})</option>)}
-                          </select>
                         </div>
                         <div>
                           <label className="text-[10px] font-bold text-slate-400 block mb-1">ASSIGN VOLUNTEER TEACHER</label>
@@ -2661,161 +1789,6 @@ function App() {
                       </div>
                     )}
                   </div>
-
-                  {/* Alumni Requests Approval Table */}
-                  <div className="glass-panel rounded-2xl p-5 lg:col-span-3 space-y-4">
-                    <h4 className="font-bold text-sm">Alumni Class & Seminar Requests</h4>
-                    <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                      <table className="w-full text-left border-collapse text-xs">
-                        <thead>
-                          <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                            <th className="p-4">Alumni Requestor</th>
-                            <th className="p-4">Requested Subject</th>
-                            <th className="p-4">Skills / Expertise</th>
-                            <th className="p-4">Target Program</th>
-                            <th className="p-4">Outlines</th>
-                            <th className="p-4">Status</th>
-                            {activeRole === 'Admin' && <th className="p-4 text-right">Actions</th>}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {alumniRequests.map(req => (
-                            <tr key={req.id} className="border-b border-slate-150 dark:border-slate-850">
-                              <td className="p-4 font-bold text-slate-800 dark:text-white">{req.alumnusName}</td>
-                              <td className="p-4 font-semibold text-blue-600 dark:text-blue-400">{req.subject}</td>
-                              <td className="p-4">
-                                <div className="flex gap-1 flex-wrap">
-                                  {req.skills.map(sk => <span key={sk} className="text-[9px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">{sk}</span>)}
-                                </div>
-                              </td>
-                              <td className="p-4 text-slate-500">{req.gradeTarget}</td>
-                              <td className="p-4 text-slate-500 max-w-[200px] truncate" title={req.description}>{req.description}</td>
-                              <td className="p-4">
-                                <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded
-                                  ${req.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                    req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}
-                                >
-                                  {req.status}
-                                </span>
-                              </td>
-                              {activeRole === 'Admin' && (
-                                <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                                  {req.status === 'Pending' ? (
-                                    <div className="flex justify-end gap-2">
-                                      <button onClick={() => {
-                                        setAlumniRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'Approved' } : r));
-                                        
-                                        // Turn it into a live class automatically
-                                        const newClass: SchoolClass = {
-                                          id: `CLS00${classes.length + 1}`,
-                                          name: req.subject,
-                                          mentorId: 'MEN001',
-                                          mentorName: 'Prof. Ananya Sen',
-                                          volunteerId: 'VOL001',
-                                          volunteerName: req.alumnusName,
-                                          studentIds: ['STU001', 'STU002'],
-                                          description: req.description,
-                                          schedule: 'Saturdays, 2:00 PM'
-                                        };
-                                        setClasses(prev => [...prev, newClass]);
-                                      }} className="bg-green-600 hover:bg-green-700 text-white font-bold px-2.5 py-1 rounded text-[10px] transition-colors">
-                                        Approve
-                                      </button>
-                                      <button onClick={() => {
-                                        setAlumniRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'Rejected' } : r));
-                                      }} className="bg-red-600 hover:bg-red-700 text-white font-bold px-2.5 py-1 rounded text-[10px] transition-colors">
-                                        Reject
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <span className="text-[10px] text-slate-400">Decided</span>
-                                  )}
-                                </td>
-                              )}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ALUMNI VIEW */}
-              {activeRole === 'Alumni' && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Requests list */}
-                  <div className="glass-panel rounded-2xl p-5 lg:col-span-2 space-y-4">
-                    <h4 className="font-bold text-sm">My Class Proposals & Status</h4>
-                    
-                    <div className="space-y-4">
-                      {alumniRequests.map(req => (
-                        <div key={req.id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl bg-white dark:bg-slate-900/30 flex justify-between items-center gap-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h5 className="font-bold text-sm">{req.subject}</h5>
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded
-                                ${req.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                  req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}
-                              >
-                                {req.status}
-                              </span>
-                            </div>
-                            <p className="text-xs text-slate-500 mt-1">{req.description}</p>
-                            <span className="text-[10px] text-slate-400 block mt-2">Target Class: {req.gradeTarget}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Form to submit class request */}
-                  <div className="glass-panel rounded-2xl p-5 space-y-4">
-                    <h4 className="font-bold text-sm">Propose Training / Subject Class</h4>
-                    <form onSubmit={(e) => {
-                      e.preventDefault();
-                      if (!newAlumniSubject || !newAlumniDescription) return;
-
-                      const newReq: AlumniClassRequest = {
-                        id: `REQ00${alumniRequests.length + 1}`,
-                        alumnusId: 'ALU001',
-                        alumnusName: 'Vikram Seth',
-                        subject: newAlumniSubject,
-                        skills: selectedAlumniSkills,
-                        gradeTarget: newAlumniGrade || 'All Scholars',
-                        description: newAlumniDescription,
-                        status: 'Pending'
-                      };
-
-                      setAlumniRequests(prev => [...prev, newReq]);
-
-                      // Reset
-                      setNewAlumniSubject('');
-                      setNewAlumniDescription('');
-                      setNewAlumniGrade('');
-                      setSelectedAlumniSkills([]);
-                    }} className="space-y-3">
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-400 block mb-1">PROPOSED SUBJECT/SKILL</label>
-                        <input type="text" placeholder="e.g. Introduction to Git & GitHub" value={newAlumniSubject} onChange={(e) => setNewAlumniSubject(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-400 block mb-1">TARGET GRADE / STUDENT GROUP</label>
-                        <input type="text" placeholder="e.g. B.Tech 2nd Year / Engineering group" value={newAlumniGrade} onChange={(e) => setNewAlumniGrade(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-400 block mb-1">SKILL CATEGORIES (Comma-separated)</label>
-                        <input type="text" placeholder="e.g. Git, Version Control, Coding" onChange={(e) => setSelectedAlumniSkills(e.target.value.split(',').map(s => s.trim()))} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" />
-                      </div>
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-400 block mb-1">SYLLABUS & LESSON FOCUS</label>
-                        <textarea rows={3} placeholder="Describe the topics covered..." value={newAlumniDescription} onChange={(e) => setNewAlumniDescription(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                      </div>
-                      <button type="submit" className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold p-2.5 rounded-lg text-xs transition-all shadow-sm">
-                        Send Class Request to Admin
-                      </button>
-                    </form>
-                  </div>
                 </div>
               )}
 
@@ -2850,9 +1823,9 @@ function App() {
               )}
 
               {/* VOLUNTEER & MENTOR VIEW */}
-              {(activeRole === 'Volunteer' || activeRole === 'Mentor') && (
+              {(activeRole === 'Volunteer') && (
                 <div className="space-y-4">
-                  {classes.filter(c => activeRole === 'Volunteer' ? c.volunteerName.includes('Meera') || c.volunteerName.includes('Rahul') : c.mentorName.includes('Ananya')).map(cls => (
+                  {classes.filter(c => c.volunteerName.includes('Meera') || c.volunteerName.includes('Rahul')).map(cls => (
                     <div key={cls.id} className="glass-panel rounded-2xl p-5 space-y-4">
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
@@ -2902,12 +1875,6 @@ function App() {
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Strategic Expenditure</span>
                   <h4 className="text-xl font-extrabold">₹3,40,000.00 / Term</h4>
                   <p className="text-[11px] text-slate-400">Total cost calculated for tuition and hostel allocations.</p>
-                </div>
-                
-                <div className="glass-panel rounded-2xl p-5 space-y-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Donors Mapped</span>
-                  <h4 className="text-xl font-extrabold">{donors.length} Organization Entities</h4>
-                  <p className="text-[11px] text-slate-400">97% of scholars mapped successfully to platinum/gold patrons.</p>
                 </div>
 
                 <div className="glass-panel rounded-2xl p-5 space-y-2">
