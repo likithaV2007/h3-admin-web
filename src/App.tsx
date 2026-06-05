@@ -53,7 +53,18 @@ export interface StudentRequest {
   date: string;
 }
 
+import { Login } from './components/Login';
+
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    sessionStorage.getItem('isAuthenticated') === 'true'
+  );
+
+  const handleLoginSuccess = () => {
+    sessionStorage.setItem('isAuthenticated', 'true');
+    setIsAuthenticated(true);
+  };
+
   // App-wide state
   const activeRole = 'Admin' as 'Admin' | 'Student' | 'Parent' | 'Volunteer';
   const [activeTab, setActiveTab] = useState<string>('Dashboard');
@@ -449,6 +460,10 @@ function App() {
 
 
   // Main UI Render helper
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className={`min-h-screen transition-colors duration-300 flex ${darkMode ? 'dark bg-[#0b0f19] text-slate-100' : 'bg-[#f8fafc] text-slate-800'}`}>
       
