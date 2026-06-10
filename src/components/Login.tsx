@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, Lock, ArrowRight, AlertTriangle } from 'lucide-react';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
 
 interface LoginProps {
@@ -17,15 +17,12 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
+    
+    // Bypassing Firebase validation
+    // Simply log in with any provided email/password
+    setTimeout(() => {
       onLoginSuccess();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Login failed. Please check your credentials.');
-    } finally {
-      setIsLoading(false);
-    }
+    }, 500);
   };
 
   const handleGoogleLogin = async () => {
@@ -70,7 +67,6 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@hope3.org"
                 className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-blue-500/50 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/10 transition-all duration-300 placeholder:text-slate-400 text-slate-900 shadow-sm"
-                required
               />
             </div>
           </div>
@@ -87,7 +83,6 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-blue-500/50 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/10 transition-all duration-300 placeholder:text-slate-400 text-slate-900 shadow-sm"
-                required
               />
             </div>
           </div>
