@@ -16,16 +16,43 @@ import {
   Menu,
   X,
   ClipboardList,
-  Plus} from 'lucide-react';
+  Plus,
+  Database,
+  Key,
+  RefreshCw,
+  CheckCircle2,
+  AlertCircle,
+  Phone,
+  PhoneCall,
+  MessageCircle,
+  MessageSquare,
+  HeartHandshake,
+  DollarSign,
+  Receipt,
+  ShoppingBag,
+  Coffee,
+  Trophy,
+  Bus,
+  Stethoscope,
+  BookOpen,
+  Wallet,
+  Filter,
+  Trash2,
+  Search
+} from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
+import { apiService, formatAvatarUrl } from './services/api';
 import {
   initialStudents,
   initialVolunteers,
   initialParents,
+  initialDonors,
   initialActivityLogs,
   type Student,
   type Volunteer,
   type Parent,
+  type Donor,
+  type Expense,
   type ActivityLog,
   type LeaveRequest
 } from './mockData';
@@ -53,6 +80,15 @@ export interface StudentRequest {
   date: string;
 }
 
+export function getWhatsAppLink(phone?: string, text?: string): string {
+  if (!phone) return '#';
+  const clean = phone.replace(/[^0-9]/g, '');
+  if (!clean || clean === '0000000000') return '#';
+  const fullPhone = clean.length === 10 ? `91${clean}` : clean;
+  const textParam = text ? `&text=${encodeURIComponent(text)}` : '';
+  return `https://api.whatsapp.com/send?phone=${fullPhone}${textParam}`;
+}
+
 import { Login } from './components/Login';
 
 function App() {
@@ -75,7 +111,78 @@ function App() {
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [volunteers, setVolunteers] = useState<Volunteer[]>(initialVolunteers);
   const [parents, setParents] = useState<Parent[]>(initialParents);
+  const [donors, setDonors] = useState<Donor[]>(initialDonors);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [expenseSubTab, setExpenseSubTab] = useState<'records' | 'analytics'>('records');
+  const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('ALL');
+  const [expenseSearchQuery, setExpenseSearchQuery] = useState<string>('');
+  const [isExpenseSearchExpanded, setIsExpenseSearchExpanded] = useState<boolean>(false);
+  const [showExpenseModal, setShowExpenseModal] = useState<boolean>(false);
+  const [newExpenseTitle, setNewExpenseTitle] = useState<string>('');
+  const [newExpenseCategory, setNewExpenseCategory] = useState<string>('snacks');
+  const [newExpenseAmount, setNewExpenseAmount] = useState<string>('');
+  const [newExpenseTargetGroup, setNewExpenseTargetGroup] = useState<string>('ALL');
+  const [newExpenseRefund, setNewExpenseRefund] = useState<boolean>(true);
+  const [newExpenseFoundationPaid, setNewExpenseFoundationPaid] = useState<boolean>(true);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(initialActivityLogs);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
+  const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
+  const [isLoadingApi, setIsLoadingApi] = useState<boolean>(false);
+  const [apiStatus, setApiStatus] = useState<{ status: 'CONNECTED' | 'UNAUTHORIZED' | 'ERROR' | 'LOADING'; url: string }>({
+    status: 'LOADING',
+    url: 'https://h3apps-api.hope3.org'
+  });
+  const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
+  const [customTokenInput, setCustomTokenInput] = useState<string>(localStorage.getItem('authToken') || '');
+
+  const loadDataFromApi = async () => {
+    setIsLoadingApi(true);
+    setApiStatus(prev => ({ ...prev, status: 'LOADING' }));
+    try {
+      const health = await apiService.checkApiHealth();
+      setApiStatus({ status: health.status, url: health.url });
+
+      const fetchedStudents = await apiService.getStudents();
+      if (fetchedStudents && fetchedStudents.length > 0) setStudents(fetchedStudents);
+
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses] = await Promise.all([
+        apiService.getVolunteers(),
+        apiService.getParents(fetchedStudents),
+        apiService.getDonors(),
+        apiService.getExpenses()
+      ]);
+      if (fetchedVolunteers && fetchedVolunteers.length > 0) setVolunteers(fetchedVolunteers);
+      if (fetchedParents && fetchedParents.length > 0) setParents(fetchedParents);
+      if (fetchedDonors && fetchedDonors.length > 0) setDonors(fetchedDonors);
+      if (fetchedExpenses && fetchedExpenses.length > 0) setExpenses(fetchedExpenses);
+    } catch (err) {
+      console.error("Error loading data from Hope3 API:", err);
+      setApiStatus(prev => ({ ...prev, status: 'ERROR' }));
+    } finally {
+      setIsLoadingApi(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadDataFromApi();
+    }
+  }, [isAuthenticated]);
+
+  const handleSaveToken = () => {
+    const cleanToken = customTokenInput.trim();
+    if (cleanToken) {
+      localStorage.setItem('authToken', cleanToken);
+      sessionStorage.setItem('authToken', cleanToken);
+    } else {
+      localStorage.removeItem('authToken');
+      sessionStorage.removeItem('authToken');
+    }
+    setShowTokenModal(false);
+    if (isAuthenticated) {
+      loadDataFromApi();
+    }
+  };
 
   const [creationModal, setCreationModal] = useState<{ type: string; isOpen: boolean }>({ type: '', isOpen: false });
 
@@ -216,11 +323,11 @@ function App() {
     if (activeRole === 'Admin') return true;
     switch (activeRole) {
       case 'Student':
-        return ['Dashboard', 'Class Management', 'Settings'].includes(tabName);
+        return ['Dashboard', 'Settings'].includes(tabName);
       case 'Parent':
         return ['Dashboard', 'Students', 'Settings'].includes(tabName);
       case 'Volunteer':
-        return ['Dashboard', 'Students', 'Class Management', 'Settings'].includes(tabName);
+        return ['Dashboard', 'Students', 'Finance', 'Settings'].includes(tabName);
       default:
         return true;
     }
@@ -239,8 +346,8 @@ function App() {
     { name: 'Students', icon: Users },
     { name: 'Parents', icon: User },
     { name: 'Volunteers', icon: Award },
-    { name: 'Class Management', icon: ClipboardList },
-    { name: 'Reports', icon: FileText },
+    { name: 'Donors', icon: HeartHandshake },
+    { name: 'Finance', icon: DollarSign },
     { name: 'Settings', icon: Settings },
   ];
 
@@ -444,6 +551,48 @@ function App() {
       };
       setNotifications(prev => [alertNotification, ...prev]);
     }
+  };
+
+  // Expense Handlers
+  const handleCreateExpenseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newExpenseTitle || !newExpenseAmount) return;
+    
+    const amountVal = parseFloat(newExpenseAmount) || 0;
+    const payload = {
+      title: newExpenseTitle,
+      category: newExpenseCategory,
+      amount: amountVal,
+      date: new Date().toISOString(),
+      refund_requested: newExpenseRefund,
+      is_private: true,
+      is_foundation_paid: newExpenseFoundationPaid,
+      target_group: newExpenseTargetGroup
+    };
+
+    const result = await apiService.createExpense(payload);
+    const newEntry: Expense = {
+      id: result?.id || `EXP_${Date.now()}`,
+      title: newExpenseTitle,
+      category: newExpenseCategory,
+      amount: amountVal,
+      date: new Date().toISOString(),
+      refund_requested: newExpenseRefund,
+      is_foundation_paid: newExpenseFoundationPaid,
+      status: 'PENDING',
+      target_group: newExpenseTargetGroup,
+      created_by_name: activeRole === 'Volunteer' ? 'Volunteer Staff' : 'System Admin'
+    };
+
+    setExpenses(prev => [newEntry, ...prev]);
+    setShowExpenseModal(false);
+    setNewExpenseTitle('');
+    setNewExpenseAmount('');
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    setExpenses(prev => prev.filter(e => e.id !== id));
+    await apiService.deleteExpense(id);
   };
 
   // Calculated Stats
@@ -1020,7 +1169,14 @@ function App() {
                             className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
                           >
                             <td className="p-4 flex items-center gap-3">
-                              <img src={student.avatar} alt={student.name} className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700" />
+                              <img 
+                                src={student.avatar} 
+                                alt={student.name} 
+                                className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700" 
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
+                                }}
+                              />
                               <div>
                                 <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
                                 <span className="text-[10px] text-slate-400">Age: {student.age} yrs</span>
@@ -1088,7 +1244,14 @@ function App() {
                     </button>
 
                     <div className="flex items-center gap-5">
-                      <img src={selectedStudent.avatar} alt={selectedStudent.name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md" />
+                      <img 
+                        src={selectedStudent.avatar} 
+                        alt={selectedStudent.name} 
+                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md" 
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
+                        }}
+                      />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{selectedStudent.name}</h3>
@@ -1155,47 +1318,282 @@ function App() {
                     
                     {/* PROFILE TAB: OVERVIEW */}
                     {profileTab === 'Overview' && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-6">
                         
-                        {/* Left Card: Academic & Enrollment info */}
-                        <div className="glass-panel rounded-2xl p-5 space-y-4 md:col-span-2">
-                          <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2">Academic & Enrollment Summary</h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-1">
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">College</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.college}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Grade & Specialization</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.grade}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Roll Number</span>
-                              <span className="font-mono font-bold text-slate-700 dark:text-slate-200">{selectedStudent.rollNo}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Age</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.age} Years</span>
+                        {/* 1. PERSONAL INFORMATION & ACADEMIC SUMMARY */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                          
+                          {/* Card 1: Personal Profile */}
+                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                              <User size={16} className="text-blue-500" />
+                              Personal Information
+                            </h4>
+                            <div className="grid grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Student Code</span>
+                                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{selectedStudent.student_code || selectedStudent.rollNo || selectedStudent.id}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Date of Birth</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.date_of_birth || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Gender</span>
+                                <span className="font-bold capitalize text-slate-800 dark:text-slate-200">{selectedStudent.gender || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Blood Group</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.blood_group || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Religion</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.religion || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Community</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.community || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Physically Challenged</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.physically_challenged ? 'Yes' : 'No'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Marital Status</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.is_married ? 'Married' : 'Single'}</span>
+                              </div>
                             </div>
                           </div>
+
+                          {/* Card 2: Academic & School/College Info */}
+                          <div className="glass-panel rounded-2xl p-5 space-y-4 lg:col-span-2">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                              <Award size={16} className="text-indigo-500" />
+                              Academic & Education Details
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">College / Institution</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.college || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Course & Major</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.course || selectedStudent.major ? `${selectedStudent.course || ''} (${selectedStudent.major || ''})` : 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Year & Mode</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.current_year || selectedStudent.year || 'N/A'} ({selectedStudent.mode || 'Full-Time'})</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Batch</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.batch || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">10th School</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.school_name_10th || selectedStudent.school_name || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">12th School</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.school_name_12th || selectedStudent.school_name || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Accommodation Type</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.hostel_or_dayscholar || 'Day Scholar'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Hostel Room</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.hostel_room || selectedStudent.hostelRoom || 'N/A'}</span>
+                              </div>
+                              <div className="sm:col-span-2 lg:col-span-3">
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">College Address</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.college_address || 'N/A'}</span>
+                              </div>
+                            </div>
+                          </div>
+
                         </div>
 
-                        {/* Right Card: Contact Details */}
+                        {/* 2. FAMILY & LOCATION INFORMATION */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                          {/* Card 3: Family & Parent Info */}
+                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                              <Users size={16} className="text-emerald-500" />
+                              Family & Parent Details
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Parent Status</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.parent_status || 'Both Alive'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Number of Siblings</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.number_of_siblings ?? 0}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Father's Name</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.father_name || selectedStudent.parentName || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Father's Occupation & Contact</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.father_occupation || 'N/A'} ({selectedStudent.father_contact_number || selectedStudent.parentPhone || 'N/A'})</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Mother's Name</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.mother_name || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Mother's Occupation & Contact</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.mother_occupation || 'N/A'} ({selectedStudent.mother_contact_number || 'N/A'})</span>
+                              </div>
+                              {selectedStudent.guardian_name && (
+                                <div className="sm:col-span-2">
+                                  <span className="text-slate-400 block font-semibold text-[10px] uppercase">Guardian Details</span>
+                                  <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.guardian_name} - {selectedStudent.guardian_occupation} ({selectedStudent.guardian_contact_number})</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Card 4: Address & Residential Location */}
+                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                              <FileText size={16} className="text-purple-500" />
+                              Address & Residential Details
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                              <div className="sm:col-span-2">
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Address</span>
+                                <span className="font-medium text-slate-800 dark:text-slate-200">{selectedStudent.address || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Landmark & Area</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.landmark || ''} {selectedStudent.area ? `(${selectedStudent.area})` : ''}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">City & District</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.city || ''}, {selectedStudent.district || ''}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">State & Pincode</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.state || ''} - {selectedStudent.pincode || ''}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Area Type</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.area_type || 'N/A'}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+
+                        {/* 3. FINANCIAL, BANK & SCHOLARSHIP DETAILS */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                          {/* Card 5: Bank Account Info */}
+                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                              <ClipboardList size={16} className="text-amber-500" />
+                              Bank Account Details
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Bank Name</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.bank_name || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Student A/C Number</span>
+                                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{selectedStudent.bank_account_number || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Bank IFSC Code</span>
+                                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{selectedStudent.bank_ifsc || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Parent A/C & IFSC</span>
+                                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{selectedStudent.parent_account_number || 'N/A'} ({selectedStudent.parent_ifsc || 'N/A'})</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Card 6: Funding, Sponsorship & Documents */}
+                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                            <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                              <Heart size={16} className="text-rose-500" />
+                              Scholarship, Funding & Documents
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Funding Status / Maturity</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.academic_funding_maturity || 'N/A'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Funding Percentage & Approx Amount</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.funding_percentage ? `${selectedStudent.funding_percentage}%` : 'N/A'} (₹{selectedStudent.amount_approx || '0'})</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Funders / Organization</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.funders || 'Hope3 Foundation'}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Documents Status</span>
+                                <span className={`font-bold ${selectedStudent.is_document_uploaded ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                  {selectedStudent.is_document_uploaded ? 'Uploaded' : 'Pending'}
+                                </span>
+                              </div>
+                              <div className="sm:col-span-2">
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Documents Collected</span>
+                                <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.documents_collected || 'N/A'}</span>
+                              </div>
+                              {selectedStudent.folder_link && (
+                                <div className="sm:col-span-2">
+                                  <span className="text-slate-400 block font-semibold text-[10px] uppercase">Google Drive Folder</span>
+                                  <a href={selectedStudent.folder_link} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold underline truncate block">
+                                    {selectedStudent.folder_link}
+                                  </a>
+                                </div>
+                              )}
+                              {selectedStudent.remarks && (
+                                <div className="sm:col-span-2">
+                                  <span className="text-slate-400 block font-semibold text-[10px] uppercase">Remarks</span>
+                                  <span className="font-medium text-slate-700 dark:text-slate-300">{selectedStudent.remarks}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                        </div>
+
+                        {/* 4. TRACKING, VOLUNTEERING & NOTES */}
                         <div className="glass-panel rounded-2xl p-5 space-y-4">
-                          <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2">Parent & Contact Info</h4>
-                          <div className="space-y-3 text-xs">
+                          <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
+                            <Clock size={16} className="text-blue-500" />
+                            Tracking, Emergency & Notes
+                          </h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
                             <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Parent Name</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.parentName}</span>
+                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Emergency Contact</span>
+                              <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.emergency_contact || selectedStudent.parentPhone || 'N/A'}</span>
                             </div>
                             <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Parent Contact Phone</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.parentPhone}</span>
+                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Willing to Volunteer</span>
+                              <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.willing_to_do_volunteering ? 'Yes' : 'No'}</span>
                             </div>
                             <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Biometric ID Mapping</span>
-                              <span className="font-mono text-slate-500 font-semibold text-[10px]">BIO_SYS_#{selectedStudent.id}_XF</span>
+                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">On Track Status</span>
+                              <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.are_you_on_track ? 'On Track' : 'Needs Review'}</span>
                             </div>
+                            <div>
+                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Currently Working</span>
+                              <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.currently_working ? `Working (${selectedStudent.designation || ''})` : 'Student'}</span>
+                            </div>
+                            {selectedStudent.other_notes && (
+                              <div className="sm:col-span-2 lg:col-span-4">
+                                <span className="text-slate-400 block font-semibold text-[10px] uppercase">Other Notes</span>
+                                <p className="font-medium text-slate-700 dark:text-slate-300 pt-0.5">{selectedStudent.other_notes}</p>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -1564,8 +1962,8 @@ function App() {
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                      <th className="p-4">Parent Name</th>
-                      <th className="p-4">Guardian ID</th>
+                      <th className="p-4">Parent / Guardian Name</th>
+                      <th className="p-4">Relationship</th>
                       <th className="p-4">Child Scholar</th>
                       <th className="p-4">Occupation</th>
                       <th className="p-4">Contact Phone</th>
@@ -1576,11 +1974,15 @@ function App() {
                     {parents.map(par => (
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
                         <td className="p-4 font-bold text-slate-800 dark:text-white">{par.name}</td>
-                        <td className="p-4 font-mono font-medium text-slate-500">{par.id}</td>
+                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-200/40">
+                            {par.guardianName || par.relationship || par.relation || 'Guardian'}
+                          </span>
+                        </td>
                         <td className="p-4">
                           <button 
                             onClick={() => {
-                              const std = students.find(s => s.id === par.childId);
+                              const std = students.find(s => s.id === par.childId || (s as any).student_id === par.childId || s.student_code === par.childId);
                               if (std) { setSelectedStudent(std); setActiveTab('Students'); setProfileTab('Overview'); }
                             }}
                             className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
@@ -1591,9 +1993,29 @@ function App() {
                         <td className="p-4 text-slate-600 dark:text-slate-400">{par.occupation}</td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{par.phone}</td>
                         <td className="p-4 text-right">
-                          <a href={`tel:${par.phone}`} className="text-xs bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-800 dark:text-slate-200 font-bold px-3 py-1.5 rounded-lg transition-colors inline-block">
-                            Call Guardian
-                          </a>
+                          <div className="flex items-center justify-end gap-2">
+                            {/* WHATSAPP PHONE CALL ICON BUTTON */}
+                            <a 
+                              href={getWhatsAppLink(par.phone)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Call ${par.name} via WhatsApp (${par.phone})`}
+                              className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                            >
+                              <PhoneCall size={16} />
+                            </a>
+
+                            {/* WHATSAPP MESSAGE ICON BUTTON */}
+                            <a 
+                              href={getWhatsAppLink(par.phone, `Hello ${par.name}, greetings from Hope3 NGO.`)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Message ${par.name} on WhatsApp (${par.phone})`}
+                              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                            >
+                              <MessageSquare size={16} />
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1630,26 +2052,69 @@ function App() {
                   </thead>
                   <tbody>
                     {volunteers.map(vol => (
-                      <tr key={vol.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
+                      <tr 
+                        key={vol.id} 
+                        className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+                        onClick={() => setSelectedVolunteer(vol)}
+                      >
                         <td className="p-4">
-                          <span className="font-bold text-slate-800 dark:text-white block">{vol.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'} 
+                              alt={vol.name}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
+                              onError={(e) => {
+                                (e.target as HTMLElement).setAttribute('src', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120');
+                              }}
+                            />
+                            <div>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{vol.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
+                            </div>
+                          </div>
                         </td>
-                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">{vol.program}</td>
+                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            {vol.specialization || vol.program}
+                          </span>
+                        </td>
                         <td className="p-4 font-mono font-bold text-blue-600 dark:text-blue-400">{vol.hoursContributed} Hours</td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{vol.phone}</td>
                         <td className="p-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-bold text-[10px]
-                            ${vol.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px]
+                            ${vol.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700'}`}
                           >
-                            <span className={`w-1 h-1 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
                             {vol.status}
                           </span>
                         </td>
-                        <td className="p-4 text-right">
-                          <button className="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 font-bold px-3 py-1.5 rounded-lg transition-colors">
-                            Log Hours
-                          </button>
+                        <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              onClick={() => setSelectedVolunteer(vol)}
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                            >
+                              View Profile
+                            </button>
+                            <a 
+                              href={getWhatsAppLink(vol.phone)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
+                              className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                            >
+                              <PhoneCall size={14} />
+                            </a>
+                            <a 
+                              href={getWhatsAppLink(vol.phone, `Hello ${vol.name}, greetings from Hope3 NGO.`)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
+                              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                            >
+                              <MessageSquare size={14} />
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -1659,270 +2124,441 @@ function App() {
             </div>
           )}
 
-          {/* MODULE: CLASS MANAGEMENT */}
-          {activeTab === 'Class Management' && (
-            <div className="space-y-6">
-              {/* HEADER ROW */}
+          {/* MODULE: DONORS */}
+          {activeTab === 'Donors' && (
+            <div className="glass-panel rounded-2xl p-5 space-y-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Class & Training Programs</h3>
-                  <p className="text-xs text-slate-400">
-                    {activeRole === 'Admin' ? 'Create new classes, enroll students, and review teaching applications' :
-                     activeRole === 'Student' ? 'My enrolled learning tracks and daily courses' :
-                     'Assigned schedules and classes tracker'}
-                  </p>
+                  <h4 className="font-bold text-base">Donors & Financial Benefactors</h4>
+                  <p className="text-xs text-slate-400">Tracking contributions, CSR sponsors, and individual education funds</p>
                 </div>
+                <button onClick={() => setCreationModal({ type: 'Donor', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
+                  <Plus size={14} /> Add Donor
+                </button>
               </div>
 
-              {/* ADMIN VIEW */}
-              {(activeRole === 'Admin') && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Classes List */}
-                  <div className="glass-panel rounded-2xl p-5 lg:col-span-2 space-y-4">
-                    <h4 className="font-bold text-sm">Active Programs & Classes</h4>
-                    
-                    <div className="space-y-4">
-                      {classes.map(cls => (
-                        <div key={cls.id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-2xl bg-white dark:bg-slate-900/30 flex flex-col sm:flex-row justify-between gap-4 shadow-sm">
-                          <div className="space-y-1 flex-1">
-                            <div className="flex items-center gap-2">
-                              <h5 className="font-bold text-sm text-slate-900 dark:text-white">{cls.name}</h5>
-                              <span className="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded">{cls.id}</span>
-                            </div>
-                            <p className="text-xs text-slate-500 max-w-xl">{cls.description}</p>
-                            <div className="flex gap-4 mt-2 flex-wrap text-[10px] text-slate-400">
-                              <span><strong>Mentor:</strong> {cls.mentorName}</span>
-                              <span><strong>Volunteer:</strong> {cls.volunteerName}</span>
-                              <span><strong>Schedule:</strong> {cls.schedule}</span>
-                            </div>
-                          </div>
-
-                          <div className="flex flex-col justify-between items-end gap-2 text-right shrink-0">
-                            <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
-                              {cls.studentIds.length} Enrolled Scholars
-                            </span>
-                            <div className="flex gap-1.5 flex-wrap max-w-[200px] justify-end">
-                              {cls.studentIds.map(sid => {
-                                const st = students.find(s => s.id === sid);
-                                return st ? (
-                                  <span key={sid} className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-350 px-1.5 py-0.5 rounded">
-                                    {st.name.split(' ')[0]}
-                                  </span>
-                                ) : null;
-                              })}
+              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
+                      <th className="p-4">Donor Name</th>
+                      <th className="p-4">Donor Category</th>
+                      <th className="p-4">Total Contribution</th>
+                      <th className="p-4">Phone Number</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {donors.map(donor => (
+                      <tr 
+                        key={donor.id} 
+                        className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+                        onClick={() => setSelectedDonor(donor)}
+                      >
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={formatAvatarUrl(donor.profile_photo_link)} 
+                              alt={donor.name}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                              }}
+                            />
+                            <div>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{donor.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Create Class Form (Admin Only) */}
-                  <div className="glass-panel rounded-2xl p-5 space-y-4">
-                    <h4 className="font-bold text-sm">{activeRole === 'Admin' ? 'Create Class & Program' : 'Active Classes Summary'}</h4>
-                    {activeRole === 'Admin' ? (
-                      <form onSubmit={(e) => {
-                        e.preventDefault();
-                        if (!newClassName || !selectedClassVolunteer) return;
-                        
-                        const volunteerObj = volunteers.find(v => v.id === selectedClassVolunteer);
-                        
-                        const newClass: SchoolClass = {
-                          id: `CLS00${classes.length + 1}`,
-                          name: newClassName,
-                          mentorId: 'MEN000',
-                          mentorName: 'Assigned Mentor',
-                          volunteerId: selectedClassVolunteer,
-                          volunteerName: volunteerObj?.name || 'Assigned Volunteer',
-                          studentIds: selectedClassStudents,
-                          description: newClassDescription || 'Custom classes structured for development support.',
-                          schedule: newClassSchedule || 'Saturdays, 3:00 PM - 5:00 PM'
-                        };
-
-                        setClasses(prev => [...prev, newClass]);
-                        
-                        // Add activity log
-                        const newLog: ActivityLog = {
-                          id: `ACT${Date.now()}`,
-                          user: 'Admin Staff',
-                          role: 'Admin',
-                          action: `Created new class "${newClassName}" assigned to volunteer ${volunteerObj?.name}`,
-                          time: 'Just now',
-                          category: 'general'
-                        };
-                        setActivityLogs(prev => [newLog, ...prev]);
-
-                        // Reset
-                        setNewClassName('');
-                        setNewClassDescription('');
-                        setNewClassSchedule('');
-                        setSelectedClassStudents([]);
-                      }} className="space-y-3">
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 block mb-1">CLASS/PROGRAM NAME</label>
-                          <input type="text" placeholder="e.g. Intermediate Algebra" value={newClassName} onChange={(e) => setNewClassName(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 block mb-1">ASSIGN VOLUNTEER TEACHER</label>
-                          <select value={selectedClassVolunteer} onChange={(e) => setSelectedClassVolunteer(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required>
-                            <option value="">Select Volunteer...</option>
-                            {volunteers.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 block mb-1">SCHEDULE / TIMINGS</label>
-                          <input type="text" placeholder="e.g. Saturdays, 4:00 PM" value={newClassSchedule} onChange={(e) => setNewClassSchedule(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 block mb-1">PROGRAM OUTLINE DESCRIPTION</label>
-                          <textarea rows={2} placeholder="Class objectives and syllabi..." value={newClassDescription} onChange={(e) => setNewClassDescription(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" />
-                        </div>
-                        <div>
-                          <label className="text-[10px] font-bold text-slate-400 block mb-1">ENROLL STUDENTS</label>
-                          <div className="max-h-24 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-lg p-2 space-y-1.5">
-                            {students.map(s => (
-                              <label key={s.id} className="flex items-center gap-2 text-xs">
-                                <input type="checkbox" checked={selectedClassStudents.includes(s.id)} onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedClassStudents(prev => [...prev, s.id]);
-                                  } else {
-                                    setSelectedClassStudents(prev => prev.filter(id => id !== s.id));
-                                  }
-                                }} />
-                                {s.name}
-                              </label>
-                            ))}
+                        </td>
+                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200/50">
+                            {donor.donorType}
+                          </span>
+                        </td>
+                        <td className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                          {donor.formattedAmount}
+                        </td>
+                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{donor.phone}</td>
+                        <td className="p-4">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            {donor.status}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              onClick={() => setSelectedDonor(donor)}
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                            >
+                              View Profile
+                            </button>
+                            <a 
+                              href={getWhatsAppLink(donor.phone)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
+                              className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                            >
+                              <PhoneCall size={14} />
+                            </a>
+                            <a 
+                              href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
+                              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                            >
+                              <MessageSquare size={14} />
+                            </a>
                           </div>
-                        </div>
-                        <button type="submit" className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold p-2.5 rounded-lg text-xs transition-all flex items-center justify-center gap-1 shadow-sm">
-                          <Plus size={14} /> Create Class & Assign
-                        </button>
-                      </form>
-                    ) : (
-                      <div className="text-xs text-slate-400 py-6 text-center space-y-2">
-                        <p>NGO active classrooms are fully operational. Double-click on any class cards to view details.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* STUDENT VIEW */}
-              {activeRole === 'Student' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {classes.filter(c => c.studentIds.includes('STU001')).map(cls => (
-                    <div key={cls.id} className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div>
-                        <span className="text-[10px] font-mono bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-bold">{cls.id}</span>
-                        <h4 className="font-extrabold text-base mt-2">{cls.name}</h4>
-                        <p className="text-xs text-slate-500 mt-1 leading-normal">{cls.description}</p>
-                      </div>
-
-                      <div className="border-t border-slate-100 dark:border-slate-800 pt-3 space-y-2 text-xs">
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Timings & Schedule:</span>
-                          <span className="font-bold text-slate-850 dark:text-slate-200">{cls.schedule}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Class Mentor:</span>
-                          <span className="font-semibold">{cls.mentorName}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-slate-400">Volunteer Teacher:</span>
-                          <span className="font-semibold text-blue-600 dark:text-blue-400">{cls.volunteerName}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* VOLUNTEER & MENTOR VIEW */}
-              {(activeRole === 'Volunteer') && (
-                <div className="space-y-4">
-                  {classes.filter(c => c.volunteerName.includes('Meera') || c.volunteerName.includes('Rahul')).map(cls => (
-                    <div key={cls.id} className="glass-panel rounded-2xl p-5 space-y-4">
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                          <span className="text-[10px] font-mono bg-purple-500/10 text-purple-600 px-2 py-0.5 rounded font-bold">{cls.id}</span>
-                          <h4 className="font-extrabold text-base mt-2">{cls.name}</h4>
-                          <p className="text-xs text-slate-500 mt-1 leading-normal max-w-2xl">{cls.description}</p>
-                        </div>
-                        <span className="text-xs font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-full shrink-0">
-                          Schedule: {cls.schedule}
-                        </span>
-                      </div>
-
-                      <div className="border-t border-slate-100 dark:border-slate-800 pt-4 space-y-3">
-                        <h5 className="font-bold text-xs">Enrolled Scholars ({cls.studentIds.length})</h5>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                          {cls.studentIds.map(sid => {
-                            const st = students.find(s => s.id === sid);
-                            return st ? (
-                              <div key={sid} className="p-3 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex items-center gap-3">
-                                <img src={st.avatar} className="w-8 h-8 rounded-full object-cover" />
-                                <div>
-                                  <span className="font-bold text-xs text-slate-800 dark:text-white block">{st.name}</span>
-                                  <span className="text-[9px] text-slate-400 font-mono">{st.id}</span>
-                                </div>
-                              </div>
-                            ) : null;
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
-
-
-          {/* MODULE: REPORTS */}
-          {activeTab === 'Reports' && (
+          {/* MODULE: FINANCE CENTER */}
+          {activeTab === 'Finance' && (
             <div className="space-y-6">
-              
-              {/* Strategic overview stats */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <div className="glass-panel rounded-2xl p-5 space-y-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Strategic Expenditure</span>
-                  <h4 className="text-xl font-extrabold">₹3,40,000.00 / Term</h4>
-                  <p className="text-[11px] text-slate-400">Total cost calculated for tuition and hostel allocations.</p>
+
+              {/* TOP HERO BANNER & STATS CARD (MATCHING MOBILE SCREENSHOT) */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                {/* Total Spend Card (Cyan/Teal Gradient Card like Mobile app) */}
+                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 rounded-3xl p-7 text-white shadow-xl shadow-teal-500/20 flex flex-col justify-between min-h-[160px]">
+                  {/* Decorative Translucent Wallet Icon */}
+                  <div className="absolute right-6 top-6 opacity-20 pointer-events-none">
+                    <Wallet size={120} className="text-white" />
+                  </div>
+
+                  <div className="space-y-2 relative z-10">
+                    <span className="bg-white/20 backdrop-blur-md text-white text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full border border-white/20 inline-block shadow-sm">
+                      TOTAL SPEND
+                    </span>
+
+                    <div className="flex items-baseline gap-2 pt-2">
+                      <span className="text-2xl font-black text-cyan-100">₹</span>
+                      <h3 className="text-4xl sm:text-5xl font-black tracking-tight font-mono text-white">
+                        {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-teal-100/90 font-medium pt-1 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+                      Updated live from mobile app expenses feed • {expenses.length} Total Records
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 border-t border-white/15 relative z-10">
+                    <div className="flex gap-3 text-xs font-semibold">
+                      <span className="text-cyan-100">Pending Approvals: <strong className="text-white font-mono">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
+                      <span className="text-cyan-100">|</span>
+                      <span className="text-cyan-100">Refund Requests: <strong className="text-white font-mono">{expenses.filter(e => e.refund_requested).length}</strong></span>
+                    </div>
+
+                    <button 
+                      onClick={() => setShowExpenseModal(true)}
+                      className="bg-white hover:bg-cyan-50 text-teal-800 font-extrabold px-4 py-2 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-105 active:scale-95 shrink-0"
+                    >
+                      <Plus size={16} className="text-teal-600" />
+                      <span>Add Record</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-5 space-y-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Geofence Compliance</span>
-                  <h4 className="text-xl font-extrabold">98.2% Success</h4>
-                  <p className="text-[11px] text-slate-400">Percentage of student checkins residing inside limits.</p>
+                {/* Sub-Stats Summary Box */}
+                <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between space-y-4">
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Financial Overview</span>
+                    <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Volunteer Spend Tracker</h4>
+                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      Real-time expense logs submitted by field volunteers & system staff across scholarship batches.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between items-center text-xs p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
+                      <span className="text-slate-500 font-medium">Top Category:</span>
+                      <span className="font-bold text-teal-600 dark:text-teal-400 uppercase font-mono">Snacks & Food</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
+                      <span className="text-slate-500 font-medium">Audit Compliance:</span>
+                      <span className="font-bold text-green-600 dark:text-green-400">100% Verified</span>
+                    </div>
+                  </div>
                 </div>
 
               </div>
 
-              {/* Detailed Financial & operational graphs mock */}
-              <div className="glass-panel rounded-2xl p-5 space-y-4">
-                <h4 className="font-bold text-sm">Quarterly Activity Reports</h4>
-                
-                <div className="border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-4 space-y-3 bg-slate-50/30 dark:bg-slate-900/30">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold">Q1 2026 Financial & Operational Audit Report</span>
-                    <button onClick={() => handleDownloadPDF('Q1_2026_Audit_Report')} className="text-blue-600 dark:text-blue-400 font-bold hover:underline">Download PDF</button>
+              {/* CONTROLS HEADER: SUB-TABS (All Records | Analytics), CATEGORY FILTERS */}
+              <div className="glass-panel rounded-3xl p-5 space-y-4">
+
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-4">
+                  {/* Mobile-Style Pill Switcher: All Records vs Analytics */}
+                  <div className="bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl flex gap-1 shrink-0">
+                    <button 
+                      onClick={() => setExpenseSubTab('records')}
+                      className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                        expenseSubTab === 'records'
+                          ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      All Records
+                    </button>
+                    <button 
+                      onClick={() => setExpenseSubTab('analytics')}
+                      className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
+                        expenseSubTab === 'analytics'
+                          ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      Analytics
+                    </button>
                   </div>
-                  <p className="text-[11px] text-slate-500 leading-normal">
-                    This document summarizes total incoming capital, tax-exemption receipts under section 80G, scholar lists, and grade improvements. Verified by Board Treasurer Srikant Iyer.
-                  </p>
+
+                  {/* Category Filter Pills & Expandable Search Bar */}
+                  <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
+                    {/* Category Filter Pills (Transport, Classes, Food, Sports, Medical...) */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none">
+                      {['ALL', 'snacks', 'groceries', 'sports', 'travel', 'medical', 'stationary'].map((cat) => {
+                        const isActive = expenseCategoryFilter === cat;
+                        return (
+                          <button
+                            key={cat}
+                            onClick={() => setExpenseCategoryFilter(cat)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 capitalize ${
+                              isActive
+                                ? 'bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30'
+                                : 'bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                            }`}
+                          >
+                            {cat === 'ALL' ? 'All' : cat}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* EXPANDABLE SEARCH BAR BUTTON & INPUT */}
+                    <div className="relative flex items-center shrink-0">
+                      <div className={`flex items-center transition-all duration-300 ${
+                        isExpenseSearchExpanded || expenseSearchQuery ? 'w-64 sm:w-72' : 'w-10'
+                      }`}>
+                        <button
+                          onClick={() => {
+                            setIsExpenseSearchExpanded(!isExpenseSearchExpanded);
+                            if (isExpenseSearchExpanded) setExpenseSearchQuery('');
+                          }}
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shrink-0 z-10 ${
+                            isExpenseSearchExpanded || expenseSearchQuery
+                              ? 'bg-teal-600 text-white shadow-md shadow-teal-500/30'
+                              : 'bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                          }`}
+                          title="Search expenses by volunteer name or batch"
+                        >
+                          <Search size={18} />
+                        </button>
+
+                        {(isExpenseSearchExpanded || expenseSearchQuery) && (
+                          <div className="relative w-full -ml-10 pl-11">
+                            <input
+                              type="text"
+                              placeholder="Search volunteer, batch (RCD 2)..."
+                              value={expenseSearchQuery}
+                              onChange={(e) => setExpenseSearchQuery(e.target.value)}
+                              autoFocus
+                              className="w-full pl-3 pr-8 py-2 text-xs rounded-2xl border border-teal-500/50 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500/30 shadow-md transition-all"
+                            />
+                            {expenseSearchQuery && (
+                              <button
+                                onClick={() => setExpenseSearchQuery('')}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold p-1"
+                              >
+                                <X size={14} />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-4 space-y-3 bg-slate-50/30 dark:bg-slate-900/30">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold">Annual Academic Performance & Mentorship Report</span>
-                    <button onClick={() => handleDownloadPDF('Annual_Academic_Mentorship_Report')} className="text-blue-600 dark:text-blue-400 font-bold hover:underline">Download PDF</button>
+                {/* SUB-TAB 1: ALL RECORDS (EXPENSES CARDS SORTED REVERSE CHRONOLOGICALLY BY TIME) */}
+                {expenseSubTab === 'records' && (
+                  <div className="space-y-4 pt-2">
+                    <div className="flex justify-between items-center px-1">
+                      <span className="text-xs font-bold text-slate-500">
+                        Showing {
+                          expenses.filter(e => {
+                            const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
+                            const query = expenseSearchQuery.trim().toLowerCase();
+                            const searchMatch = !query || 
+                              (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
+                              (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
+                              (e.title && e.title.toLowerCase().includes(query)) ||
+                              (e.category && e.category.toLowerCase().includes(query));
+                            return catMatch && searchMatch;
+                          }).length
+                        } of {expenses.length} Expense Logs
+                        {expenseSearchQuery && <span className="text-teal-600 dark:text-teal-400 font-semibold ml-1.5">(Filtered by "{expenseSearchQuery}")</span>}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {expenses
+                        .filter(e => {
+                          const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
+                          const query = expenseSearchQuery.trim().toLowerCase();
+                          const searchMatch = !query || 
+                            (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
+                            (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
+                            (e.title && e.title.toLowerCase().includes(query)) ||
+                            (e.category && e.category.toLowerCase().includes(query));
+                          return catMatch && searchMatch;
+                        })
+                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                        .map(item => {
+                          // Pick icon based on category
+                          const catLower = item.category.toLowerCase();
+                          const CategoryIcon = 
+                            catLower.includes('snack') || catLower.includes('food') ? Coffee :
+                            catLower.includes('sport') ? Trophy :
+                            catLower.includes('travel') || catLower.includes('transport') ? Bus :
+                            catLower.includes('med') ? Stethoscope :
+                            catLower.includes('station') ? BookOpen :
+                            catLower.includes('groc') ? ShoppingBag : Receipt;
+
+                          // Format Date e.g. "23 Jul 2026"
+                          let formattedDate = item.date;
+                          try {
+                            const d = new Date(item.date);
+                            if (!isNaN(d.getTime())) {
+                              formattedDate = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                            }
+                          } catch {}
+
+                          return (
+                            <div 
+                              key={item.id} 
+                              className="p-5 border border-slate-200/60 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/50 hover:shadow-xl hover:border-teal-300 dark:hover:border-teal-700 transition-all flex flex-col justify-between gap-4 group relative overflow-hidden"
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex items-start gap-3.5">
+                                  {/* Icon Thumbnail */}
+                                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/20 shadow-sm">
+                                    <CategoryIcon size={22} />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <h5 className="font-extrabold text-sm text-slate-900 dark:text-white leading-snug group-hover:text-cyan-600 transition-colors">
+                                      {item.title}
+                                    </h5>
+                                    
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-350">
+                                        {item.category}
+                                      </span>
+                                      <span className="text-[10px] text-slate-400 font-medium">
+                                        {formattedDate}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Status Badge (e.g. PENDING in amber) */}
+                                <span className={`px-3 py-1 rounded-full font-extrabold text-[10px] tracking-wider uppercase shrink-0
+                                  ${item.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/50'}`}
+                                >
+                                  {item.status}
+                                </span>
+                              </div>
+
+                              {/* Footer: Creator & Amount */}
+                              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/60 mt-1">
+                                <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                  <User size={13} className="text-slate-400" />
+                                  <span>By {item.created_by_name || 'System Admin'}</span>
+                                  {item.target_group && item.target_group !== 'ALL' && (
+                                    <span className="text-[9px] font-mono bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 px-1.5 py-0.5 rounded border border-cyan-200/40">
+                                      {item.target_group}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                  <span className="text-lg font-black text-cyan-600 dark:text-cyan-400 font-mono">
+                                    ₹ {item.amount.toLocaleString('en-IN')}
+                                  </span>
+
+                                  <button 
+                                    onClick={() => handleDeleteExpense(item.id)}
+                                    title="Delete expense entry"
+                                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
                   </div>
-                  <p className="text-[11px] text-slate-500 leading-normal">
-                    Grade analytics highlighting the correlation between mentor counseling hours and subject grade growth curves.
-                  </p>
-                </div>
+                )}
+
+                {/* SUB-TAB 2: ANALYTICS */}
+                {expenseSubTab === 'analytics' && (
+                  <div className="space-y-6 pt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
+                        <h5 className="font-bold text-xs uppercase tracking-wider text-slate-400">Category Spend Breakdown</h5>
+                        
+                        <div className="space-y-3">
+                          {['snacks', 'groceries', 'sports', 'travel', 'medical', 'stationary'].map(cat => {
+                            const catTotal = expenses
+                              .filter(e => e.category.toLowerCase() === cat)
+                              .reduce((sum, e) => sum + e.amount, 0);
+                            const totalAll = expenses.reduce((sum, e) => sum + e.amount, 0) || 1;
+                            const pct = Math.round((catTotal / totalAll) * 100);
+
+                            return (
+                              <div key={cat} className="space-y-1">
+                                <div className="flex justify-between text-xs font-bold">
+                                  <span className="capitalize text-slate-800 dark:text-slate-200">{cat}</span>
+                                  <span className="font-mono text-cyan-600">₹{catTotal.toLocaleString('en-IN')} ({pct}%)</span>
+                                </div>
+                                <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                                  <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${pct}%` }}></div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
+                        <h5 className="font-bold text-xs uppercase tracking-wider text-slate-400">Audited Expenditure Reports</h5>
+                        <div className="space-y-3">
+                          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 flex justify-between items-center">
+                            <div>
+                              <h6 className="font-bold text-xs">Monthly Field Expense Audit</h6>
+                              <p className="text-[10px] text-slate-400">July 2026 volunteer refunds & receipts</p>
+                            </div>
+                            <button onClick={() => handleDownloadPDF('July_Expense_Audit')} className="text-cyan-600 text-xs font-bold hover:underline">Download PDF</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
               </div>
 
             </div>
@@ -2040,12 +2676,379 @@ function App() {
 
       </div>
 
+      {/* VOLUNTEER PROFILE MODAL */}
+      {selectedVolunteer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
+            {/* Header Banner */}
+            <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between">
+              <div className="flex justify-between items-center w-full mb-3">
+                <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                  Volunteer User Profile
+                </span>
+                <button 
+                  onClick={() => setSelectedVolunteer(null)}
+                  className="p-1.5 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Avatar & Profile Title inside Header */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <img 
+                      src={formatAvatarUrl(selectedVolunteer.profile_photo_link)} 
+                      alt={selectedVolunteer.name}
+                      className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                      }}
+                    />
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      {selectedVolunteer.name}
+                      <CheckCircle2 size={18} className="text-blue-200 fill-blue-500/40" />
+                    </h3>
+                    <p className="text-xs text-blue-100 font-medium">{selectedVolunteer.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <a 
+                    href={getWhatsAppLink(selectedVolunteer.phone)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
+                  >
+                    <PhoneCall size={14} />
+                    <span>Call</span>
+                  </a>
+                  <a 
+                    href={getWhatsAppLink(selectedVolunteer.phone, `Hello ${selectedVolunteer.name}, greetings from Hope3 NGO.`)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
+                  >
+                    <MessageSquare size={14} />
+                    <span>Message</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Overview */}
+            <div className="p-6 space-y-6">
+
+              {/* Bio */}
+              {selectedVolunteer.bio && (
+                <div className="glass-panel p-4 rounded-2xl space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Biography</span>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                    {selectedVolunteer.bio}
+                  </p>
+                </div>
+              )}
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Specialization / Department</span>
+                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.specialization || selectedVolunteer.program}</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Availability Schedule</span>
+                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.availability || 'Weekends'}</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Contact Phone Number</span>
+                  <span className="font-mono font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.phone}</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Total Service Hours</span>
+                  <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Joined Date</span>
+                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.joined_date || '2026-06-01'}</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Account Status</span>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-bold text-[10px] bg-green-100 text-green-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    {selectedVolunteer.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* System Technical Identifiers */}
+              <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-2 text-[10px] text-slate-400 font-mono">
+                <div className="flex justify-between">
+                  <span>Volunteer ID:</span>
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedVolunteer.id}</span>
+                </div>
+                {selectedVolunteer.user_id && (
+                  <div className="flex justify-between">
+                    <span>User Account ID:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedVolunteer.user_id}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DONOR PROFILE MODAL */}
+      {selectedDonor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
+            {/* Header Banner */}
+            <div className="relative bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between">
+              <div className="flex justify-between items-center w-full mb-3">
+                <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                  Donor Benefactor Profile
+                </span>
+                <button 
+                  onClick={() => setSelectedDonor(null)}
+                  className="p-1.5 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Avatar & Profile Title inside Header */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <img 
+                      src={formatAvatarUrl(selectedDonor.profile_photo_link)} 
+                      alt={selectedDonor.name}
+                      className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                      }}
+                    />
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-300 border-2 border-white rounded-full"></span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                      {selectedDonor.name}
+                      <CheckCircle2 size={18} className="text-emerald-200 fill-emerald-500/40" />
+                    </h3>
+                    <p className="text-xs text-emerald-100 font-medium">{selectedDonor.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <a 
+                    href={getWhatsAppLink(selectedDonor.phone)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
+                  >
+                    <PhoneCall size={14} />
+                    <span>Call</span>
+                  </a>
+                  <a 
+                    href={getWhatsAppLink(selectedDonor.phone, `Hello ${selectedDonor.name}, thank you for supporting Hope3 NGO scholars.`)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
+                  >
+                    <MessageSquare size={14} />
+                    <span>Message</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Content */}
+            <div className="p-6 space-y-6">
+
+              {/* Highlight Contribution Box */}
+              <div className="glass-panel p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border border-emerald-200/50 dark:border-emerald-800/40 flex justify-between items-center">
+                <div>
+                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Total Financial Contribution</span>
+                  <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{selectedDonor.formattedAmount}</span>
+                </div>
+                <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm">
+                  {selectedDonor.donorType}
+                </span>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Donor Type</span>
+                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.donorType}</span>
+                </div>
+
+                {selectedDonor.organizationName && (
+                  <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Organization / Trust Name</span>
+                    <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.organizationName}</span>
+                  </div>
+                )}
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Contact Phone Number</span>
+                  <span className="font-mono font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.phone}</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Joined Date</span>
+                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.joined_date || '2026-05-30'}</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1 sm:col-span-2">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Sponsorship Status</span>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded font-bold text-[10px] bg-green-100 text-green-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    {selectedDonor.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* System Technical Identifiers */}
+              <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-2 text-[10px] text-slate-400 font-mono">
+                <div className="flex justify-between">
+                  <span>Donor ID:</span>
+                  <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedDonor.id}</span>
+                </div>
+                {selectedDonor.user_id && (
+                  <div className="flex justify-between">
+                    <span>User Account ID:</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedDonor.user_id}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <EntityCreationModal 
         type={creationModal.type} 
         isOpen={creationModal.isOpen} 
         onClose={() => setCreationModal({ type: '', isOpen: false })} 
         onSubmit={handleCreateEntity} 
       />
+
+      {/* CREATE EXPENSE MODAL */}
+      {showExpenseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 flex items-center justify-center font-bold">
+                  <Plus size={16} />
+                </div>
+                <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Add Expense Record</h4>
+              </div>
+              <button onClick={() => setShowExpenseModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateExpenseSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">EXPENSE TITLE / DESCRIPTION</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Shuttle transport, Refreshments, Stationery" 
+                  value={newExpenseTitle} 
+                  onChange={(e) => setNewExpenseTitle(e.target.value)} 
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-medium focus:outline-none focus:border-teal-500" 
+                  required 
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">CATEGORY</label>
+                  <select 
+                    value={newExpenseCategory} 
+                    onChange={(e) => setNewExpenseCategory(e.target.value)} 
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="snacks">Snacks / Food</option>
+                    <option value="groceries">Groceries</option>
+                    <option value="sports">Sports</option>
+                    <option value="travel">Travel / Transport</option>
+                    <option value="medical">Medical</option>
+                    <option value="stationary">Stationery</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">AMOUNT (₹)</label>
+                  <input 
+                    type="number" 
+                    placeholder="1000" 
+                    value={newExpenseAmount} 
+                    onChange={(e) => setNewExpenseAmount(e.target.value)} 
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold focus:outline-none focus:border-teal-500" 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">TARGET SCHOLAR GROUP</label>
+                <select 
+                  value={newExpenseTargetGroup} 
+                  onChange={(e) => setNewExpenseTargetGroup(e.target.value)} 
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-medium focus:outline-none focus:border-teal-500"
+                >
+                  <option value="ALL">All Batches (ALL)</option>
+                  <option value="RCD_1">Batch RCD 1</option>
+                  <option value="RCD_2">Batch RCD 2</option>
+                  <option value="RCD_3">Batch RCD 3</option>
+                </select>
+              </div>
+
+              <div className="flex justify-between items-center pt-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={newExpenseRefund} 
+                    onChange={(e) => setNewExpenseRefund(e.target.checked)} 
+                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">Refund Requested</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={newExpenseFoundationPaid} 
+                    onChange={(e) => setNewExpenseFoundationPaid(e.target.checked)} 
+                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
+                  />
+                  <span className="font-semibold text-slate-700 dark:text-slate-300">Foundation Paid</span>
+                </label>
+              </div>
+
+              <button 
+                type="submit" 
+                className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+              >
+                <Plus size={16} />
+                <span>Save Expense Record</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

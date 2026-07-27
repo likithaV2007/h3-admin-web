@@ -14,7 +14,7 @@ export interface LeaveRequest {
 export interface Student {
   id: string;
   name: string;
-  rollNo: string;
+  rollNo?: string;
   age: number;
   grade: string;
   college: string;
@@ -29,32 +29,182 @@ export interface Student {
     collegeDistance: string;
   };
   leaveRequests: LeaveRequest[];
-  academicProgress: { semester: string; gpa: number }[];
-  subjects: { name: string; score: number; grade: string }[];
-  notes: { id: string; date: string; author: string; note: string; type: string }[];
+  academicProgress: any[];
+  subjects: any[];
+  notes: any[];
   parentName: string;
   parentPhone: string;
+
+  // Extended Database Fields
+  student_code?: string;
+  school_name?: string;
+  school_name_10th?: string;
+  school_name_12th?: string;
+  date_of_birth?: string;
+  gender?: string;
+  blood_group?: string;
+  religion?: string;
+  community?: string;
+  physically_challenged?: number;
+  is_married?: number;
+  address?: string;
+  landmark?: string;
+  area?: string;
+  city?: string;
+  district?: string;
+  state?: string;
+  pincode?: string;
+  area_type?: string;
+  course?: string;
+  major?: string;
+  college_address?: string;
+  year?: string;
+  current_year?: string;
+  mode?: string;
+  batch?: string;
+  hostel_or_dayscholar?: string;
+  hostel_address?: string;
+  parent_status?: string;
+  father_name?: string;
+  father_occupation?: string;
+  father_contact_number?: string;
+  mother_name?: string;
+  mother_occupation?: string;
+  mother_contact_number?: string;
+  guardian_name?: string;
+  guardian_occupation?: string;
+  guardian_contact_number?: string;
+  number_of_siblings?: number;
+  bank_name?: string;
+  bank_account_number?: string;
+  bank_ifsc?: string;
+  parent_account_number?: string;
+  parent_ifsc?: string;
+  academic_funding_maturity?: string;
+  funding_percentage?: string;
+  amount_approx?: string;
+  individual_amount?: string;
+  funders?: string;
+  remarks?: string;
+  folder_link?: string;
+  documents_collected?: string;
+  is_document_uploaded?: number;
+  emergency_contact?: string;
+  fcm_token?: string;
+  currently_working?: number;
+  designation?: string;
+  are_you_on_track?: number;
+  willing_to_do_volunteering?: number;
+  other_notes?: string;
 }
 
 export interface Volunteer {
   id: string;
+  volunteer_id?: string;
+  user_id?: string;
   name: string;
   email: string;
+  phone: string;
   program: string;
+  specialization?: string;
+  availability?: string;
+  bio?: string;
+  profile_photo_link?: string;
+  joined_date?: string;
+  fcm_token?: string;
   hoursContributed: number;
   status: 'Active' | 'On Leave' | 'Inactive';
-  phone: string;
+  assignedStudents?: string[];
+  role?: string;
 }
 
 export interface Parent {
   id: string;
   name: string;
-  email: string;
+  guardianName?: string;
+  email?: string;
   phone: string;
   childName: string;
   childId: string;
+  relationship?: string;
+  relation?: string;
   occupation: string;
+  address?: string;
+  parent_id?: string;
+  user_id?: string;
+  student_id?: string;
+  is_primary?: number;
 }
+
+export interface Donor {
+  id: string;
+  donor_id?: string;
+  user_id?: string;
+  name: string;
+  email: string;
+  phone: string;
+  donorType: string;
+  organizationName?: string;
+  totalDonated: number | string;
+  formattedAmount: string;
+  status: 'Active Sponsor' | 'Past Benefactor';
+  profile_photo_link?: string;
+  joined_date?: string;
+}
+
+export interface Expense {
+  id: string;
+  title: string;
+  category: string;
+  amount: number;
+  date: string;
+  refund_requested?: boolean;
+  is_private?: boolean;
+  is_foundation_paid?: boolean;
+  status: string;
+  student_id?: string | null;
+  target_group?: string;
+  created_by?: string;
+  created_by_name?: string;
+}
+
+export const initialDonors: Donor[] = [
+  {
+    id: 'DON001',
+    name: 'Suriya Arish',
+    email: 'r.suryaarish@gmail.com',
+    phone: '+919876543210',
+    donorType: 'Individual Benefactor',
+    totalDonated: 25000,
+    formattedAmount: '₹25,000.00',
+    status: 'Active Sponsor',
+    joined_date: '2026-07-27'
+  },
+  {
+    id: 'DON002',
+    name: 'Global Edu Trust',
+    email: 'likitha.arjava@gmail.com',
+    phone: '6379036400',
+    donorType: 'Corporate Sponsor',
+    organizationName: 'Global Edu Trust',
+    totalDonated: 95000,
+    formattedAmount: '₹95,000.00',
+    status: 'Active Sponsor',
+    joined_date: '2026-05-30'
+  },
+  {
+    id: 'DON003',
+    name: 'H3 Foundation',
+    email: 'h3foundation@example.com',
+    phone: '1111111111',
+    donorType: 'Institutional Fund',
+    organizationName: 'H3 Foundation',
+    totalDonated: 150000,
+    formattedAmount: '₹1,50,000.00',
+    status: 'Active Sponsor',
+    joined_date: '2026-05-30'
+  }
+];
 
 export interface ActivityLog {
   id: string;

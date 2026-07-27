@@ -29,7 +29,9 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
     setIsLoading(true);
     setError(null);
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      const token = await result.user.getIdToken();
+      sessionStorage.setItem('authToken', token);
       onLoginSuccess();
     } catch (err: any) {
       console.error(err);
