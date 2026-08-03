@@ -320,14 +320,12 @@ function App() {
   // Handle active role logic mapping modules
   // Admins can see all tabs. Others get curated views.
   const isTabVisibleForRole = (tabName: string) => {
-    if (activeRole === 'Admin') return true;
+    if (activeRole === 'Admin' || activeRole === 'Volunteer') return true;
     switch (activeRole) {
       case 'Student':
         return ['Dashboard', 'Settings'].includes(tabName);
       case 'Parent':
         return ['Dashboard', 'Students', 'Settings'].includes(tabName);
-      case 'Volunteer':
-        return ['Dashboard', 'Students', 'Finance', 'Settings'].includes(tabName);
       default:
         return true;
     }
@@ -345,7 +343,7 @@ function App() {
     { name: 'Dashboard', icon: LayoutDashboard },
     { name: 'Students', icon: Users },
     { name: 'Parents', icon: User },
-    { name: 'Volunteers', icon: Award },
+    { name: 'Admins', icon: Award },
     { name: 'Donors', icon: HeartHandshake },
     { name: 'Finance', icon: DollarSign },
     { name: 'Settings', icon: Settings },
@@ -606,6 +604,21 @@ function App() {
     student.college.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredParents = parents.filter(parent =>
+    parent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (parent.childName && parent.childName.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredVolunteers = volunteers.filter(vol =>
+    vol.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (vol.email && vol.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (vol.program && vol.program.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredDonors = donors.filter(donor =>
+    donor.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
 
 
   // Main UI Render helper
@@ -759,7 +772,7 @@ function App() {
               {/* HEADING ACCENT */}
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-500/10 relative overflow-hidden">
                 <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                <h3 className="text-xl font-bold mb-1">Welcome back, {activeRole}!</h3>
+                <h3 className="text-xl font-bold mb-1">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
                 <p className="text-blue-100 text-xs max-w-xl">
                   {activeRole === 'Admin' && 'Here is your operational snapshot of Hope3 NGO. Monitor real-time student check-ins, approve pending leaves, and track fundraising.'}
                   {activeRole === 'Student' && 'Review your overall attendance records, submit new leaves, and view comments left by your mentor.'}
@@ -1132,9 +1145,6 @@ function App() {
                       <h4 className="font-bold text-base">Student Database</h4>
                       <p className="text-xs text-slate-400">Total {students.length} students enrolled in active programs</p>
                     </div>
-                    <button onClick={() => setCreationModal({ type: 'Student', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                      <Plus size={14} /> Add Student
-                    </button>
 
                     <div className="flex flex-col sm:flex-row gap-3">
                       {/* Search */}
@@ -1215,12 +1225,29 @@ function App() {
                               </span>
                             </td>
                             <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                              <button 
-                                onClick={() => { setSelectedStudent(student); setProfileTab('Overview'); }}
-                                className="text-xs bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1.5 rounded-lg transition-colors shadow-sm"
-                              >
-                                View Profile
-                              </button>
+                              <div className="flex items-center justify-end gap-2">
+                                {/* WHATSAPP PHONE CALL ICON BUTTON */}
+                                <a 
+                                  href={getWhatsAppLink(student.parentPhone)} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
+                                  className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                                >
+                                  <PhoneCall size={14} />
+                                </a>
+
+                                {/* WHATSAPP MESSAGE ICON BUTTON */}
+                                <a 
+                                  href={getWhatsAppLink(student.parentPhone, `Hello, regarding student ${student.name} from Hope3 NGO.`)} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
+                                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                                >
+                                  <MessageSquare size={14} />
+                                </a>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -1948,14 +1975,20 @@ function App() {
           {/* MODULE: PARENTS */}
           {activeTab === 'Parents' && (
             <div className="glass-panel rounded-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Parent Database</h4>
                   <p className="text-xs text-slate-400">Manage linkages between student scholars and guardians</p>
                 </div>
-                <button onClick={() => setCreationModal({ type: 'Parent', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                  <Plus size={14} /> Add Parent
-                </button>
+
+                {/* Search / Filter */}
+                <input
+                  type="text"
+                  placeholder="Filter by parent or student name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 w-full sm:w-64"
+                />
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
@@ -1971,7 +2004,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {parents.map(par => (
+                    {filteredParents.map(par => (
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
                         <td className="p-4 font-bold text-slate-800 dark:text-white">{par.name}</td>
                         <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
@@ -2025,24 +2058,30 @@ function App() {
             </div>
           )}
 
-          {/* MODULE: VOLUNTEERS */}
-          {activeTab === 'Volunteers' && (
+          {/* MODULE: VOLUNTEERS (ADMINS) */}
+          {(activeTab === 'Admins' || activeTab === 'Volunteers') && (
             <div className="glass-panel rounded-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h4 className="font-bold text-base">Active Volunteer Network</h4>
-                  <p className="text-xs text-slate-400">Coordinating community hours for tutoring, career counselling, and coaching</p>
+                  <h4 className="font-bold text-base">Active Admin Network</h4>
+                  <p className="text-xs text-slate-400">Coordinating operations, student mentoring, and program administration</p>
                 </div>
-                <button onClick={() => setCreationModal({ type: 'Volunteer', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                  <Plus size={14} /> Add Volunteer
-                </button>
+
+                {/* Search / Filter */}
+                <input
+                  type="text"
+                  placeholder="Filter by admin name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 w-full sm:w-64"
+                />
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                      <th className="p-4">Volunteer Name</th>
+                      <th className="p-4">Admin Name</th>
                       <th className="p-4">Assigned Department</th>
                       <th className="p-4">Total Service Hours</th>
                       <th className="p-4">Phone Number</th>
@@ -2051,7 +2090,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {volunteers.map(vol => (
+                    {filteredVolunteers.map(vol => (
                       <tr 
                         key={vol.id} 
                         className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
@@ -2127,14 +2166,20 @@ function App() {
           {/* MODULE: DONORS */}
           {activeTab === 'Donors' && (
             <div className="glass-panel rounded-2xl p-5 space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Donors & Financial Benefactors</h4>
                   <p className="text-xs text-slate-400">Tracking contributions, CSR sponsors, and individual education funds</p>
                 </div>
-                <button onClick={() => setCreationModal({ type: 'Donor', isOpen: true })} className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-blue-700">
-                  <Plus size={14} /> Add Donor
-                </button>
+
+                {/* Search / Filter */}
+                <input
+                  type="text"
+                  placeholder="Filter by donor name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 w-full sm:w-64"
+                />
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
@@ -2150,7 +2195,7 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {donors.map(donor => (
+                    {filteredDonors.map(donor => (
                       <tr 
                         key={donor.id} 
                         className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
@@ -3048,6 +3093,23 @@ function App() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* FLOATING ACTION BUTTON FOR STUDENTS, PARENTS, ADMINS/VOLUNTEERS, AND DONORS */}
+      {['Students', 'Parents', 'Admins', 'Volunteers', 'Donors'].includes(activeTab) && (
+        <button
+          onClick={() => {
+            const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
+            setCreationModal({ type, isOpen: true });
+          }}
+          className="fixed bottom-6 right-6 z-40 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white p-4 rounded-full shadow-2xl flex items-center justify-center gap-2 transition-all group"
+          title={`Add New ${activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
+        >
+          <Plus size={24} className="transition-transform group-hover:rotate-90" />
+          <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs pr-1">
+            Add {activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}
+          </span>
+        </button>
       )}
 
     </div>
