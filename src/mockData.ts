@@ -130,6 +130,7 @@ export interface Parent {
   relation?: string;
   occupation: string;
   address?: string;
+  profile_photo_link?: string;
   parent_id?: string;
   user_id?: string;
   student_id?: string;

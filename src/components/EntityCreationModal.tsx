@@ -82,11 +82,16 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
             </div>
             <CustomInput required name="rollNo" placeholder="Roll Number" onChange={handleChange} />
             <CustomInput required type="number" name="age" placeholder="Age" onChange={handleChange} />
+            <CustomSelect 
+              required 
+              name="batch" 
+              placeholder="Allocated Batch" 
+              onChange={handleChange}
+              options={["Batch 2026", "Batch 2025", "Batch 2024", "Batch 2023"]}
+            />
+            <CustomInput required name="grade" placeholder="Course & Year" onChange={handleChange} />
             <div className="md:col-span-2">
               <CustomInput required name="college" placeholder="College / Institution" onChange={handleChange} />
-            </div>
-            <div className="md:col-span-2">
-              <CustomInput required name="grade" placeholder="Course & Year" onChange={handleChange} />
             </div>
           </div>
         );

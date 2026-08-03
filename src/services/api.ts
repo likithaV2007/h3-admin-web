@@ -104,6 +104,7 @@ export const apiService = {
       rollNo: item.student_code || `STU00${idx + 1}`,
       age: item.age || 19,
       gender: item.gender || 'Not specified',
+      batch: item.batch || item.current_year || item.year || (item.grade && item.grade.includes('2nd Year') ? '2026' : item.grade && item.grade.includes('3rd Year') ? '2025' : '2024'),
       grade: item.year || item.grade || item.class || 'Class 10',
       college: item.college || item.school_name || item.college_name || 'Government High School',
       course: item.course || item.major || 'Science & Tech',
@@ -320,6 +321,35 @@ export const apiService = {
     }));
   },
 
+  // Create Student via FastAPI Backend
+  createStudent: async (payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/students/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+
+      if (res.status === 422) {
+        const errDetail = await res.json();
+        console.warn("FastAPI 422 Validation Error details:", errDetail);
+      }
+
+      return null;
+    } catch (err) {
+      console.error("Error creating student:", err);
+      return null;
+    }
+  },
+
   // Create Expense
   createExpense: async (payload: any): Promise<any> => {
     try {
@@ -334,6 +364,10 @@ export const apiService = {
       });
       if (res.ok) {
         return await res.json();
+      }
+      if (res.status === 422) {
+        const errDetail = await res.json();
+        console.warn("FastAPI 422 Validation Error details:", errDetail);
       }
       return null;
     } catch (err) {
@@ -356,6 +390,39 @@ export const apiService = {
     } catch (err) {
       console.error("Error deleting expense:", err);
       return false;
+    }
+  },
+
+  // Fetch API Geofences List (/api/v1/geofences/ or /api/v1/locations/)
+  getGeofences: async (): Promise<any[]> => {
+    try {
+      const data = await apiFetch<any[]>('/api/v1/geofences/', []);
+      if (Array.isArray(data) && data.length > 0) return data;
+      const altData = await apiFetch<any[]>('/api/v1/locations/', []);
+      return Array.isArray(altData) ? altData : [];
+    } catch (err) {
+      console.warn("Could not fetch geofences from API:", err);
+      return [];
+    }
+  },
+
+  // Create API Geofence Record
+  createGeofence: async (payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/geofences/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.warn("Error posting geofence to API:", err);
+      return null;
     }
   },
 

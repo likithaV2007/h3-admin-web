@@ -38,7 +38,17 @@ import {
   Wallet,
   Filter,
   Trash2,
-  Search
+  Search,
+  MapPin,
+  Navigation,
+  Building,
+  GraduationCap,
+  Home,
+  ShieldCheck,
+  Radio,
+  Check,
+  Compass,
+  ArrowLeft
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { apiService, formatAvatarUrl } from './services/api';
@@ -135,6 +145,141 @@ function App() {
   const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
   const [customTokenInput, setCustomTokenInput] = useState<string>(localStorage.getItem('authToken') || '');
 
+  const [showAddLocationModal, setShowAddLocationModal] = useState<boolean>(false);
+  const [isFullScreenMapOpen, setIsFullScreenMapOpen] = useState<boolean>(false);
+  const [newZoneName, setNewZoneName] = useState<string>('');
+  const [newZoneShape, setNewZoneShape] = useState<'polygon' | 'pentagon' | 'hexagon' | 'circle'>('pentagon');
+  const [newZoneColor, setNewZoneColor] = useState<string>('#3b82f6');
+  const [newZoneTargetBatch, setNewZoneTargetBatch] = useState<string>('ALL');
+  const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('ALL');
+  const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
+  const [isSearchingLocation, setIsSearchingLocation] = useState<boolean>(false);
+  const [mapType, setMapType] = useState<'hybrid' | 'streets'>('hybrid');
+  // Default Koviloor Campus API Geofence Records Fallback
+  const defaultApiGeofences = [
+    {
+      id: '06d77b3b-bf43-4bbc-b841-ed68db46665b',
+      name: 'Hope3 Office Polygon',
+      shape: 'polygon',
+      color: '#3b82f6',
+      targetBatch: 'ALL',
+      lat: 10.0815515,
+      lng: 78.7463343,
+      coords: [
+        [10.081505, 78.746123],
+        [10.081663, 78.746152],
+        [10.081603, 78.746549],
+        [10.081435, 78.746513],
+        [10.081505, 78.746123]
+      ],
+      description: 'Koviloor Campus Office'
+    },
+    {
+      id: '0b96fd76-81ec-4674-a036-ac747c5b476f',
+      name: 'Boys Hostel',
+      shape: 'polygon',
+      color: '#10b981',
+      targetBatch: 'ALL',
+      lat: 10.0830310,
+      lng: 78.7458130,
+      coords: [
+        [10.082823, 78.745596],
+        [10.082724, 78.745852],
+        [10.083239, 78.746033],
+        [10.083339, 78.745773],
+        [10.082823, 78.745596]
+      ],
+      description: 'Boys Hostel Building'
+    },
+    {
+      id: 'a66949fd-a120-43f6-a8ef-e3d5e962e4a1',
+      name: 'Girls Hostel',
+      shape: 'polygon',
+      color: '#ec4899',
+      targetBatch: 'ALL',
+      lat: 10.0831700,
+      lng: 78.7453330,
+      coords: [
+        [10.083044, 78.745112],
+        [10.082784, 78.745426],
+        [10.083379, 78.745571],
+        [10.083473, 78.745222],
+        [10.083044, 78.745112]
+      ],
+      description: 'Girls Hostel Building'
+    },
+    {
+      id: '0f75dba9-c33f-445c-ac4b-3039dc80ac8f',
+      name: 'College',
+      shape: 'polygon',
+      color: '#8b5cf6',
+      targetBatch: 'ALL',
+      lat: 10.0803070,
+      lng: 78.7503070,
+      coords: [
+        [10.079907, 78.749875],
+        [10.080029, 78.750856],
+        [10.080687, 78.750761],
+        [10.080604, 78.749734],
+        [10.079907, 78.749875]
+      ],
+      description: 'Main College Campus'
+    },
+    {
+      id: '48a241d2-c07f-46e6-839c-f6260313fc15',
+      name: 'Boundary #6',
+      shape: 'polygon',
+      color: '#f59e0b',
+      targetBatch: 'ALL',
+      lat: 10.0821494,
+      lng: 78.7460618,
+      coords: [
+        [10.0818085, 78.7459535],
+        [10.0825794, 78.7461144],
+        [10.0823946, 78.7467525],
+        [10.0817134, 78.7467043],
+        [10.0812065, 78.7466882],
+        [10.0812646, 78.7456693],
+        [10.0816659, 78.7446827],
+        [10.0823365, 78.7451224],
+        [10.0828012, 78.7454978],
+        [10.0828012, 78.7463396],
+        [10.0826357, 78.7472147],
+        [10.0825847, 78.7460018]
+      ],
+      description: 'Campus Boundary'
+    }
+  ];
+
+  const [customGeofences, setCustomGeofences] = useState<Array<{
+    id: string;
+    name: string;
+    shape: string;
+    color: string;
+    targetBatch: string;
+    lat: number;
+    lng: number;
+    coords: Array<[number, number]>;
+  }>>(() => {
+    try {
+      const saved = localStorage.getItem('h3_geofences');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return defaultApiGeofences;
+  });
+
+  // Persist geofences changes locally so drawn fences never vanish
+  useEffect(() => {
+    try {
+      if (customGeofences.length > 0) {
+        localStorage.setItem('h3_geofences', JSON.stringify(customGeofences));
+      }
+    } catch {}
+  }, [customGeofences]);
+
   const loadDataFromApi = async () => {
     setIsLoadingApi(true);
     setApiStatus(prev => ({ ...prev, status: 'LOADING' }));
@@ -145,16 +290,86 @@ function App() {
       const fetchedStudents = await apiService.getStudents();
       if (fetchedStudents && fetchedStudents.length > 0) setStudents(fetchedStudents);
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
-        apiService.getExpenses()
+        apiService.getExpenses(),
+        apiService.getGeofences()
       ]);
       if (fetchedVolunteers && fetchedVolunteers.length > 0) setVolunteers(fetchedVolunteers);
       if (fetchedParents && fetchedParents.length > 0) setParents(fetchedParents);
       if (fetchedDonors && fetchedDonors.length > 0) setDonors(fetchedDonors);
       if (fetchedExpenses && fetchedExpenses.length > 0) setExpenses(fetchedExpenses);
+      
+      if (fetchedGeofences && fetchedGeofences.length > 0) {
+        const mappedGeofences: any[] = [];
+        
+        fetchedGeofences.forEach((gf: any, idx: number) => {
+          const name = gf.zone_name || gf.name || gf.title || gf.location_name || `Geofence ${idx + 1}`;
+          if (!name || name === 'string') return;
+
+          let coords: Array<[number, number]> = [];
+          if (Array.isArray(gf.coordinates) && gf.coordinates.length > 0) {
+            coords = gf.coordinates.map((cStr: string) => {
+              if (typeof cStr === 'string' && cStr.includes(',')) {
+                const [lat, lng] = cStr.split(',').map(parseFloat);
+                if (!isNaN(lat) && !isNaN(lng)) return [lat, lng];
+              } else if (Array.isArray(cStr) && cStr.length >= 2) {
+                return [parseFloat(cStr[0] as any), parseFloat(cStr[1] as any)];
+              }
+              return null;
+            }).filter(Boolean) as Array<[number, number]>;
+          }
+
+          const centerLat = parseFloat(gf.center_lat || (coords.length > 0 ? coords[0][0] : 10.0815515));
+          const centerLng = parseFloat(gf.center_lng || (coords.length > 0 ? coords[0][1] : 78.7463343));
+
+          if (coords.length === 0) {
+            const rad = (gf.radius_meters || 100) / 111320;
+            coords = [
+              [centerLat + rad, centerLng - rad],
+              [centerLat + rad, centerLng + rad],
+              [centerLat - rad, centerLng + rad],
+              [centerLat - rad, centerLng - rad]
+            ];
+          }
+
+          const colors = ['#ef4444', '#10b981', '#3b82f6', '#a855f7', '#f59e0b', '#ec4899'];
+          const color = colors[idx % colors.length];
+
+          mappedGeofences.push({
+            id: gf.zone_id || gf.id || `GF_API_${idx}`,
+            name: name,
+            shape: 'polygon',
+            color: color,
+            targetBatch: 'ALL',
+            lat: centerLat,
+            lng: centerLng,
+            coords: coords,
+            description: gf.description || ''
+          });
+        });
+
+        if (mappedGeofences.length > 0) {
+          setCustomGeofences(prev => {
+            const mergedMap = new Map();
+            // Retain existing local geofences first
+            prev.forEach(item => mergedMap.set(item.id, item));
+            // Add API geofences if not already present
+            mappedGeofences.forEach(item => {
+              if (!mergedMap.has(item.id)) {
+                mergedMap.set(item.id, item);
+              }
+            });
+            const result = Array.from(mergedMap.values());
+            try {
+              localStorage.setItem('h3_geofences', JSON.stringify(result));
+            } catch {}
+            return result;
+          });
+        }
+      }
     } catch (err) {
       console.error("Error loading data from Hope3 API:", err);
       setApiStatus(prev => ({ ...prev, status: 'ERROR' }));
@@ -168,6 +383,283 @@ function App() {
       loadDataFromApi();
     }
   }, [isAuthenticated]);
+
+  // Leaflet OpenStreetMap & Full-Screen Google Maps Initialization
+  useEffect(() => {
+    if (activeTab !== 'Location' && !isFullScreenMapOpen) return;
+
+    const timer = setTimeout(() => {
+      const containerId = isFullScreenMapOpen ? 'fullscreen-google-map-container' : 'open-street-map-container';
+      const mapContainer = document.getElementById(containerId);
+      if (!mapContainer || !(window as any).L) return;
+
+      const L = (window as any).L;
+      
+      // Clear previous map instance if initialized
+      if ((mapContainer as any)._leaflet_id) {
+        (mapContainer as any)._leaflet_id = null;
+        mapContainer.innerHTML = '';
+      }
+
+      // Default Map Instance initialized
+      const initialCenter: [number, number] = customGeofences.length > 0
+        ? [customGeofences[0].lat, customGeofences[0].lng]
+        : [10.0815515, 78.7463343];
+
+      const map = L.map(containerId, {
+        center: initialCenter,
+        zoom: customGeofences.length > 0 ? 17 : 14,
+        zoomControl: true
+      });
+
+      (window as any).leafletMapInstance = map;
+
+      // Auto-detect Admin's Live Real GPS Location via Browser Geolocation API
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            map.setView([userLat, userLng], 15);
+            
+            const myLocMarker = L.marker([userLat, userLng]).addTo(map);
+            myLocMarker.bindPopup('<b>📍 Your Current Live Location</b><br/>Super Admin GPS Position').openPopup();
+          },
+          (error) => {
+            console.warn('Geolocation permission denied or unavailable:', error);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      }
+
+      // Add Google Maps High-Definition Satellite & Hybrid Terrain Tiles Layer
+      const googleTileUrl = mapType === 'hybrid'
+        ? 'https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}'
+        : 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+
+      L.tileLayer(googleTileUrl, {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; Google Maps'
+      }).addTo(map);
+
+      // Render User-Created Geofence Shapes Filtered Batch-Wise
+      const visibleGeofences = selectedBatchFilter === 'ALL'
+        ? customGeofences
+        : customGeofences.filter(gf => gf.targetBatch === selectedBatchFilter || gf.targetBatch === 'ALL');
+
+      // Helper function to remove a geofence
+      (window as any).deleteGeofenceById = (geofenceId: string) => {
+        if (confirm('Are you sure you want to delete this geofence boundary?')) {
+          setCustomGeofences(prev => {
+            const updated = prev.filter(g => g.id !== geofenceId);
+            try {
+              localStorage.setItem('h3_geofences', JSON.stringify(updated));
+            } catch {}
+            return updated;
+          });
+        }
+      };
+
+      visibleGeofences.forEach(gf => {
+        const poly = L.polygon(gf.coords, {
+          color: gf.color,
+          fillColor: gf.color,
+          fillOpacity: 0.25,
+          weight: 2.5
+        }).addTo(map);
+
+        drawnItems.addLayer(poly);
+
+        poly.bindPopup(`
+          <div style="font-family: sans-serif; padding: 2px; text-align: left;">
+            <b style="font-size: 13px; color: #1e293b;">${gf.name}</b><br/>
+            <span style="font-size: 11px; color: #64748b;">Batch Allocated: <b>${gf.targetBatch || 'All Batches'}</b></span><br/>
+            <span style="font-size: 11px; font-weight: bold; color: ${gf.color};">🛡️ Geofence Active</span>
+            <div style="margin-top: 8px; pt-2; border-top: 1px solid #e2e8f0;">
+              <button 
+                onclick="window.deleteGeofenceById('${gf.id}')"
+                style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
+              >
+                🗑️ Delete Geofence Area
+              </button>
+            </div>
+          </div>
+        `);
+      });
+
+      // Render Student Location Pins on the Map (matching selected batch filter)
+      const studentPins = selectedBatchFilter === 'ALL' 
+        ? students 
+        : students.filter(s => (s.batch || s.current_year || '2026') === selectedBatchFilter);
+
+      // Student pin offsets around Koviloor campus
+      const campusOffsetLat = [0.0012, -0.0008, 0.0018, -0.0014, 0.0005, -0.0020, 0.0022];
+      const campusOffsetLng = [-0.0005, 0.0015, -0.0012, 0.0008, 0.0021, -0.0010, 0.0003];
+
+      studentPins.forEach((student, idx) => {
+        let lat = 10.0815515 + campusOffsetLat[idx % campusOffsetLat.length];
+        let lng = 78.7463343 + campusOffsetLng[idx % campusOffsetLng.length];
+
+        if (student.location && student.location.coordinates) {
+          const parts = student.location.coordinates.split(',').map(p => parseFloat(p.trim()));
+          if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            lat = parts[0];
+            lng = parts[1];
+          }
+        }
+
+        const studentIcon = L.divIcon({
+          className: 'custom-student-pin',
+          html: `
+            <div style="position: relative; display: flex; flex-direction: column; items-center: center;">
+              <div style="background-color: #2563eb; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; white-space: nowrap; border: 1.5px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
+                👤 ${student.name.split(' ')[0]} (${student.batch || '2026'})
+              </div>
+              <div style="width: 10px; h-10px; background-color: #2563eb; transform: rotate(45deg); margin: -4px auto 0 auto; border-right: 1.5px solid white; border-bottom: 1.5px solid white;"></div>
+            </div>
+          `,
+          iconSize: [80, 30],
+          iconAnchor: [40, 30]
+        });
+
+        const pinMarker = L.marker([lat, lng], { icon: studentIcon }).addTo(map);
+        pinMarker.bindPopup(`
+          <div style="font-family: sans-serif; padding: 3px;">
+            <b style="font-size: 13px; color: #1e293b;">${student.name}</b><br/>
+            <span style="font-size: 11px; color: #64748b;">Roll No: <b>${student.rollNo}</b></span><br/>
+            <span style="font-size: 11px; color: #64748b;">Batch: <b>${student.batch || student.current_year || '2026'}</b></span><br/>
+            <span style="font-size: 11px; color: #64748b;">College: <b>${student.college}</b></span><br/>
+            <span style="font-size: 11px; font-weight: bold; color: #059669;">📍 ${student.location?.status || 'In Hostel'}</span>
+          </div>
+        `);
+      });
+
+      // Add Leaflet Draw Toolbar EXCLUSIVELY in Full Screen Map Mode
+      if (isFullScreenMapOpen && L.Control && L.Control.Draw) {
+        const drawControl = new L.Control.Draw({
+          draw: {
+            polyline: false,
+            polygon: {
+              allowIntersection: false,
+              showArea: true,
+              shapeOptions: {
+                color: '#3b82f6',
+                fillColor: '#3b82f6',
+                fillOpacity: 0.25
+              }
+            },
+            rectangle: {
+              shapeOptions: {
+                color: '#10b981',
+                fillColor: '#10b981',
+                fillOpacity: 0.25
+              }
+            },
+            circle: {
+              shapeOptions: {
+                color: '#8b5cf6',
+                fillColor: '#8b5cf6',
+                fillOpacity: 0.25
+              }
+            },
+            marker: false,
+            circlemarker: false
+          },
+          edit: {
+            featureGroup: drawnItems,
+            remove: true
+          }
+        });
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, (e: any) => {
+          const layer = e.layer;
+          const type = e.layerType;
+          drawnItems.addLayer(layer);
+
+          const zoneName = prompt('Enter name for your drawn Geofence Zone:', 'Custom Geofence');
+          if (zoneName) {
+            const batchAssigned = prompt('Allocate to Student Batch Year (e.g. 2026, 2025, 2024, ALL):', selectedBatchFilter) || 'ALL';
+            
+            // Extract coordinates of drawn polygon
+            let latlngs: any = layer.getLatLngs();
+            if (Array.isArray(latlngs) && latlngs.length > 0 && Array.isArray(latlngs[0])) {
+              latlngs = latlngs[0];
+            }
+            const coords: Array<[number, number]> = latlngs.map((pt: any) => [pt.lat, pt.lng]);
+            const center = layer.getBounds().getCenter();
+
+            const newShape = {
+              id: `GF_DRAWN_${Date.now()}`,
+              name: zoneName,
+              shape: type || 'polygon',
+              color: '#3b82f6',
+              targetBatch: batchAssigned,
+              lat: center.lat,
+              lng: center.lng,
+              coords
+            };
+
+            setCustomGeofences(prev => {
+              const updated = [...prev, newShape];
+              try {
+                localStorage.setItem('h3_geofences', JSON.stringify(updated));
+              } catch {}
+              return updated;
+            });
+
+            layer.bindPopup(`
+              <div style="font-family: sans-serif; padding: 2px;">
+                <b style="font-size: 13px; color: #1e293b;">${zoneName}</b><br/>
+                <span style="font-size: 11px; color: #64748b;">Allocated Batch: <b>${batchAssigned}</b></span><br/>
+                <span style="color: #059669; font-weight: bold;">✓ Live Geofence Saved</span>
+                <div style="margin-top: 8px; pt-2; border-top: 1px solid #e2e8f0;">
+                  <button 
+                    onclick="window.deleteGeofenceById('${newShape.id}')"
+                    style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
+                  >
+                    🗑️ Delete Geofence Area
+                  </button>
+                </div>
+              </div>
+            `).openPopup();
+          }
+        });
+
+        // Deletion Event via Leaflet Draw Toolbar Trash button
+        map.on(L.Draw.Event.DELETED, () => {
+          // Re-sync remaining layers
+          const remainingCoords: any[] = [];
+          drawnItems.eachLayer((layer: any) => {
+            if (layer.getLatLngs) {
+              let pts = layer.getLatLngs();
+              if (Array.isArray(pts) && pts.length > 0 && Array.isArray(pts[0])) pts = pts[0];
+              const c = pts.map((pt: any) => [pt.lat, pt.lng]);
+              remainingCoords.push(c);
+            }
+          });
+          
+          setCustomGeofences(prev => {
+            const filtered = prev.filter(g => 
+              remainingCoords.some(rc => rc.length === g.coords.length)
+            );
+            try {
+              localStorage.setItem('h3_geofences', JSON.stringify(filtered));
+            } catch {}
+            return filtered;
+          });
+        });
+      }
+
+      // Force Map Container Resize Calculation
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 200);
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [activeTab, students, customGeofences, mapType, isFullScreenMapOpen, selectedBatchFilter]);
 
   const handleSaveToken = () => {
     const cleanToken = customTokenInput.trim();
@@ -277,6 +769,28 @@ function App() {
 
   // Search & Filters
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [studentBatchFilter, setStudentBatchFilter] = useState<string>('ALL');
+
+  // Compute dynamic unique batches list from API students data
+  const availableBatches = Array.from(
+    new Set(
+      students.map(s => s.batch || s.current_year || s.year || (s.grade && s.grade.includes('2nd Year') ? '2026' : s.grade && s.grade.includes('3rd Year') ? '2025' : '2024')).filter(Boolean)
+    )
+  ).sort().reverse();
+
+  // Filtered Students List with Search & Batch Filter
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = 
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (student.rollNo && student.rollNo.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      student.college.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (student.grade && student.grade.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const studentBatch = student.batch || student.current_year || student.year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024');
+    const matchesBatch = studentBatchFilter === 'ALL' || studentBatch === studentBatchFilter;
+
+    return matchesSearch && matchesBatch;
+  });
 
   const handleDownloadPDF = (reportName: string) => {
     // Generate a simple valid mock PDF from base64
@@ -346,6 +860,7 @@ function App() {
     { name: 'Admins', icon: Award },
     { name: 'Donors', icon: HeartHandshake },
     { name: 'Finance', icon: DollarSign },
+    { name: 'Location', icon: MapPin },
     { name: 'Settings', icon: Settings },
   ];
 
@@ -495,6 +1010,53 @@ function App() {
     setNewNoteText('');
   };
 
+  // Entity Creation Handler (Student, Parent, Volunteer, Donor) with FastAPI Integration
+  const handleCreateEntitySubmit = async (type: string, data: any) => {
+    if (type === 'Student') {
+      const payload = {
+        student_name: data.name,
+        rollNo: data.rollNo || `STU_${Date.now()}`,
+        age: parseInt(data.age) || 19,
+        batch: data.batch || 'Batch 2026',
+        year: data.grade || '2nd Year',
+        grade: data.grade || '2nd Year',
+        college: data.college || 'Government College',
+        school_name: data.college || 'Government College',
+        location_status: 'In Hostel'
+      };
+
+      const apiResult = await apiService.createStudent(payload);
+      
+      const newStudent: Student = {
+        id: apiResult?.student_code || apiResult?.id || `STU${Date.now()}`,
+        name: data.name,
+        rollNo: data.rollNo || `STU00${students.length + 1}`,
+        age: parseInt(data.age) || 19,
+        batch: data.batch || '2026',
+        grade: data.grade || 'B.Tech - 2nd Year',
+        college: data.college || 'State Engineering College',
+        hostelRoom: 'Block B - Room 104',
+        attendance: 100,
+        avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120',
+        location: {
+          status: 'In Hostel',
+          lastUpdated: 'Just now',
+          coordinates: '12.9716° N, 77.5946° E',
+          hostelDistance: '0.0 km',
+          collegeDistance: '1.2 km'
+        },
+        leaveRequests: [],
+        academicProgress: [],
+        subjects: [],
+        notes: [],
+        parentName: 'Parent Contact',
+        parentPhone: '+91 98765 43210'
+      };
+
+      setStudents(prev => [newStudent, ...prev]);
+    }
+  };
+
   // Simulated location update trigger
   const handleSimulateLocationUpdate = (studentId: string, status: 'In Hostel' | 'In College' | 'Out of Bounds' | 'On Leave') => {
     let coordinates = '12.9716° N, 77.5946° E';
@@ -598,11 +1160,6 @@ function App() {
   const avgAttendance = parseFloat((students.reduce((sum, s) => sum + s.attendance, 0) / students.length).toFixed(1));
 
   // Filtered Lists
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.rollNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.college.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const filteredParents = parents.filter(parent =>
     parent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -684,7 +1241,7 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen">
         
         {/* HEADER BAR */}
-        <header className="sticky top-0 z-30 glass-panel border-b border-slate-200/50 dark:border-slate-800/50 px-6 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white/70 dark:bg-[#080c14]/70 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -770,9 +1327,10 @@ function App() {
             <div className="space-y-6">
               
               {/* HEADING ACCENT */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-500/10 relative overflow-hidden">
-                <div className="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-                <h3 className="text-xl font-bold mb-1">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
+              <div className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 rounded-3xl p-7 text-white shadow-xl shadow-blue-600/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
+                <div className="absolute -right-10 -top-10 w-72 h-72 bg-gradient-to-br from-white/25 to-transparent rounded-full blur-2xl pointer-events-none"></div>
+                <div className="absolute right-32 -bottom-10 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl pointer-events-none"></div>
+                <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-white drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
                 <p className="text-blue-100 text-xs max-w-xl">
                   {activeRole === 'Admin' && 'Here is your operational snapshot of Hope3 NGO. Monitor real-time student check-ins, approve pending leaves, and track fundraising.'}
                   {activeRole === 'Student' && 'Review your overall attendance records, submit new leaves, and view comments left by your mentor.'}
@@ -1146,14 +1704,30 @@ function App() {
                       <p className="text-xs text-slate-400">Total {students.length} students enrolled in active programs</p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                      {/* Batch Filter Dropdown */}
+                      <div className="flex items-center gap-2 bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-sm">
+                        <Filter size={14} className="text-blue-500" />
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Batch:</span>
+                        <select 
+                          value={studentBatchFilter}
+                          onChange={(e) => setStudentBatchFilter(e.target.value)}
+                          className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer"
+                        >
+                          <option value="ALL">All Batches</option>
+                          {availableBatches.map(b => (
+                            <option key={b} value={b}>Batch {b}</option>
+                          ))}
+                        </select>
+                      </div>
+
                       {/* Search */}
                       <input
                         type="text"
                         placeholder="Search student, college, ID..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 w-full sm:w-64"
+                        className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -1165,6 +1739,7 @@ function App() {
                         <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
                           <th className="p-4">Student</th>
                           <th className="p-4">Roll ID</th>
+                          <th className="p-4">Batch</th>
                           <th className="p-4">Course / College</th>
                           <th className="p-4">Attendance</th>
                           <th className="p-4">Location Status</th>
@@ -1193,6 +1768,11 @@ function App() {
                               </div>
                             </td>
                             <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
+                            <td className="p-4">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                                {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
+                              </span>
+                            </td>
                             <td className="p-4">
                               <span className="block font-medium text-slate-700 dark:text-slate-350">{student.grade}</span>
                               <span className="text-[10px] text-slate-400 block max-w-[180px] truncate">{student.college}</span>
@@ -1232,7 +1812,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                                  className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
                                 >
                                   <PhoneCall size={14} />
                                 </a>
@@ -1243,7 +1823,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -1987,7 +2567,7 @@ function App() {
                   placeholder="Filter by parent or student name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 w-full sm:w-64"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -2006,7 +2586,22 @@ function App() {
                   <tbody>
                     {filteredParents.map(par => (
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
-                        <td className="p-4 font-bold text-slate-800 dark:text-white">{par.name}</td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={formatAvatarUrl(par.profile_photo_link)} 
+                              alt={par.name}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120';
+                              }}
+                            />
+                            <div>
+                              <span className="font-bold text-slate-800 dark:text-white block">{par.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{par.email || 'parent@hope3.org'}</span>
+                            </div>
+                          </div>
+                        </td>
                         <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-200/40">
                             {par.guardianName || par.relationship || par.relation || 'Guardian'}
@@ -2033,9 +2628,9 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${par.name} via WhatsApp (${par.phone})`}
-                              className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
                             >
-                              <PhoneCall size={16} />
+                              <PhoneCall size={15} />
                             </a>
 
                             {/* WHATSAPP MESSAGE ICON BUTTON */}
@@ -2044,9 +2639,9 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
                             >
-                              <MessageSquare size={16} />
+                              <MessageSquare size={15} />
                             </a>
                           </div>
                         </td>
@@ -2073,7 +2668,7 @@ function App() {
                   placeholder="Filter by admin name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 w-full sm:w-64"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -2140,7 +2735,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
-                              className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -2149,7 +2744,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -2178,7 +2773,7 @@ function App() {
                   placeholder="Filter by donor name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500 w-full sm:w-64"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -2245,7 +2840,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
-                              className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -2254,7 +2849,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -2609,6 +3204,322 @@ function App() {
             </div>
           )}
 
+          {/* MODULE: LOCATION & GEOFENCING */}
+          {activeTab === 'Location' && (
+            <div className="space-y-6">
+              {/* Header Banner */}
+              <div className="glass-panel rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                      <Radio size={12} className="animate-pulse text-emerald-500" />
+                      Live GPS & Geofence Engine
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">
+                    Student Geofence & Location Control
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    Super Admin live location radar & automated geofence boundary manager for Hostel, College, and Office zones
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 flex-wrap">
+                  {/* Batch Allocation Filter */}
+                  <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+                    <Filter size={14} className="text-blue-500" />
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Batch Filter:</span>
+                    <select 
+                      value={selectedBatchFilter}
+                      onChange={(e) => setSelectedBatchFilter(e.target.value)}
+                      className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer"
+                    >
+                      <option value="ALL">All Batches</option>
+                      {availableBatches.map(b => (
+                        <option key={b} value={b}>Batch {b}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button 
+                    onClick={() => setIsFullScreenMapOpen(true)}
+                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
+                    title="Open full screen map to draw, add, or delete geofences"
+                  >
+                    <Compass size={16} />
+                    <span>Open Full Screen Geofence Editor</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* GEOFENCE ZONE CARDS & SUMMARY */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                
+                {/* ZONE 1: HOSTEL */}
+                <div className="glass-panel rounded-2xl p-5 relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                      <Home size={20} />
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40">
+                      <ShieldCheck size={12} /> Geofence Active
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-800 dark:text-white">Block A & B Hostel Zone</h4>
+                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">Radius: 250m | 12.9716° N, 77.5946° E</p>
+                  
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+                    <span className="text-slate-500 font-semibold">Currently In Zone:</span>
+                    <span className="font-extrabold font-mono text-emerald-600 dark:text-emerald-400 text-sm">
+                      {students.filter(s => s.locationStatus === 'Hostel').length} Students
+                    </span>
+                  </div>
+                </div>
+
+                {/* ZONE 2: COLLEGE */}
+                <div className="glass-panel rounded-2xl p-5 relative overflow-hidden group hover:border-blue-500/40 transition-all">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                      <GraduationCap size={20} />
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300/40">
+                      <ShieldCheck size={12} /> Geofence Active
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-800 dark:text-white">Academic Campus & College</h4>
+                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">Radius: 500m | 12.9780° N, 77.5990° E</p>
+                  
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+                    <span className="text-slate-500 font-semibold">Currently In Zone:</span>
+                    <span className="font-extrabold font-mono text-blue-600 dark:text-blue-400 text-sm">
+                      {students.filter(s => s.locationStatus === 'College').length} Students
+                    </span>
+                  </div>
+                </div>
+
+                {/* ZONE 3: OFFICE / NGO HQ */}
+                <div className="glass-panel rounded-2xl p-5 relative overflow-hidden group hover:border-purple-500/40 transition-all sm:col-span-2 lg:col-span-1">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                      <Building size={20} />
+                    </div>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-300/40">
+                      <ShieldCheck size={12} /> Geofence Active
+                    </span>
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-800 dark:text-white">Hope3 NGO Office & Hub</h4>
+                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">Radius: 150m | 12.9650° N, 77.5880° E</p>
+                  
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
+                    <span className="text-slate-500 font-semibold">Currently In Zone:</span>
+                    <span className="font-extrabold font-mono text-purple-600 dark:text-purple-400 text-sm">
+                      {students.filter(s => s.locationStatus === 'Office' || (s as any).locationStatus === 'Out' || (s as any).locationStatus === 'HQ').length} Students
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* LIVE MAP VISUALIZER & GEOFENCE RADAR */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* MAP GRAPHIC CANVAS SIMULATOR */}
+                <div className="lg:col-span-2 glass-panel rounded-3xl p-5 space-y-4 relative min-h-[380px] flex flex-col justify-between overflow-hidden">
+                  {/* Google Street Map Location Search Bar & Geofencer Header */}
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-10">
+                    <div className="flex items-center gap-2">
+                      <MapPin size={18} className="text-blue-600 dark:text-blue-400" />
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-white">Google Maps Geofence Radar</h4>
+                    </div>
+
+                    {/* Place Name Search & Auto-Geofence Form */}
+                    <form 
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (!locationSearchQuery.trim()) return;
+                        setIsSearchingLocation(true);
+                        try {
+                          // Query GeoJSON polygon boundaries from Nominatim
+                          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&polygon_geojson=1&q=${encodeURIComponent(locationSearchQuery.trim())}`);
+                          const data = await res.json();
+                          if (data && data.length > 0) {
+                            const result = data[0];
+                            const lat = parseFloat(result.lat);
+                            const lon = parseFloat(result.lon);
+                            const map = (window as any).leafletMapInstance;
+                            const L = (window as any).L;
+
+                            if (map && L) {
+                              // Center HD Satellite map onto searched place
+                              map.setView([lat, lon], 16);
+
+                              // Extract polygon / multi-polygon boundary coordinates if available
+                              let polygonCoords: Array<[number, number]> = [];
+                              if (result.geojson && (result.geojson.type === 'Polygon' || result.geojson.type === 'MultiPolygon')) {
+                                const rawCoords = result.geojson.type === 'Polygon' ? result.geojson.coordinates[0] : result.geojson.coordinates[0][0];
+                                polygonCoords = rawCoords.map((c: [number, number]) => [c[1], c[0]]);
+                              } else if (result.boundingbox) {
+                                // Fallback: construct bounding perimeter rectangle fence from bounding box
+                                const [sLat, nLat, wLng, eLng] = result.boundingbox.map(parseFloat);
+                                polygonCoords = [
+                                  [nLat, wLng],
+                                  [nLat, eLng],
+                                  [sLat, eLng],
+                                  [sLat, wLng]
+                                ];
+                              }
+
+                              if (polygonCoords.length > 0) {
+                                // Save & Draw Geofence Boundary over HD Satellite Imagery
+                                const newGeofence = {
+                                  id: `GF_SEARCH_${Date.now()}`,
+                                  name: result.display_name.split(',')[0] + ' Geofence',
+                                  shape: 'polygon',
+                                  color: '#3b82f6',
+                                  lat,
+                                  lng: lon,
+                                  coords: polygonCoords
+                                };
+
+                                setCustomGeofences(prev => [...prev, newGeofence]);
+                                try {
+                                  await apiService.createGeofence(newGeofence);
+                                } catch {}
+
+                                // Draw interactive boundary layer
+                                const poly = L.polygon(polygonCoords, {
+                                  color: '#ef4444',
+                                  fillColor: '#ef4444',
+                                  fillOpacity: 0.25,
+                                  weight: 3,
+                                  dashArray: '5, 10'
+                                }).addTo(map);
+
+                                poly.bindPopup(`
+                                  <div style="font-family: sans-serif; padding: 2px;">
+                                    <b style="font-size: 13px; color: #1e293b;">📍 ${result.display_name.split(',')[0]}</b><br/>
+                                    <span style="font-size: 11px; color: #64748b;">${result.display_name}</span><br/>
+                                    <span style="font-size: 11px; font-weight: bold; color: #ef4444;">🛡️ Automatic Location Geofence Active</span>
+                                  </div>
+                                `).openPopup();
+                              }
+                            }
+                          } else {
+                            alert('Location not found. Try searching a specific town or place (e.g., "Koviloor", "Indiranagar", "PSG College")');
+                          }
+                        } catch (err) {
+                          console.error('Error geocoding location:', err);
+                        } finally {
+                          setIsSearchingLocation(false);
+                        }
+                      }}
+                      className="flex items-center gap-2 w-full sm:w-96"
+                    >
+                      <div className="relative w-full">
+                        <input 
+                          type="text" 
+                          placeholder="Search place name to fence (e.g. Koviloor)..." 
+                          value={locationSearchQuery}
+                          onChange={(e) => setLocationSearchQuery(e.target.value)}
+                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 shadow-sm font-semibold"
+                        />
+                        <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                      </div>
+                      <button 
+                        type="submit"
+                        disabled={isSearchingLocation}
+                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors flex items-center gap-1 shadow-sm"
+                      >
+                        {isSearchingLocation ? <RefreshCw size={12} className="animate-spin" /> : <span>Fence Place</span>}
+                      </button>
+                    </form>
+
+                    {/* Satellite / Streets Mode Toggle */}
+                    <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
+                      <button
+                        onClick={() => setMapType('hybrid')}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'hybrid' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
+                      >
+                        🛰️ Satellite
+                      </button>
+                      <button
+                        onClick={() => setMapType('streets')}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'streets' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
+                      >
+                        🗺️ Map
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Live OpenStreetMap Leaflet Container */}
+                  <div className="w-full h-80 rounded-2xl bg-slate-100 dark:bg-slate-900 relative overflow-hidden border border-slate-200 dark:border-slate-800 z-0">
+                    <div id="open-street-map-container" className="w-full h-full rounded-2xl z-0"></div>
+                  </div>
+                </div>
+
+                {/* REAL-TIME STUDENT LOCATION TABLE & CHECK-IN OVERRIDE */}
+                <div className="glass-panel rounded-3xl p-5 space-y-4 flex flex-col justify-between">
+                  <div>
+                    <h4 className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2 mb-3">
+                      <Compass size={16} className="text-blue-500" />
+                      Live Student Status Tracker
+                    </h4>
+
+                    <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
+                      {students.map(std => {
+                        const loc = std.locationStatus || 'Hostel';
+                        const badgeColor = 
+                          loc === 'Hostel' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200' :
+                          loc === 'College' ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 border-blue-200' :
+                          'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400 border-purple-200';
+
+                        return (
+                          <div 
+                            key={std.id}
+                            className="p-3 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 flex items-center justify-between gap-3 hover:bg-slate-100/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <img 
+                                src={std.avatar} 
+                                alt={std.name} 
+                                className="w-8 h-8 rounded-xl object-cover border border-slate-200" 
+                              />
+                              <div>
+                                <span className="font-bold text-xs text-slate-800 dark:text-white block">{std.name}</span>
+                                <span className="text-[10px] text-slate-400">{std.college}</span>
+                              </div>
+                            </div>
+
+                            {/* Zone Selector Override */}
+                            <select
+                              value={loc}
+                              onChange={(e) => {
+                                const newLoc = e.target.value as 'Hostel' | 'College' | 'Out';
+                                setStudents(prev => prev.map(s => s.id === std.id ? { ...s, locationStatus: newLoc } : s));
+                              }}
+                              className={`text-[10px] font-bold px-2 py-1 rounded-xl border ${badgeColor} focus:outline-none cursor-pointer`}
+                            >
+                              <option value="Hostel">📍 Hostel</option>
+                              <option value="College">🎓 College</option>
+                              <option value="Office">🏢 Office</option>
+                            </select>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <p className="text-[10px] text-slate-400 text-center font-mono">
+                      Geofence auto-triggers SMS alerts to Super Admin when a student leaves designated perimeter.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
           {/* MODULE: SETTINGS */}
           {activeTab === 'Settings' && (
             <div className="glass-panel rounded-2xl p-5 space-y-6">
@@ -2726,10 +3637,10 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between">
+            <div className="relative bg-blue-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
               <div className="flex justify-between items-center w-full mb-3">
                 <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
-                  Volunteer User Profile
+                  Admin Profile
                 </span>
                 <button 
                   onClick={() => setSelectedVolunteer(null)}
@@ -2833,20 +3744,6 @@ function App() {
                   </span>
                 </div>
               </div>
-
-              {/* System Technical Identifiers */}
-              <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-2 text-[10px] text-slate-400 font-mono">
-                <div className="flex justify-between">
-                  <span>Volunteer ID:</span>
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedVolunteer.id}</span>
-                </div>
-                {selectedVolunteer.user_id && (
-                  <div className="flex justify-between">
-                    <span>User Account ID:</span>
-                    <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedVolunteer.user_id}</span>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -2857,7 +3754,7 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between">
+            <div className="relative bg-blue-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
               <div className="flex justify-between items-center w-full mb-3">
                 <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Donor Benefactor Profile
@@ -2961,20 +3858,6 @@ function App() {
                     {selectedDonor.status}
                   </span>
                 </div>
-              </div>
-
-              {/* System Technical Identifiers */}
-              <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-2 text-[10px] text-slate-400 font-mono">
-                <div className="flex justify-between">
-                  <span>Donor ID:</span>
-                  <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedDonor.id}</span>
-                </div>
-                {selectedDonor.user_id && (
-                  <div className="flex justify-between">
-                    <span>User Account ID:</span>
-                    <span className="text-slate-600 dark:text-slate-300 font-semibold">{selectedDonor.user_id}</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -3095,20 +3978,262 @@ function App() {
         </div>
       )}
 
-      {/* FLOATING ACTION BUTTON FOR STUDENTS, PARENTS, ADMINS/VOLUNTEERS, AND DONORS */}
+      {/* CREATE CUSTOM GEOFENCE SHAPE MODAL FOR OPENSTREETMAP */}
+      {showAddLocationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-600 flex items-center justify-center font-bold">
+                  <MapPin size={18} />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">Create Geofence Zone</h4>
+                  <p className="text-[10px] text-slate-400">Map custom polygon shapes on OpenStreetMap</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowAddLocationModal(false)}
+                className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!newZoneName) return;
+
+                // Center around map view with vertex points for shape
+                const baseLat = 12.9740 + (Math.random() * 0.006 - 0.003);
+                const baseLng = 77.5950 + (Math.random() * 0.006 - 0.003);
+
+                let coords: Array<[number, number]> = [];
+                const radius = 0.0015;
+
+                if (newZoneShape === 'pentagon') {
+                  // 5 sides
+                  for (let i = 0; i < 5; i++) {
+                    const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+                    coords.push([baseLat + radius * Math.sin(angle), baseLng + radius * Math.cos(angle)]);
+                  }
+                } else if (newZoneShape === 'hexagon') {
+                  // 6 sides
+                  for (let i = 0; i < 6; i++) {
+                    const angle = (i * 2 * Math.PI) / 6;
+                    coords.push([baseLat + radius * Math.sin(angle), baseLng + radius * Math.cos(angle)]);
+                  }
+                } else {
+                  // Quad Polygon
+                  coords = [
+                    [baseLat + 0.001, baseLng - 0.001],
+                    [baseLat + 0.001, baseLng + 0.001],
+                    [baseLat - 0.001, baseLng + 0.001],
+                    [baseLat - 0.001, baseLng - 0.001]
+                  ];
+                }
+
+                setCustomGeofences(prev => [
+                  ...prev,
+                  {
+                    id: `GF_${Date.now()}`,
+                    name: newZoneName,
+                    shape: newZoneShape,
+                    color: newZoneColor,
+                    targetBatch: newZoneTargetBatch,
+                    lat: baseLat,
+                    lng: baseLng,
+                    coords
+                  }
+                ]);
+
+                setNewZoneName('');
+                setShowAddLocationModal(false);
+              }}
+              className="space-y-4 text-xs"
+            >
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1">GEOFENCE ZONE NAME</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Hostel Block B - Batch 2026 Fence" 
+                  value={newZoneName}
+                  onChange={(e) => setNewZoneName(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1">ALLOCATE TO STUDENT BATCH</label>
+                <select
+                  value={newZoneTargetBatch}
+                  onChange={(e) => setNewZoneTargetBatch(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                >
+                  <option value="ALL">All Batches (ALL)</option>
+                  {availableBatches.map(b => (
+                    <option key={b} value={b}>Batch {b} Scholars</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1">SELECT GEOFENCE SHAPE</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'pentagon', label: 'Pentagon (5-Sided)', icon: '⬟' },
+                    { id: 'hexagon', label: 'Hexagon (6-Sided)', icon: '⬢' },
+                    { id: 'polygon', label: 'Polygon (Custom)', icon: '⬧' }
+                  ].map(sh => (
+                    <button
+                      key={sh.id}
+                      type="button"
+                      onClick={() => setNewZoneShape(sh.id as any)}
+                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                    >
+                      <span className="text-lg leading-none">{sh.icon}</span>
+                      <span className="text-[10px]">{sh.id}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1">MAP BOUNDARY COLOR</label>
+                <div className="flex items-center gap-3">
+                  {['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
+                    <button
+                      key={col}
+                      type="button"
+                      onClick={() => setNewZoneColor(col)}
+                      className={`w-7 h-7 rounded-full border-2 transition-all ${newZoneColor === col ? 'scale-110 border-slate-900 dark:border-white shadow-md' : 'border-transparent opacity-80'}`}
+                      style={{ backgroundColor: col }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button 
+                  type="submit" 
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                >
+                  <MapPin size={16} />
+                  <span>Mark & Save Batch Geofence</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* FULL SCREEN GOOGLE MAP MODAL */}
+      {isFullScreenMapOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950 flex flex-col animate-fade-in">
+          {/* Header Control Bar */}
+          <div className="p-4 bg-slate-900 border-b border-slate-800 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsFullScreenMapOpen(false)}
+                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30"
+                title="Back to Dashboard"
+              >
+                <ArrowLeft size={16} />
+                <span>Back</span>
+              </button>
+
+              <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
+                <Compass size={20} />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                  Full Screen Satellite Geofencing Radar
+                  <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-mono">
+                    Batch Mode
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400">Search place names, draw polygons, and map student batches live on HD Satellite</p>
+              </div>
+            </div>
+
+            {/* Batch Selector & View Controls inside Fullscreen Header */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5">
+                <Filter size={14} className="text-blue-400" />
+                <span className="text-xs font-bold text-slate-300">Filter Batch:</span>
+                <select 
+                  value={selectedBatchFilter}
+                  onChange={(e) => setSelectedBatchFilter(e.target.value)}
+                  className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer"
+                >
+                  <option value="ALL" className="bg-slate-900">All Batches</option>
+                  {availableBatches.map(b => (
+                    <option key={b} value={b} className="bg-slate-900">Batch {b}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button 
+                onClick={() => {
+                  try {
+                    localStorage.setItem('h3_geofences', JSON.stringify(customGeofences));
+                    alert(`✓ Successfully saved all ${customGeofences.length} geofence boundaries to permanent storage!`);
+                  } catch {
+                    alert('Failed to save geofences.');
+                  }
+                }}
+                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-all border border-emerald-400/30"
+                title="Save all drawn geofences permanently"
+              >
+                <Check size={14} />
+                <span>Save Fences</span>
+              </button>
+
+              <button
+                onClick={() => setMapType(prev => prev === 'hybrid' ? 'streets' : 'hybrid')}
+                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-xl text-xs font-bold transition-all"
+              >
+                {mapType === 'hybrid' ? '🛰️ Satellite HD' : '🗺️ Google Streets'}
+              </button>
+
+              <button
+                onClick={() => setIsFullScreenMapOpen(false)}
+                className="p-2 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-xl transition-all"
+                title="Exit full screen map"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Full Screen Google Map Canvas */}
+          <div className="flex-1 w-full relative">
+            <div id="fullscreen-google-map-container" className="w-full h-full"></div>
+          </div>
+        </div>
+      )}
+
+      {/* ENTITY CREATION MODAL (STUDENT, PARENT, VOLUNTEER, DONOR) */}
+      <EntityCreationModal 
+        type={creationModal.type}
+        isOpen={creationModal.isOpen}
+        onClose={() => setCreationModal(prev => ({ ...prev, isOpen: false }))}
+        onSubmit={handleCreateEntitySubmit}
+      />
+
+      {/* FLOATING ACTION BUTTON FOR QUICK ADD */}
       {['Students', 'Parents', 'Admins', 'Volunteers', 'Donors'].includes(activeTab) && (
         <button
           onClick={() => {
             const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
             setCreationModal({ type, isOpen: true });
           }}
-          className="fixed bottom-6 right-6 z-40 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white p-4 rounded-full shadow-2xl flex items-center justify-center gap-2 transition-all group"
+          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-gradient-to-tr from-blue-700 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
           title={`Add New ${activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
         >
-          <Plus size={24} className="transition-transform group-hover:rotate-90" />
-          <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 ease-in-out font-bold text-xs pr-1">
-            Add {activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}
-          </span>
+          <Plus size={22} />
         </button>
       )}
 
