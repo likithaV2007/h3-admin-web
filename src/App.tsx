@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -48,7 +48,10 @@ import {
   Radio,
   Check,
   Compass,
-  ArrowLeft
+  ArrowLeft,
+  Pencil,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { apiService, formatAvatarUrl } from './services/api';
@@ -128,12 +131,16 @@ function App() {
   const [expenseSearchQuery, setExpenseSearchQuery] = useState<string>('');
   const [isExpenseSearchExpanded, setIsExpenseSearchExpanded] = useState<boolean>(false);
   const [showExpenseModal, setShowExpenseModal] = useState<boolean>(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [newExpenseTitle, setNewExpenseTitle] = useState<string>('');
   const [newExpenseCategory, setNewExpenseCategory] = useState<string>('snacks');
   const [newExpenseAmount, setNewExpenseAmount] = useState<string>('');
   const [newExpenseTargetGroup, setNewExpenseTargetGroup] = useState<string>('ALL');
   const [newExpenseRefund, setNewExpenseRefund] = useState<boolean>(true);
   const [newExpenseFoundationPaid, setNewExpenseFoundationPaid] = useState<boolean>(true);
+  const [newExpenseReceipt, setNewExpenseReceipt] = useState<string>('');
+  const [isSubmittingExpense, setIsSubmittingExpense] = useState<boolean>(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(initialActivityLogs);
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
@@ -152,9 +159,26 @@ function App() {
   const [newZoneColor, setNewZoneColor] = useState<string>('#3b82f6');
   const [newZoneTargetBatch, setNewZoneTargetBatch] = useState<string>('ALL');
   const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('ALL');
+  const [pendingDrawnShape, setPendingDrawnShape] = useState<{
+    layer: any;
+    coords: Array<[number, number]>;
+    center: { lat: number; lng: number };
+    defaultName: string;
+  } | null>(null);
+  const [isDrawingActive, setIsDrawingActive] = useState<boolean>(false);
   const [locationSearchQuery, setLocationSearchQuery] = useState<string>('');
   const [isSearchingLocation, setIsSearchingLocation] = useState<boolean>(false);
   const [mapType, setMapType] = useState<'hybrid' | 'streets'>('hybrid');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const scrollGeofences = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 340;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
   // Default Koviloor Campus API Geofence Records Fallback
   const defaultApiGeofences = [
     {
@@ -288,15 +312,75 @@ function App() {
       setApiStatus({ status: health.status, url: health.url });
 
       const fetchedStudents = await apiService.getStudents();
-      if (fetchedStudents && fetchedStudents.length > 0) setStudents(fetchedStudents);
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
         apiService.getExpenses(),
-        apiService.getGeofences()
+        apiService.getGeofences(),
+        apiService.getTrackingSessions()
       ]);
+      
+      let studentsWithLiveLocations = fetchedStudents || [];
+      if (fetchedStudents && fetchedStudents.length > 0) {
+        if (fetchedSessions && fetchedSessions.length > 0) {
+          const latestSessionMap = new Map<string, any>();
+          fetchedSessions.forEach(s => {
+            if (!s.student_id) return;
+            const existing = latestSessionMap.get(s.student_id);
+            if (!existing || new Date(s.recorded_at) > new Date(existing.recorded_at)) {
+              latestSessionMap.set(s.student_id, s);
+            }
+          });
+
+          studentsWithLiveLocations = fetchedStudents.map(student => {
+            const dbId = student.student_id || student.id;
+            const session = latestSessionMap.get(dbId);
+            if (session) {
+              const lat = parseFloat(session.lat);
+              const lng = parseFloat(session.lng);
+              if (!isNaN(lat) && !isNaN(lng)) {
+                let statusName: 'In Hostel' | 'In College' | 'Out of Bounds' | 'On Leave' = 'Out of Bounds';
+                let locationStatus: 'Hostel' | 'College' | 'Office' | 'Out' | 'HQ' | 'On Leave' | 'Out of Bounds' = 'Out of Bounds';
+                
+                if (session.is_inside_geofence) {
+                  const gfZone = (fetchedGeofences || []).find((g: any) => (g.zone_id === session.geofence_zone_id || g.id === session.geofence_zone_id));
+                  const zoneNameLower = gfZone ? (gfZone.zone_name || gfZone.name || '').toLowerCase() : '';
+                  
+                  if (zoneNameLower.includes('hostel')) {
+                    statusName = 'In Hostel';
+                    locationStatus = 'Hostel';
+                  } else if (zoneNameLower.includes('college') || zoneNameLower.includes('campus')) {
+                    statusName = 'In College';
+                    locationStatus = 'College';
+                  } else if (zoneNameLower.includes('office') || zoneNameLower.includes('ngo') || zoneNameLower.includes('hub') || zoneNameLower.includes('hq')) {
+                    statusName = 'In College';
+                    locationStatus = 'Office';
+                  } else {
+                    statusName = 'In Hostel';
+                    locationStatus = 'Hostel';
+                  }
+                }
+
+                return {
+                  ...student,
+                  locationStatus,
+                  location: {
+                    ...student.location,
+                    status: statusName,
+                    coordinates: `${lat}, ${lng}`,
+                    lastUpdated: session.recorded_at ? new Date(session.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'
+                  }
+                };
+              }
+            }
+            return student;
+          });
+        }
+        setStudents(studentsWithLiveLocations);
+      }
+
       if (fetchedVolunteers && fetchedVolunteers.length > 0) setVolunteers(fetchedVolunteers);
       if (fetchedParents && fetchedParents.length > 0) setParents(fetchedParents);
       if (fetchedDonors && fetchedDonors.length > 0) setDonors(fetchedDonors);
@@ -461,6 +545,10 @@ function App() {
         }
       };
 
+      // Initialize Leaflet FeatureGroup for user-drawn items
+      const drawnItems = new L.FeatureGroup();
+      map.addLayer(drawnItems);
+
       visibleGeofences.forEach(gf => {
         const poly = L.polygon(gf.coords, {
           color: gf.color,
@@ -541,12 +629,14 @@ function App() {
           draw: {
             polyline: false,
             polygon: {
-              allowIntersection: false,
+              allowIntersection: true,
               showArea: true,
+              guidelineDistance: 10,
               shapeOptions: {
                 color: '#3b82f6',
                 fillColor: '#3b82f6',
-                fillOpacity: 0.25
+                fillOpacity: 0.35,
+                weight: 3
               }
             },
             rectangle: {
@@ -574,57 +664,46 @@ function App() {
         map.addControl(drawControl);
 
         map.on(L.Draw.Event.CREATED, (e: any) => {
+          setIsDrawingActive(false);
           const layer = e.layer;
           const type = e.layerType;
           drawnItems.addLayer(layer);
 
-          const zoneName = prompt('Enter name for your drawn Geofence Zone:', 'Custom Geofence');
-          if (zoneName) {
-            const batchAssigned = prompt('Allocate to Student Batch Year (e.g. 2026, 2025, 2024, ALL):', selectedBatchFilter) || 'ALL';
-            
-            // Extract coordinates of drawn polygon
-            let latlngs: any = layer.getLatLngs();
-            if (Array.isArray(latlngs) && latlngs.length > 0 && Array.isArray(latlngs[0])) {
-              latlngs = latlngs[0];
-            }
-            const coords: Array<[number, number]> = latlngs.map((pt: any) => [pt.lat, pt.lng]);
-            const center = layer.getBounds().getCenter();
-
-            const newShape = {
-              id: `GF_DRAWN_${Date.now()}`,
-              name: zoneName,
-              shape: type || 'polygon',
-              color: '#3b82f6',
-              targetBatch: batchAssigned,
-              lat: center.lat,
-              lng: center.lng,
-              coords
-            };
-
-            setCustomGeofences(prev => {
-              const updated = [...prev, newShape];
-              try {
-                localStorage.setItem('h3_geofences', JSON.stringify(updated));
-              } catch {}
-              return updated;
-            });
-
-            layer.bindPopup(`
-              <div style="font-family: sans-serif; padding: 2px;">
-                <b style="font-size: 13px; color: #1e293b;">${zoneName}</b><br/>
-                <span style="font-size: 11px; color: #64748b;">Allocated Batch: <b>${batchAssigned}</b></span><br/>
-                <span style="color: #059669; font-weight: bold;">✓ Live Geofence Saved</span>
-                <div style="margin-top: 8px; pt-2; border-top: 1px solid #e2e8f0;">
-                  <button 
-                    onclick="window.deleteGeofenceById('${newShape.id}')"
-                    style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
-                  >
-                    🗑️ Delete Geofence Area
-                  </button>
-                </div>
-              </div>
-            `).openPopup();
+          // Extract coordinates of drawn shape & ensure closed loop polygon
+          let latlngs: any = layer.getLatLngs ? layer.getLatLngs() : [];
+          if (Array.isArray(latlngs) && latlngs.length > 0 && Array.isArray(latlngs[0])) {
+            latlngs = latlngs[0];
           }
+          
+          let coords: Array<[number, number]> = Array.isArray(latlngs) ? latlngs.map((pt: any) => [pt.lat, pt.lng]) : [];
+          
+          // Automatic polygon closure check: ensure first and last vertex point match
+          if (coords.length >= 3) {
+            const first = coords[0];
+            const last = coords[coords.length - 1];
+            if (first[0] !== last[0] || first[1] !== last[1]) {
+              coords.push([first[0], first[1]]); // Auto-close polygon loop
+            }
+          }
+
+          const center = layer.getBounds ? layer.getBounds().getCenter() : { lat: 10.0815515, lng: 78.7463343 };
+          
+          // Auto-generate a clean default name
+          const defaultCount = customGeofences.length + 1;
+          const defaultName = `Marked Geofence #${defaultCount}`;
+
+          // Trigger Custom Naming Modal Dialog
+          setPendingDrawnShape({
+            layer,
+            coords,
+            center,
+            defaultName
+          });
+          setNewZoneName(defaultName);
+        });
+
+        map.on(L.Draw.Event.DRAWSTOP, () => {
+          setIsDrawingActive(false);
         });
 
         // Deletion Event via Leaflet Draw Toolbar Trash button
@@ -1116,43 +1195,92 @@ function App() {
   // Expense Handlers
   const handleCreateExpenseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newExpenseTitle || !newExpenseAmount) return;
+    if (!newExpenseTitle || !newExpenseAmount || isSubmittingExpense) return;
     
-    const amountVal = parseFloat(newExpenseAmount) || 0;
-    const payload = {
-      title: newExpenseTitle,
-      category: newExpenseCategory,
-      amount: amountVal,
-      date: new Date().toISOString(),
-      refund_requested: newExpenseRefund,
-      is_private: true,
-      is_foundation_paid: newExpenseFoundationPaid,
-      target_group: newExpenseTargetGroup
-    };
+    setIsSubmittingExpense(true);
+    try {
+      const amountVal = parseFloat(newExpenseAmount) || 0;
+      const payload = {
+        title: newExpenseTitle,
+        category: newExpenseCategory,
+        amount: amountVal,
+        date: new Date().toISOString(),
+        refund_requested: newExpenseRefund,
+        is_private: true,
+        is_foundation_paid: newExpenseFoundationPaid,
+        target_group: newExpenseTargetGroup,
+        receipt_url: newExpenseReceipt
+      };
 
-    const result = await apiService.createExpense(payload);
-    const newEntry: Expense = {
-      id: result?.id || `EXP_${Date.now()}`,
-      title: newExpenseTitle,
-      category: newExpenseCategory,
-      amount: amountVal,
-      date: new Date().toISOString(),
-      refund_requested: newExpenseRefund,
-      is_foundation_paid: newExpenseFoundationPaid,
-      status: 'PENDING',
-      target_group: newExpenseTargetGroup,
-      created_by_name: activeRole === 'Volunteer' ? 'Volunteer Staff' : 'System Admin'
-    };
+      const result = await apiService.createExpense(payload);
+      const expenseId = result?.id || result?.expense_id;
+      if (expenseId && receiptFile) {
+        try {
+          await apiService.uploadReceipt(expenseId, receiptFile);
+        } catch (uploadErr) {
+          console.warn("Could not upload receipt to API:", uploadErr);
+        }
+      }
 
-    setExpenses(prev => [newEntry, ...prev]);
-    setShowExpenseModal(false);
-    setNewExpenseTitle('');
-    setNewExpenseAmount('');
+      const newEntry: Expense = {
+        id: expenseId || `EXP_${Date.now()}`,
+        title: newExpenseTitle,
+        category: newExpenseCategory,
+        amount: amountVal,
+        date: new Date().toISOString(),
+        refund_requested: newExpenseRefund,
+        is_foundation_paid: newExpenseFoundationPaid,
+        status: 'PENDING',
+        target_group: newExpenseTargetGroup,
+        created_by_name: activeRole === 'Volunteer' ? 'Volunteer Staff' : 'System Admin',
+        receipt_url: newExpenseReceipt
+      };
+
+      setExpenses(prev => [newEntry, ...prev]);
+      setShowExpenseModal(false);
+      setNewExpenseTitle('');
+      setNewExpenseAmount('');
+      setNewExpenseReceipt('');
+      setReceiptFile(null);
+    } catch (err) {
+      console.error("Error submitting expense:", err);
+    } finally {
+      setIsSubmittingExpense(false);
+    }
   };
 
   const handleDeleteExpense = async (id: string) => {
     setExpenses(prev => prev.filter(e => e.id !== id));
     await apiService.deleteExpense(id);
+  };
+
+  const handleApproveExpense = async (id: string, approve: boolean) => {
+    const newStatus = approve ? 'APPROVED' : 'REJECTED';
+    const approverName = activeRole === 'Admin' ? 'Super Admin' : 'System Admin';
+
+    setExpenses(prev => prev.map(exp => {
+      if (exp.id === id) {
+        return {
+          ...exp,
+          status: newStatus,
+          approved_by_name: approve ? approverName : null
+        };
+      }
+      return exp;
+    }));
+
+    setSelectedExpense(prev => {
+      if (prev && prev.id === id) {
+        return {
+          ...prev,
+          status: newStatus,
+          approved_by_name: approve ? approverName : null
+        };
+      }
+      return prev;
+    });
+
+    await apiService.updateExpenseStatus(id, newStatus, approve ? approverName : null);
   };
 
   // Calculated Stats
@@ -2888,10 +3016,6 @@ function App() {
                         {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
                       </h3>
                     </div>
-                    <p className="text-xs text-teal-100/90 font-medium pt-1 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-                      Updated live from mobile app expenses feed • {expenses.length} Total Records
-                    </p>
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 border-t border-white/15 relative z-10">
@@ -2916,9 +3040,6 @@ function App() {
                   <div>
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Financial Overview</span>
                     <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Volunteer Spend Tracker</h4>
-                    <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                      Real-time expense logs submitted by field volunteers & system staff across scholarship batches.
-                    </p>
                   </div>
 
                   <div className="space-y-3 pt-2">
@@ -3087,7 +3208,8 @@ function App() {
                           return (
                             <div 
                               key={item.id} 
-                              className="p-5 border border-slate-200/60 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/50 hover:shadow-xl hover:border-teal-300 dark:hover:border-teal-700 transition-all flex flex-col justify-between gap-4 group relative overflow-hidden"
+                              onClick={() => setSelectedExpense(item)}
+                              className="p-5 border border-slate-200/60 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/50 hover:shadow-xl hover:border-teal-300 dark:hover:border-teal-700 transition-all flex flex-col justify-between gap-4 group relative overflow-hidden cursor-pointer animate-fade-in"
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-start gap-3.5">
@@ -3114,7 +3236,7 @@ function App() {
 
                                 {/* Status Badge (e.g. PENDING in amber) */}
                                 <span className={`px-3 py-1 rounded-full font-extrabold text-[10px] tracking-wider uppercase shrink-0
-                                  ${item.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/50'}`}
+                                  ${item.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : item.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/50'}`}
                                 >
                                   {item.status}
                                 </span>
@@ -3122,14 +3244,25 @@ function App() {
 
                               {/* Footer: Creator & Amount */}
                               <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/60 mt-1">
-                                <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                                  <User size={13} className="text-slate-400" />
-                                  <span>By {item.created_by_name || 'System Admin'}</span>
-                                  {item.target_group && item.target_group !== 'ALL' && (
-                                    <span className="text-[9px] font-mono bg-cyan-50 dark:bg-cyan-950/40 text-cyan-600 dark:text-cyan-400 px-1.5 py-0.5 rounded border border-cyan-200/40">
-                                      {item.target_group}
+                                <div className="flex flex-col gap-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                  <div className="flex items-center gap-1.5">
+                                    <User size={13} className="text-slate-400 shrink-0" />
+                                    <span>By: <strong className="text-slate-700 dark:text-slate-350">{item.created_by_name || 'System Admin'}</strong></span>
+                                    <span className="text-slate-200 dark:text-slate-800">|</span>
+                                    <span>For: <strong className="text-slate-700 dark:text-slate-350 font-mono">{item.target_group || 'ALL'}</strong></span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 pl-[19px]">
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Approved By:</span>
+                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border ${
+                                      item.status === 'APPROVED'
+                                        ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-450 border-emerald-200/50'
+                                        : item.status === 'REJECTED'
+                                        ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-450 border-rose-200/50'
+                                        : 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-450 border-amber-200/50'
+                                    }`}>
+                                      {item.status === 'APPROVED' ? (item.approved_by_name || 'System Admin') : item.status === 'REJECTED' ? 'Rejected' : 'Pending'}
                                     </span>
-                                  )}
+                                  </div>
                                 </div>
 
                                 <div className="flex items-center gap-3">
@@ -3138,7 +3271,10 @@ function App() {
                                   </span>
 
                                   <button 
-                                    onClick={() => handleDeleteExpense(item.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteExpense(item.id);
+                                    }}
                                     title="Delete expense entry"
                                     className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
                                   >
@@ -3219,9 +3355,6 @@ function App() {
                   <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">
                     Student Geofence & Location Control
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Super Admin live location radar & automated geofence boundary manager for Hostel, College, and Office zones
-                  </p>
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
@@ -3253,71 +3386,104 @@ function App() {
               </div>
 
               {/* GEOFENCE ZONE CARDS & SUMMARY */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                
-                {/* ZONE 1: HOSTEL */}
-                <div className="glass-panel rounded-2xl p-5 relative overflow-hidden group hover:border-emerald-500/40 transition-all">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-                      <Home size={20} />
-                    </div>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40">
-                      <ShieldCheck size={12} /> Geofence Active
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-800 dark:text-white">Block A & B Hostel Zone</h4>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">Radius: 250m | 12.9716° N, 77.5946° E</p>
-                  
-                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-semibold">Currently In Zone:</span>
-                    <span className="font-extrabold font-mono text-emerald-600 dark:text-emerald-400 text-sm">
-                      {students.filter(s => s.locationStatus === 'Hostel').length} Students
-                    </span>
-                  </div>
-                </div>
-
-                {/* ZONE 2: COLLEGE */}
-                <div className="glass-panel rounded-2xl p-5 relative overflow-hidden group hover:border-blue-500/40 transition-all">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-                      <GraduationCap size={20} />
-                    </div>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-300/40">
-                      <ShieldCheck size={12} /> Geofence Active
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-800 dark:text-white">Academic Campus & College</h4>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">Radius: 500m | 12.9780° N, 77.5990° E</p>
-                  
-                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-semibold">Currently In Zone:</span>
-                    <span className="font-extrabold font-mono text-blue-600 dark:text-blue-400 text-sm">
-                      {students.filter(s => s.locationStatus === 'College').length} Students
-                    </span>
+              <div className="relative">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Active Geofence Zones ({customGeofences.length})
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => scrollGeofences('left')}
+                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+                      title="Scroll Left"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button 
+                      onClick={() => scrollGeofences('right')}
+                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+                      title="Scroll Right"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
                   </div>
                 </div>
 
-                {/* ZONE 3: OFFICE / NGO HQ */}
-                <div className="glass-panel rounded-2xl p-5 relative overflow-hidden group hover:border-purple-500/40 transition-all sm:col-span-2 lg:col-span-1">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
-                      <Building size={20} />
-                    </div>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-300/40">
-                      <ShieldCheck size={12} /> Geofence Active
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-sm text-slate-800 dark:text-white">Hope3 NGO Office & Hub</h4>
-                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">Radius: 150m | 12.9650° N, 77.5880° E</p>
-                  
-                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-semibold">Currently In Zone:</span>
-                    <span className="font-extrabold font-mono text-purple-600 dark:text-purple-400 text-sm">
-                      {students.filter(s => s.locationStatus === 'Office' || (s as any).locationStatus === 'Out' || (s as any).locationStatus === 'HQ').length} Students
-                    </span>
-                  </div>
-                </div>
+                <div 
+                  ref={scrollContainerRef}
+                  className="flex gap-4 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory scrollbar-none"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {customGeofences.map((gf) => {
+                    const studentCount = (() => {
+                      const nameLower = gf.name.toLowerCase();
+                      if (nameLower.includes('hostel')) {
+                        return students.filter(s => s.locationStatus === 'Hostel').length;
+                      }
+                      if (nameLower.includes('college') || nameLower.includes('campus')) {
+                        return students.filter(s => s.locationStatus === 'College').length;
+                      }
+                      if (nameLower.includes('office') || nameLower.includes('ngo') || nameLower.includes('hub')) {
+                        return students.filter(s => s.locationStatus === 'Office' || (s as any).locationStatus === 'Out' || (s as any).locationStatus === 'HQ').length;
+                      }
+                      return 0;
+                    })();
 
+                    const getGeofenceIcon = (name: string) => {
+                      const nameLower = name.toLowerCase();
+                      if (nameLower.includes('hostel')) return <Home size={20} />;
+                      if (nameLower.includes('college') || nameLower.includes('campus')) return <GraduationCap size={20} />;
+                      if (nameLower.includes('office') || nameLower.includes('ngo') || nameLower.includes('hub')) return <Building size={20} />;
+                      return <Compass size={20} />;
+                    };
+
+                    const accentColor = gf.color || '#3b82f6';
+
+                    return (
+                      <div 
+                        key={gf.id}
+                        className="flex-shrink-0 w-80 glass-panel rounded-2xl p-5 relative overflow-hidden group transition-all snap-start"
+                        style={{ borderLeft: `4px solid ${accentColor}` }}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div 
+                            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
+                            style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
+                          >
+                            {getGeofenceIcon(gf.name)}
+                          </div>
+                          <span 
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                            style={{
+                              backgroundColor: `${accentColor}15`,
+                              borderColor: `${accentColor}30`,
+                              color: accentColor
+                            }}
+                          >
+                            <ShieldCheck size={12} /> Geofence Active
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-sm text-slate-800 dark:text-white truncate" title={gf.name}>{gf.name}</h4>
+                        <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
+                          {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
+                        </p>
+                        
+                        <div 
+                          className="mt-4 pt-3 border-t flex justify-between items-center text-xs"
+                          style={{ borderColor: `${accentColor}15` }}
+                        >
+                          <span className="text-slate-500 font-semibold">Currently In Zone:</span>
+                          <span 
+                            className="font-extrabold font-mono text-sm"
+                            style={{ color: accentColor }}
+                          >
+                            {studentCount} Students
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* LIVE MAP VISUALIZER & GEOFENCE RADAR */}
@@ -3423,15 +3589,12 @@ function App() {
                           onChange={(e) => setLocationSearchQuery(e.target.value)}
                           className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 shadow-sm font-semibold"
                         />
-                        <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                        {isSearchingLocation ? (
+                          <RefreshCw size={14} className="absolute left-2.5 top-2 text-blue-500 animate-spin" />
+                        ) : (
+                          <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
+                        )}
                       </div>
-                      <button 
-                        type="submit"
-                        disabled={isSearchingLocation}
-                        className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors flex items-center gap-1 shadow-sm"
-                      >
-                        {isSearchingLocation ? <RefreshCw size={12} className="animate-spin" /> : <span>Fence Place</span>}
-                      </button>
                     </form>
 
                     {/* Satellite / Streets Mode Toggle */}
@@ -3509,11 +3672,7 @@ function App() {
                     </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                    <p className="text-[10px] text-slate-400 text-center font-mono">
-                      Geofence auto-triggers SMS alerts to Super Admin when a student leaves designated perimeter.
-                    </p>
-                  </div>
+
                 </div>
 
               </div>
@@ -3944,6 +4103,26 @@ function App() {
                 </select>
               </div>
 
+              <div>
+                <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">Receipt Image (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setReceiptFile(file);
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setNewExpenseReceipt(reader.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-semibold focus:outline-none focus:border-teal-500 file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-teal-50 file:text-teal-700 dark:file:bg-teal-950/40 dark:file:text-teal-400 cursor-pointer" 
+                />
+              </div>
+
               <div className="flex justify-between items-center pt-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input 
@@ -3968,12 +4147,155 @@ function App() {
 
               <button 
                 type="submit" 
-                className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                disabled={isSubmittingExpense}
+                className="w-full py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-teal-800/40 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs disabled:cursor-not-allowed"
               >
-                <Plus size={16} />
-                <span>Save Expense Record</span>
+                {isSubmittingExpense ? (
+                  <RefreshCw size={16} className="animate-spin" />
+                ) : (
+                  <Plus size={16} />
+                )}
+                <span>{isSubmittingExpense ? 'Saving...' : 'Save Expense Record'}</span>
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* EXPENSE DETAIL / APPROVAL MODAL */}
+      {selectedExpense && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 flex items-center justify-center font-bold">
+                  <Receipt size={16} />
+                </div>
+                <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Expense Details</h4>
+              </div>
+              <button onClick={() => setSelectedExpense(null)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-4 text-xs pr-1 scrollbar-none">
+              <div className="text-center py-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/40">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">TOTAL AMOUNT</span>
+                <span className="text-3xl font-black text-cyan-600 dark:text-cyan-400 font-mono">
+                  ₹ {selectedExpense.amount.toLocaleString('en-IN')}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Title / Description</span>
+                  <span className="font-extrabold text-sm text-slate-800 dark:text-white mt-0.5 block">{selectedExpense.title}</span>
+                </div>
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Category</span>
+                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block uppercase">{selectedExpense.category}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Date Submitted</span>
+                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block">
+                    {new Date(selectedExpense.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">For Scholar Group</span>
+                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block font-mono">
+                    {selectedExpense.target_group || 'ALL'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Refund Requested</span>
+                  <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${selectedExpense.refund_requested ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400' : 'bg-slate-100 text-slate-500'}`}>
+                    {selectedExpense.refund_requested ? 'YES' : 'NO'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Foundation Paid</span>
+                  <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${selectedExpense.is_foundation_paid ? 'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-400' : 'bg-slate-100 text-slate-500'}`}>
+                    {selectedExpense.is_foundation_paid ? 'YES' : 'NO'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Submitted By</span>
+                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block">{selectedExpense.created_by_name || 'System Admin'}</span>
+                </div>
+                <div>
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Status</span>
+                  <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${
+                    selectedExpense.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' :
+                    selectedExpense.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400' :
+                    'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
+                  }`}>
+                    {selectedExpense.status}
+                  </span>
+                </div>
+              </div>
+
+              {selectedExpense.status === 'APPROVED' && (
+                <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-250/20 rounded-2xl p-3 flex justify-between items-center">
+                  <span className="text-slate-500 font-semibold">Approved By:</span>
+                  <strong className="text-emerald-600 dark:text-emerald-400">{selectedExpense.approved_by_name || 'System Admin'}</strong>
+                </div>
+              )}
+
+              {selectedExpense.receipt_url && (
+                <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/60 pb-1">
+                  <span className="text-[9px] text-slate-400 font-bold uppercase block">Receipt Attachment</span>
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
+                    <img 
+                      src={selectedExpense.receipt_url} 
+                      alt="Expense Receipt" 
+                      className="w-full max-h-48 object-contain hover:scale-[1.03] transition-transform cursor-zoom-in"
+                      onClick={() => {
+                        const w = window.open();
+                        if (w) w.document.write(`<img src="${selectedExpense.receipt_url}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SUPER ADMIN APPROVAL/DISAPPROVAL CONTROLS */}
+            {activeRole === 'Admin' && (
+              <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
+                <button
+                  onClick={() => handleApproveExpense(selectedExpense.id, false)}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                    selectedExpense.status === 'REJECTED'
+                      ? 'bg-rose-100 dark:bg-rose-950/30 text-rose-700 border-rose-200 dark:border-rose-900 cursor-not-allowed'
+                      : 'bg-white hover:bg-rose-50 text-rose-600 border-rose-200 dark:border-rose-800 dark:bg-slate-900 dark:hover:bg-rose-950/20'
+                  }`}
+                  disabled={selectedExpense.status === 'REJECTED'}
+                >
+                  Reject / Disapprove
+                </button>
+                <button
+                  onClick={() => handleApproveExpense(selectedExpense.id, true)}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                    selectedExpense.status === 'APPROVED'
+                      ? 'bg-emerald-150 dark:bg-emerald-950/30 text-emerald-700 border-emerald-250/30 cursor-not-allowed'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white border-transparent shadow-lg shadow-emerald-600/25'
+                  }`}
+                  disabled={selectedExpense.status === 'APPROVED'}
+                >
+                  Approve Expense
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -4175,22 +4497,6 @@ function App() {
                 </select>
               </div>
 
-              <button 
-                onClick={() => {
-                  try {
-                    localStorage.setItem('h3_geofences', JSON.stringify(customGeofences));
-                    alert(`✓ Successfully saved all ${customGeofences.length} geofence boundaries to permanent storage!`);
-                  } catch {
-                    alert('Failed to save geofences.');
-                  }
-                }}
-                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-all border border-emerald-400/30"
-                title="Save all drawn geofences permanently"
-              >
-                <Check size={14} />
-                <span>Save Fences</span>
-              </button>
-
               <button
                 onClick={() => setMapType(prev => prev === 'hybrid' ? 'streets' : 'hybrid')}
                 className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-xl text-xs font-bold transition-all"
@@ -4210,7 +4516,186 @@ function App() {
 
           {/* Full Screen Google Map Canvas */}
           <div className="flex-1 w-full relative">
-            <div id="fullscreen-google-map-container" className="w-full h-full"></div>
+            <div id="fullscreen-google-map-container" className="w-full h-full z-0"></div>
+
+            {/* FLOATING PENCIL BUTTON TO MARK GEOFENCE & CANCEL DRAWING BUTTON */}
+            <div className="absolute bottom-10 right-10 z-[9999] flex items-center gap-3 pointer-events-auto">
+              {isDrawingActive && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const drawer = (window as any).activePolygonDrawer;
+                    if (drawer && typeof drawer.disable === 'function') {
+                      drawer.disable();
+                    }
+                    setIsDrawingActive(false);
+                    alert('❌ Drawing cancelled.');
+                  }}
+                  className="w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg border-2 border-white/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                  title="Cancel drawing fence"
+                >
+                  <X size={20} />
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const map = (window as any).leafletMapInstance;
+                  const L = (window as any).L;
+                  if (map && L && L.Draw && L.Draw.Polygon) {
+                    // Disable previous drawer if any
+                    if ((window as any).activePolygonDrawer) {
+                      try { (window as any).activePolygonDrawer.disable(); } catch {}
+                    }
+                    const polygonDrawer = new L.Draw.Polygon(map, {
+                      shapeOptions: {
+                        color: '#3b82f6',
+                        fillColor: '#3b82f6',
+                        fillOpacity: 0.3,
+                        weight: 3
+                      }
+                    });
+                    (window as any).activePolygonDrawer = polygonDrawer;
+                    polygonDrawer.enable();
+                    setIsDrawingActive(true);
+                    alert('🖊️ Pencil Draw Mode Active!\n\n1. Click points on the satellite map to outline your fence perimeter.\n2. Click the VERY FIRST marker point (or double-click) to CLOSE the fence!\n3. The Save Modal will appear to save your fence boundary.');
+                  } else {
+                    alert('Click points on the map to mark your geofence boundary!');
+                  }
+                }}
+                className={`w-14 h-14 bg-gradient-to-r ${isDrawingActive ? 'from-slate-600 to-slate-700 opacity-60 pointer-events-none' : 'from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500'} text-white rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
+                title="Click to draw geofence perimeter"
+                disabled={isDrawingActive}
+              >
+                <Pencil size={24} className="text-white" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DRAWN GEOFENCE NAMING & SAVE DIALOG MODAL */}
+      {pendingDrawnShape && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-blue-500/15 text-blue-600 flex items-center justify-center font-bold">
+                  <Pencil size={20} />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">Save Marked Geofence</h4>
+                  <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                    ✓ Closed Polygon Loop ({pendingDrawnShape.coords.length} points)
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setPendingDrawnShape(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const nameToSave = newZoneName.trim() || pendingDrawnShape.defaultName;
+                const newShape = {
+                  id: `GF_DRAWN_${Date.now()}`,
+                  name: nameToSave,
+                  shape: 'polygon',
+                  color: newZoneColor || '#3b82f6',
+                  targetBatch: newZoneTargetBatch || 'ALL',
+                  lat: pendingDrawnShape.center.lat,
+                  lng: pendingDrawnShape.center.lng,
+                  coords: pendingDrawnShape.coords
+                };
+
+                setCustomGeofences(prev => {
+                  const updated = [...prev, newShape];
+                  try {
+                    localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                  } catch {}
+                  return updated;
+                });
+
+                if (pendingDrawnShape.layer && pendingDrawnShape.layer.bindPopup) {
+                  pendingDrawnShape.layer.bindPopup(`
+                    <div style="font-family: sans-serif; padding: 4px; text-align: left;">
+                      <b style="font-size: 13px; color: #1e293b;">📍 ${nameToSave}</b><br/>
+                      <span style="font-size: 11px; color: #64748b;">Allocated Batch: <b>${newZoneTargetBatch || 'ALL'}</b></span><br/>
+                      <span style="font-size: 11px; font-weight: bold; color: #059669;">✓ Boundary Closed & Active</span>
+                      <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                        <button 
+                          onclick="window.deleteGeofenceById('${newShape.id}')"
+                          style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
+                        >
+                          🗑️ Delete Geofence Area
+                        </button>
+                      </div>
+                    </div>
+                  `).openPopup();
+                }
+
+                setPendingDrawnShape(null);
+                setNewZoneName('');
+              }}
+              className="space-y-4 text-xs"
+            >
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">GEOFENCE NAME</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Koviloor Hostel Perimeter" 
+                  value={newZoneName}
+                  onChange={(e) => setNewZoneName(e.target.value)}
+                  className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">ALLOCATE TO STUDENT BATCH</label>
+                <select
+                  value={newZoneTargetBatch}
+                  onChange={(e) => setNewZoneTargetBatch(e.target.value)}
+                  className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                >
+                  <option value="ALL">All Batches (ALL)</option>
+                  {availableBatches.map(b => (
+                    <option key={b} value={b}>Batch {b} Scholars</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">BOUNDARY COLOR</label>
+                <div className="flex items-center gap-3">
+                  {['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
+                    <button
+                      key={col}
+                      type="button"
+                      onClick={() => setNewZoneColor(col)}
+                      className={`w-7 h-7 rounded-full border-2 transition-all ${newZoneColor === col ? 'scale-110 border-slate-900 dark:border-white shadow-md' : 'border-transparent opacity-80'}`}
+                      style={{ backgroundColor: col }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button 
+                  type="submit" 
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                >
+                  <Check size={16} />
+                  <span>Save Geofence Boundary</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

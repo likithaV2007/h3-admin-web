@@ -317,7 +317,9 @@ export const apiService = {
       status: (item.status || 'pending').toUpperCase(),
       student_id: item.student_id || null,
       target_group: item.target_group || 'ALL',
-      created_by_name: item.created_by_name || 'System Admin'
+      created_by_name: item.created_by_name || 'System Admin',
+      approved_by_name: item.approved_by_name || item.approved_by || null,
+      receipt_url: item.receipt_url || item.receipt || item.image_url || null
     }));
   },
 
@@ -393,6 +395,49 @@ export const apiService = {
     }
   },
 
+  // Update Expense Status & Approver
+  updateExpenseStatus: async (expenseId: string, status: string, approvedBy: string | null): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/expenses/${expenseId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({
+          status: status.toLowerCase(),
+          approved_by_name: approvedBy
+        }),
+      });
+      return res.ok;
+    } catch (err) {
+      console.error("Error updating expense status:", err);
+      return false;
+    }
+  },
+
+  // Upload Expense Receipt File
+  uploadReceipt: async (expenseId: string, file: File): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch(`${BASE_URL}/api/v1/expenses/${expenseId}/receipt`, {
+        method: 'POST',
+        headers: {
+          ...authHeaders
+        },
+        body: formData
+      });
+      return res.ok;
+    } catch (err) {
+      console.error("Error uploading receipt:", err);
+      return false;
+    }
+  },
+
   // Fetch API Geofences List (/api/v1/geofences/ or /api/v1/locations/)
   getGeofences: async (): Promise<any[]> => {
     try {
@@ -402,6 +447,17 @@ export const apiService = {
       return Array.isArray(altData) ? altData : [];
     } catch (err) {
       console.warn("Could not fetch geofences from API:", err);
+      return [];
+    }
+  },
+
+  // Fetch Student Tracking Sessions
+  getTrackingSessions: async (): Promise<any[]> => {
+    try {
+      const data = await apiFetch<any[]>('/api/v1/trackingsessions/', []);
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.warn("Could not fetch tracking sessions from API:", err);
       return [];
     }
   },

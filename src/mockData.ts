@@ -167,6 +167,8 @@ export interface Expense {
   target_group?: string;
   created_by?: string;
   created_by_name?: string;
+  approved_by_name?: string | null;
+  receipt_url?: string | null;
 }
 
 export const initialDonors: Donor[] = [
