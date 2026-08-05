@@ -51,7 +51,8 @@ import {
   ArrowLeft,
   Pencil,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Layers
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { apiService, formatAvatarUrl } from './services/api';
@@ -151,6 +152,10 @@ function App() {
   });
   const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
   const [customTokenInput, setCustomTokenInput] = useState<string>(localStorage.getItem('authToken') || '');
+  const [editingGeofenceGroup, setEditingGeofenceGroup] = useState<any | null>(null);
+  const [isMergeModalOpen, setIsMergeModalOpen] = useState<boolean>(false);
+  const [mergeTargetName, setMergeTargetName] = useState<string>('');
+  const [selectedFencesToMerge, setSelectedFencesToMerge] = useState<string[]>([]);
 
   const [showAddLocationModal, setShowAddLocationModal] = useState<boolean>(false);
   const [isFullScreenMapOpen, setIsFullScreenMapOpen] = useState<boolean>(false);
@@ -159,6 +164,9 @@ function App() {
   const [newZoneColor, setNewZoneColor] = useState<string>('#3b82f6');
   const [newZoneTargetBatch, setNewZoneTargetBatch] = useState<string>('ALL');
   const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('ALL');
+  const [selectedGeofenceFilter, setSelectedGeofenceFilter] = useState<string>('ALL');
+  const [modalBatchFilter, setModalBatchFilter] = useState<string>('ALL');
+  const [fenceTypeTab, setFenceTypeTab] = useState<'single' | 'grouped'>('single');
   const [pendingDrawnShape, setPendingDrawnShape] = useState<{
     layer: any;
     coords: Array<[number, number]>;
@@ -283,16 +291,46 @@ function App() {
     targetBatch: string;
     lat: number;
     lng: number;
-    coords: Array<[number, number]>;
+    polygons: Array<{ name: string; coords: Array<[number, number]> }>;
+    studentIds?: string[];
   }>>(() => {
     try {
       const saved = localStorage.getItem('h3_geofences');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Restore any missing default single fences that were deleted during past merges
+          const existingIds = parsed.map(p => p.id);
+          const missingDefaults = defaultApiGeofences
+            .filter(d => !existingIds.includes(d.id))
+            .map(d => ({
+              ...d,
+              polygons: d.polygons || (d.coords ? [{ name: d.name, coords: d.coords }] : []),
+              studentIds: d.studentIds || []
+            }));
+          
+          const combined = [...parsed, ...missingDefaults];
+          return combined.map((gf: any) => {
+            const mappedPolys = (gf.polygons || []).map((p: any, idx: number) => {
+              if (Array.isArray(p)) {
+                return { name: `${gf.name} (Area ${idx + 1})`, coords: p };
+              }
+              return p;
+            });
+            return {
+              ...gf,
+              polygons: mappedPolys.length > 0 ? mappedPolys : (gf.coords ? [{ name: gf.name, coords: gf.coords }] : []),
+              studentIds: gf.studentIds || []
+            };
+          });
+        }
       }
     } catch {}
-    return defaultApiGeofences;
+    return defaultApiGeofences.map((gf: any) => ({
+      ...gf,
+      polygons: gf.polygons || (gf.coords ? [{ name: gf.name, coords: gf.coords }] : []),
+      studentIds: gf.studentIds || []
+    }));
   });
 
   // Persist geofences changes locally so drawn fences never vanish
@@ -430,28 +468,17 @@ function App() {
             targetBatch: 'ALL',
             lat: centerLat,
             lng: centerLng,
-            coords: coords,
+            polygons: gf.polygons || [coords],
+            studentIds: gf.studentIds || gf.assigned_students || [],
             description: gf.description || ''
           });
         });
 
         if (mappedGeofences.length > 0) {
-          setCustomGeofences(prev => {
-            const mergedMap = new Map();
-            // Retain existing local geofences first
-            prev.forEach(item => mergedMap.set(item.id, item));
-            // Add API geofences if not already present
-            mappedGeofences.forEach(item => {
-              if (!mergedMap.has(item.id)) {
-                mergedMap.set(item.id, item);
-              }
-            });
-            const result = Array.from(mergedMap.values());
-            try {
-              localStorage.setItem('h3_geofences', JSON.stringify(result));
-            } catch {}
-            return result;
-          });
+          setCustomGeofences(mappedGeofences);
+          try {
+            localStorage.setItem('h3_geofences', JSON.stringify(mappedGeofences));
+          } catch {}
         }
       }
     } catch (err) {
@@ -467,6 +494,82 @@ function App() {
       loadDataFromApi();
     }
   }, [isAuthenticated]);
+
+  // Ray-Casting algorithm to check if GPS coordinate is within Geofence perimeter
+  const isPointInPolygon = (point: [number, number], polygon: Array<[number, number]>) => {
+    const [x, y] = point;
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const [xi, yi] = polygon[i];
+      const [xj, yj] = polygon[j];
+      const intersect = ((yi > y) !== (yj > y))
+          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  };
+
+  // Live Geofence Violation Alert Monitor
+  useEffect(() => {
+    if (!students || students.length === 0 || !customGeofences || customGeofences.length === 0) return;
+
+    let stateChanged = false;
+    const updatedStudents = students.map(student => {
+      const assignedFence = customGeofences.find(gf => gf.studentIds && gf.studentIds.includes(student.id));
+      if (!assignedFence) return student;
+
+      if (student.location && student.location.coordinates) {
+        const parts = student.location.coordinates.split(',').map(p => parseFloat(p.trim()));
+        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+          const polygonsList = assignedFence.polygons || [];
+          const isInside = polygonsList.length > 0
+            ? polygonsList.some(poly => {
+                const coords = Array.isArray(poly) ? poly : (poly as any).coords;
+                return isPointInPolygon([parts[0], parts[1]], coords);
+              })
+            : false;
+          if (!isInside && student.location.status !== 'Out of Bounds' && student.location.status !== 'On Leave') {
+            stateChanged = true;
+            const alertMsg = `🚨 Geofence Violation: ${student.name} is outside the ${assignedFence.name} perimeter!`;
+            setNotifications(prev => {
+              if (prev.some(n => n.text === alertMsg)) return prev;
+              return [
+                {
+                  id: `GF_ALERT_${Date.now()}_${student.id}`,
+                  text: alertMsg,
+                  time: 'Just Now',
+                  read: false
+                },
+                ...prev
+              ];
+            });
+
+            return {
+              ...student,
+              location: {
+                ...student.location,
+                status: 'Out of Bounds'
+              }
+            };
+          } else if (isInside && student.location.status === 'Out of Bounds') {
+            stateChanged = true;
+            return {
+              ...student,
+              location: {
+                ...student.location,
+                status: 'In Hostel'
+              }
+            };
+          }
+        }
+      }
+      return student;
+    });
+
+    if (stateChanged) {
+      setStudents(updatedStudents);
+    }
+  }, [students, customGeofences]);
 
   // Leaflet OpenStreetMap & Full-Screen Google Maps Initialization
   useEffect(() => {
@@ -527,21 +630,30 @@ function App() {
         attribution: '&copy; Google Maps'
       }).addTo(map);
 
-      // Render User-Created Geofence Shapes Filtered Batch-Wise
-      const visibleGeofences = selectedBatchFilter === 'ALL'
+      // Render User-Created Geofence Shapes Filtered Group-Wise
+      const visibleGeofences = selectedGeofenceFilter === 'ALL'
         ? customGeofences
-        : customGeofences.filter(gf => gf.targetBatch === selectedBatchFilter || gf.targetBatch === 'ALL');
+        : customGeofences.filter(gf => gf.id === selectedGeofenceFilter);
 
       // Helper function to remove a geofence
-      (window as any).deleteGeofenceById = (geofenceId: string) => {
+      (window as any).deleteGeofenceById = async (geofenceId: string, event: Event) => {
+        if (event) {
+          event.stopPropagation();
+        }
         if (confirm('Are you sure you want to delete this geofence boundary?')) {
-          setCustomGeofences(prev => {
-            const updated = prev.filter(g => g.id !== geofenceId);
-            try {
-              localStorage.setItem('h3_geofences', JSON.stringify(updated));
-            } catch {}
-            return updated;
-          });
+          map.closePopup();
+          const success = await apiService.deleteGeofence(geofenceId);
+          if (success) {
+            setCustomGeofences(prev => {
+              const updated = prev.filter(g => g.id !== geofenceId);
+              try {
+                localStorage.setItem('h3_geofences', JSON.stringify(updated));
+              } catch {}
+              return updated;
+            });
+          } else {
+            alert('Failed to delete geofence from server.');
+          }
         }
       };
 
@@ -550,36 +662,47 @@ function App() {
       map.addLayer(drawnItems);
 
       visibleGeofences.forEach(gf => {
-        const poly = L.polygon(gf.coords, {
-          color: gf.color,
-          fillColor: gf.color,
-          fillOpacity: 0.25,
-          weight: 2.5
-        }).addTo(map);
+        const polygonsList = gf.polygons || [];
+        polygonsList.forEach(polyObj => {
+          const coords = Array.isArray(polyObj) ? polyObj : (polyObj as any).coords;
+          const name = Array.isArray(polyObj) ? gf.name : ((polyObj as any).name || gf.name);
+          if (!coords || coords.length === 0) return;
+          const poly = L.polygon(coords, {
+            color: gf.color,
+            fillColor: gf.color,
+            fillOpacity: 0.25,
+            weight: 2.5
+          }).addTo(map);
 
-        drawnItems.addLayer(poly);
+          drawnItems.addLayer(poly);
 
-        poly.bindPopup(`
-          <div style="font-family: sans-serif; padding: 2px; text-align: left;">
-            <b style="font-size: 13px; color: #1e293b;">${gf.name}</b><br/>
-            <span style="font-size: 11px; color: #64748b;">Batch Allocated: <b>${gf.targetBatch || 'All Batches'}</b></span><br/>
-            <span style="font-size: 11px; font-weight: bold; color: ${gf.color};">🛡️ Geofence Active</span>
-            <div style="margin-top: 8px; pt-2; border-top: 1px solid #e2e8f0;">
-              <button 
-                onclick="window.deleteGeofenceById('${gf.id}')"
-                style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
-              >
-                🗑️ Delete Geofence Area
-              </button>
+          poly.bindPopup(`
+            <div style="font-family: sans-serif; padding: 2px; text-align: left;">
+              <b style="font-size: 13px; color: #1e293b;">${name}</b><br/>
+              <span style="font-size: 11px; color: #64748b;">Parent Fence: <b>${gf.name}</b></span><br/>
+              <span style="font-size: 11px; color: #64748b;">Batch: <b>${gf.targetBatch || 'All Batches'}</b></span><br/>
+              <span style="font-size: 11px; font-weight: bold; color: ${gf.color};">🛡️ Geofence Active</span>
+              <div style="margin-top: 8px; pt-2; border-top: 1px solid #e2e8f0;">
+                <button 
+                  onclick="window.deleteGeofenceById('${gf.id}', event)"
+                  style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
+                >
+                  🗑️ Delete Geofence Area
+                </button>
+              </div>
             </div>
-          </div>
-        `);
+          `);
+        });
       });
 
-      // Render Student Location Pins on the Map (matching selected batch filter)
-      const studentPins = selectedBatchFilter === 'ALL' 
+      // Render Student Location Pins on the Map (matching selected geofence filter)
+      const studentPins = selectedGeofenceFilter === 'ALL' 
         ? students 
-        : students.filter(s => (s.batch || s.current_year || '2026') === selectedBatchFilter);
+        : (() => {
+            const selectedFence = customGeofences.find(gf => gf.id === selectedGeofenceFilter);
+            const assignedIds = selectedFence?.studentIds || [];
+            return students.filter(s => assignedIds.includes(s.id));
+          })();
 
       // Student pin offsets around Koviloor campus
       const campusOffsetLat = [0.0012, -0.0008, 0.0018, -0.0014, 0.0005, -0.0020, 0.0022];
@@ -721,7 +844,10 @@ function App() {
           
           setCustomGeofences(prev => {
             const filtered = prev.filter(g => 
-              remainingCoords.some(rc => rc.length === g.coords.length)
+              remainingCoords.some(rc => (g.polygons || []).some(poly => {
+                const coords = Array.isArray(poly) ? poly : (poly as any).coords;
+                return coords.length === rc.length;
+              }))
             );
             try {
               localStorage.setItem('h3_geofences', JSON.stringify(filtered));
@@ -738,7 +864,7 @@ function App() {
     }, 150);
 
     return () => clearTimeout(timer);
-  }, [activeTab, students, customGeofences, mapType, isFullScreenMapOpen, selectedBatchFilter]);
+  }, [activeTab, students, customGeofences, mapType, isFullScreenMapOpen, selectedGeofenceFilter]);
 
   const handleSaveToken = () => {
     const cleanToken = customTokenInput.trim();
@@ -1455,7 +1581,7 @@ function App() {
             <div className="space-y-6">
               
               {/* HEADING ACCENT */}
-              <div className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 rounded-3xl p-7 text-white shadow-xl shadow-blue-600/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
+              <div className="bg-gradient-to-r from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-white shadow-xl shadow-blue-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
                 <div className="absolute -right-10 -top-10 w-72 h-72 bg-gradient-to-br from-white/25 to-transparent rounded-full blur-2xl pointer-events-none"></div>
                 <div className="absolute right-32 -bottom-10 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl pointer-events-none"></div>
                 <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-white drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
@@ -2998,8 +3124,8 @@ function App() {
               {/* TOP HERO BANNER & STATS CARD (MATCHING MOBILE SCREENSHOT) */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Total Spend Card (Cyan/Teal Gradient Card like Mobile app) */}
-                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-cyan-500 via-teal-600 to-emerald-600 rounded-3xl p-7 text-white shadow-xl shadow-teal-500/20 flex flex-col justify-between min-h-[160px]">
+                {/* Total Spend Card (Matching Admin Dashboard Theme) */}
+                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-white shadow-xl shadow-blue-950/20 flex flex-col justify-between min-h-[160px]">
                   {/* Decorative Translucent Wallet Icon */}
                   <div className="absolute right-6 top-6 opacity-20 pointer-events-none">
                     <Wallet size={120} className="text-white" />
@@ -3011,7 +3137,7 @@ function App() {
                     </span>
 
                     <div className="flex items-baseline gap-2 pt-2">
-                      <span className="text-2xl font-black text-cyan-100">₹</span>
+                      <span className="text-2xl font-black text-indigo-100">₹</span>
                       <h3 className="text-4xl sm:text-5xl font-black tracking-tight font-mono text-white">
                         {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
                       </h3>
@@ -3020,16 +3146,16 @@ function App() {
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 border-t border-white/15 relative z-10">
                     <div className="flex gap-3 text-xs font-semibold">
-                      <span className="text-cyan-100">Pending Approvals: <strong className="text-white font-mono">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
-                      <span className="text-cyan-100">|</span>
-                      <span className="text-cyan-100">Refund Requests: <strong className="text-white font-mono">{expenses.filter(e => e.refund_requested).length}</strong></span>
+                      <span className="text-indigo-100">Pending Approvals: <strong className="text-white font-mono">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
+                      <span className="text-indigo-100">|</span>
+                      <span className="text-indigo-100">Refund Requests: <strong className="text-white font-mono">{expenses.filter(e => e.refund_requested).length}</strong></span>
                     </div>
 
                     <button 
                       onClick={() => setShowExpenseModal(true)}
-                      className="bg-white hover:bg-cyan-50 text-teal-800 font-extrabold px-4 py-2 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-105 active:scale-95 shrink-0"
+                      className="bg-white hover:bg-indigo-50 text-indigo-800 font-extrabold px-4 py-2 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-105 active:scale-95 shrink-0"
                     >
-                      <Plus size={16} className="text-teal-600" />
+                      <Plus size={16} className="text-indigo-600" />
                       <span>Add Record</span>
                     </button>
                   </div>
@@ -3358,39 +3484,70 @@ function App() {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  {/* Batch Allocation Filter */}
+                  {/* Geofence Group Filter */}
                   <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
                     <Filter size={14} className="text-blue-500" />
-                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Batch Filter:</span>
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Group Filter:</span>
                     <select 
-                      value={selectedBatchFilter}
-                      onChange={(e) => setSelectedBatchFilter(e.target.value)}
-                      className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer"
+                      value={selectedGeofenceFilter}
+                      onChange={(e) => setSelectedGeofenceFilter(e.target.value)}
+                      className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer max-w-[160px]"
                     >
-                      <option value="ALL">All Batches</option>
-                      {availableBatches.map(b => (
-                        <option key={b} value={b}>Batch {b}</option>
+                      <option value="ALL">All Fences</option>
+                      {customGeofences.map(gf => (
+                        <option key={gf.id} value={gf.id}>{gf.name}</option>
                       ))}
                     </select>
                   </div>
 
-                  <button 
-                    onClick={() => setIsFullScreenMapOpen(true)}
-                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
-                    title="Open full screen map to draw, add, or delete geofences"
-                  >
-                    <Compass size={16} />
-                    <span>Open Full Screen Geofence Editor</span>
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => {
+                        setSelectedFencesToMerge([]);
+                        setMergeTargetName('');
+                        setIsMergeModalOpen(true);
+                      }}
+                      className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
+                      title="Merge existing separate fences into a single geofence group"
+                    >
+                      <Layers size={16} />
+                      <span>Merge / Group Fences</span>
+                    </button>
+
+                    <button 
+                      onClick={() => setIsFullScreenMapOpen(true)}
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
+                      title="Open full screen map to draw, add, or delete geofences"
+                    >
+                      <Compass size={16} />
+                      <span>Open Full Screen Geofence Editor</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* GEOFENCE ZONE CARDS & SUMMARY */}
               <div className="relative">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    Active Geofence Zones ({customGeofences.length})
-                  </h4>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
+                  <div className="flex items-center gap-3">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      Active Geofence Zones ({customGeofences.length})
+                    </h4>
+                    <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/40 dark:border-slate-700/50">
+                      <button 
+                        onClick={() => setFenceTypeTab('single')}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                      >
+                        Single Fences ({customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
+                      </button>
+                      <button 
+                        onClick={() => setFenceTypeTab('grouped')}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                      >
+                        Grouped Fences ({customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
+                      </button>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => scrollGeofences('left')}
@@ -3401,7 +3558,7 @@ function App() {
                     </button>
                     <button 
                       onClick={() => scrollGeofences('right')}
-                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
                       title="Scroll Right"
                     >
                       <ChevronRight size={16} />
@@ -3414,20 +3571,16 @@ function App() {
                   className="flex gap-4 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory scrollbar-none"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                  {customGeofences.map((gf) => {
-                    const studentCount = (() => {
-                      const nameLower = gf.name.toLowerCase();
-                      if (nameLower.includes('hostel')) {
-                        return students.filter(s => s.locationStatus === 'Hostel').length;
-                      }
-                      if (nameLower.includes('college') || nameLower.includes('campus')) {
-                        return students.filter(s => s.locationStatus === 'College').length;
-                      }
-                      if (nameLower.includes('office') || nameLower.includes('ngo') || nameLower.includes('hub')) {
-                        return students.filter(s => s.locationStatus === 'Office' || (s as any).locationStatus === 'Out' || (s as any).locationStatus === 'HQ').length;
-                      }
-                      return 0;
-                    })();
+                  {customGeofences
+                    .filter(gf => {
+                      const isGrouped = gf.polygons && gf.polygons.length > 1;
+                      return fenceTypeTab === 'grouped' ? isGrouped : !isGrouped;
+                    })
+                    .map((gf) => {
+                    const assignedStudentIds = gf.studentIds || [];
+                    const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
+                    const hasViolation = assignedStudents.some(s => s.location?.status === 'Out of Bounds');
+                    const insideCount = assignedStudents.filter(s => s.location?.status !== 'Out of Bounds' && s.location?.status !== 'On Leave').length;
 
                     const getGeofenceIcon = (name: string) => {
                       const nameLower = name.toLowerCase();
@@ -3437,13 +3590,13 @@ function App() {
                       return <Compass size={20} />;
                     };
 
-                    const accentColor = gf.color || '#3b82f6';
+                    const accentColor = hasViolation ? '#ef4444' : (gf.color || '#3b82f6');
 
                     return (
                       <div 
                         key={gf.id}
-                        className="flex-shrink-0 w-80 glass-panel rounded-2xl p-5 relative overflow-hidden group transition-all snap-start"
-                        style={{ borderLeft: `4px solid ${accentColor}` }}
+                        className={`flex-shrink-0 w-80 glass-panel rounded-2xl p-5 relative overflow-hidden group transition-all snap-start border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
+                        style={{ borderLeftColor: accentColor }}
                       >
                         <div className="flex items-center justify-between mb-3">
                           <div 
@@ -3452,32 +3605,82 @@ function App() {
                           >
                             {getGeofenceIcon(gf.name)}
                           </div>
-                          <span 
-                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
-                            style={{
-                              backgroundColor: `${accentColor}15`,
-                              borderColor: `${accentColor}30`,
-                              color: accentColor
-                            }}
-                          >
-                            <ShieldCheck size={12} /> Geofence Active
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
+                                  setCustomGeofences(prev => {
+                                    const updated = prev.filter(g => g.id !== gf.id);
+                                    localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                                    return updated;
+                                  });
+                                }
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
+                              title="Delete Geofence"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                            <span 
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                                hasViolation 
+                                  ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-650 dark:text-red-400' 
+                                  : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-250/30 text-emerald-600 dark:text-emerald-450'
+                              }`}
+                            >
+                              {hasViolation ? (
+                                <>⚠️ Out of Bounds Alert</>
+                              ) : (
+                                <><ShieldCheck size={12} /> Geofence Active</>
+                              )}
+                            </span>
+                          </div>
                         </div>
                         <h4 className="font-bold text-sm text-slate-800 dark:text-white truncate" title={gf.name}>{gf.name}</h4>
                         <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
                           {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
                         </p>
+
+                        {assignedStudents.length > 0 ? (
+                          <div className="flex items-center gap-1.5 mt-3">
+                            <div className="flex -space-x-2 overflow-hidden">
+                              {assignedStudents.slice(0, 4).map(s => (
+                                <img
+                                  key={s.id}
+                                  className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
+                                  src={s.avatar}
+                                  alt={s.name}
+                                  title={s.name}
+                                />
+                              ))}
+                              {assignedStudents.length > 4 && (
+                                <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 ring-2 ring-white dark:ring-slate-900">
+                                  +{assignedStudents.length - 4}
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[10px] text-slate-450 dark:text-slate-350 font-extrabold font-mono">
+                              {insideCount}/{assignedStudents.length} Inside
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 mt-3 font-medium italic">No students assigned to group</p>
+                        )}
                         
                         <div 
                           className="mt-4 pt-3 border-t flex justify-between items-center text-xs"
                           style={{ borderColor: `${accentColor}15` }}
                         >
-                          <span className="text-slate-500 font-semibold">Currently In Zone:</span>
-                          <span 
-                            className="font-extrabold font-mono text-sm"
-                            style={{ color: accentColor }}
+                          <button
+                            onClick={() => setEditingGeofenceGroup(gf)}
+                            className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
                           >
-                            {studentCount} Students
+                            <Users size={12} />
+                            <span>Manage Group</span>
+                          </button>
+
+                          <span className="text-[10px] text-slate-450 dark:text-slate-550 font-bold uppercase tracking-wider font-mono">
+                            {gf.targetBatch || 'ALL'}
                           </span>
                         </div>
                       </div>
@@ -3624,51 +3827,49 @@ function App() {
                 <div className="glass-panel rounded-3xl p-5 space-y-4 flex flex-col justify-between">
                   <div>
                     <h4 className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2 mb-3">
-                      <Compass size={16} className="text-blue-500" />
-                      Live Student Status Tracker
+                      <Compass size={16} className="text-red-500 animate-pulse" />
+                      Out-of-Bounds Radar ({students.filter(s => s.location?.status === 'Out of Bounds').length})
                     </h4>
 
                     <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
-                      {students.map(std => {
-                        const loc = std.locationStatus || 'Hostel';
-                        const badgeColor = 
-                          loc === 'Hostel' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200' :
-                          loc === 'College' ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 border-blue-200' :
-                          'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400 border-purple-200';
-
-                        return (
-                          <div 
-                            key={std.id}
-                            className="p-3 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 flex items-center justify-between gap-3 hover:bg-slate-100/50 transition-colors"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <img 
-                                src={std.avatar} 
-                                alt={std.name} 
-                                className="w-8 h-8 rounded-xl object-cover border border-slate-200" 
-                              />
-                              <div>
-                                <span className="font-bold text-xs text-slate-800 dark:text-white block">{std.name}</span>
-                                <span className="text-[10px] text-slate-400">{std.college}</span>
-                              </div>
+                      {(() => {
+                        const outFliers = students.filter(s => s.location?.status === 'Out of Bounds');
+                        if (outFliers.length === 0) {
+                          return (
+                            <div className="flex flex-col items-center justify-center p-8 text-center bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
+                              <span className="text-2xl mb-1">🛡️</span>
+                              <span className="font-bold text-xs text-emerald-600 dark:text-emerald-455 block">All Students Safe</span>
+                              <span className="text-[10px] text-slate-400 mt-0.5">Everyone is inside their assigned boundaries.</span>
                             </div>
+                          );
+                        }
 
-                            {/* Zone Selector Override */}
-                            <select
-                              value={loc}
-                              onChange={(e) => {
-                                const newLoc = e.target.value as 'Hostel' | 'College' | 'Out';
-                                setStudents(prev => prev.map(s => s.id === std.id ? { ...s, locationStatus: newLoc } : s));
-                              }}
-                              className={`text-[10px] font-bold px-2 py-1 rounded-xl border ${badgeColor} focus:outline-none cursor-pointer`}
+                        return outFliers.map(std => {
+                          const assignedFence = customGeofences.find(gf => gf.studentIds && gf.studentIds.includes(std.id));
+                          return (
+                            <div 
+                              key={std.id}
+                              className="p-3 rounded-2xl border border-red-200/60 dark:border-red-950/40 bg-red-50/30 dark:bg-red-950/10 flex items-center justify-between gap-3 hover:bg-red-50/50 transition-colors border-l-4 border-l-red-500"
                             >
-                              <option value="Hostel">📍 Hostel</option>
-                              <option value="College">🎓 College</option>
-                              <option value="Office">🏢 Office</option>
-                            </select>
-                          </div>
-                        );
-                      })}
+                              <div className="flex items-center gap-2.5">
+                                <img 
+                                  src={std.avatar} 
+                                  alt={std.name} 
+                                  className="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-800" 
+                                />
+                                <div>
+                                  <span className="font-bold text-xs text-slate-850 dark:text-white block">{std.name}</span>
+                                  <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-mono">Outside: {assignedFence ? assignedFence.name : 'Unassigned'}</span>
+                                </div>
+                              </div>
+
+                              <span className="text-[9px] font-extrabold uppercase tracking-wider text-red-605 bg-red-100/60 dark:bg-red-950/80 dark:text-red-400 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50">
+                                Violating
+                              </span>
+                            </div>
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
 
@@ -4366,7 +4567,7 @@ function App() {
                     targetBatch: newZoneTargetBatch,
                     lat: baseLat,
                     lng: baseLng,
-                    coords
+                    polygons: [coords]
                   }
                 ]);
 
@@ -4447,6 +4648,347 @@ function App() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MANAGE GEOFENCE GROUP MODAL */}
+      {editingGeofenceGroup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh]">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                  <Users size={16} />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Manage Group</h4>
+                  <p className="text-[10px] text-slate-400">Add/remove students from {editingGeofenceGroup.name}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setEditingGeofenceGroup(null)} 
+                className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="px-1 space-y-4 flex flex-col shrink-0">
+              {/* Geofence Group Naming */}
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">Geofence Group Name</label>
+                <input 
+                  type="text"
+                  required
+                  value={editingGeofenceGroup.name}
+                  onChange={(e) => {
+                    const newName = e.target.value;
+                    setEditingGeofenceGroup({ ...editingGeofenceGroup, name: newName });
+                    setCustomGeofences(prev => {
+                      const updated = prev.map(gf => gf.id === editingGeofenceGroup.id ? { ...gf, name: newName } : gf);
+                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                      return updated;
+                    });
+                  }}
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-blue-500 text-xs"
+                />
+              </div>
+
+              {/* Batch Filter inside Modal */}
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80 gap-2 flex-wrap">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Filter Students:</span>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={modalBatchFilter}
+                    onChange={(e) => setModalBatchFilter(e.target.value)}
+                    className="p-1 px-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold text-[10px] text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="ALL">All Batches</option>
+                    {availableBatches.map(b => (
+                      <option key={b} value={b}>Batch {b}</option>
+                    ))}
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const filteredStudents = students.filter(student => modalBatchFilter === 'ALL' || (student.batch || student.current_year || '2026') === modalBatchFilter);
+                      const filteredIds = filteredStudents.map(s => s.id);
+                      const currentlyAssigned = editingGeofenceGroup.studentIds || [];
+                      const allSelected = filteredIds.every(id => currentlyAssigned.includes(id));
+
+                      let newStudentIds: string[];
+                      if (allSelected) {
+                        newStudentIds = currentlyAssigned.filter(id => !filteredIds.includes(id));
+                      } else {
+                        newStudentIds = Array.from(new Set([...currentlyAssigned, ...filteredIds]));
+                      }
+
+                      setEditingGeofenceGroup({ ...editingGeofenceGroup, studentIds: newStudentIds });
+                      setCustomGeofences(prev => prev.map(gf => gf.id === editingGeofenceGroup.id ? { ...gf, studentIds: newStudentIds } : gf));
+                    }}
+                    className="p-1 px-2.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 text-blue-600 dark:text-blue-400 rounded-xl text-[10px] font-bold transition-all border border-blue-200/40"
+                  >
+                    {(() => {
+                      const filteredStudents = students.filter(student => modalBatchFilter === 'ALL' || (student.batch || student.current_year || '2026') === modalBatchFilter);
+                      const filteredIds = filteredStudents.map(s => s.id);
+                      const currentlyAssigned = editingGeofenceGroup.studentIds || [];
+                      const allSelected = filteredIds.every(id => currentlyAssigned.includes(id));
+                      return allSelected ? 'Deselect All' : 'Select All';
+                    })()}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Student checklist */}
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-none py-2 border-b border-slate-100 dark:border-slate-800/80">
+              {students
+                .filter(student => modalBatchFilter === 'ALL' || (student.batch || student.current_year || '2026') === modalBatchFilter)
+                .map(student => {
+                  const isAssigned = (editingGeofenceGroup.studentIds || []).includes(student.id);
+                  return (
+                    <label 
+                      key={student.id}
+                      className="flex items-center justify-between p-3 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/40 cursor-pointer transition-all animate-fade-in"
+                    >
+                      <div className="flex items-center gap-3">
+                        <img 
+                          src={student.avatar} 
+                          alt={student.name} 
+                          className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700" 
+                        />
+                        <div>
+                          <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block">{student.name}</span>
+                          <span className="text-[9px] text-slate-400">{student.grade} - {student.college}</span>
+                        </div>
+                      </div>
+                      <input 
+                        type="checkbox"
+                        checked={isAssigned}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setCustomGeofences(prev => prev.map(gf => {
+                            if (gf.id === editingGeofenceGroup.id) {
+                              const currentIds = gf.studentIds || [];
+                              const updatedIds = checked 
+                                ? [...currentIds, student.id]
+                                : currentIds.filter(id => id !== student.id);
+                              
+                              setEditingGeofenceGroup({ ...editingGeofenceGroup, studentIds: updatedIds });
+                              return { ...gf, studentIds: updatedIds };
+                            }
+                            return gf;
+                          }));
+                        }}
+                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                      />
+                    </label>
+                  );
+                })}
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
+              <button 
+                onClick={async () => {
+                  const payload = {
+                    zone_name: editingGeofenceGroup.name,
+                    studentIds: editingGeofenceGroup.studentIds || []
+                  };
+                  const success = await apiService.updateGeofence(editingGeofenceGroup.id, payload);
+                  if (success) {
+                    setEditingGeofenceGroup(null);
+                  } else {
+                    alert('Failed to save group assignment to server');
+                  }
+                }}
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs"
+              >
+                Save Group Assignment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MERGE GEOFENCES MODAL */}
+      {isMergeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh] space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                  <Layers size={16} />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Merge / Group Fences</h4>
+                  <p className="text-[10px] text-slate-400">Combine multiple fences under a single name</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsMergeModalOpen(false)} 
+                className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs flex-1 overflow-y-auto pr-1 scrollbar-none">
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">Unified Geofence Name</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. Combined Hostel & Office Perimeter" 
+                  value={mergeTargetName}
+                  onChange={(e) => setMergeTargetName(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1.5 uppercase tracking-wider">Select Fences to Merge (Min. 2)</label>
+                <div className="space-y-2">
+                  {(() => {
+                    const isCoordMatch = (poly1: Array<[number, number]>, poly2: Array<[number, number]>) => {
+                      if (!poly1 || !poly2 || poly1.length !== poly2.length) return false;
+                      return poly1.every((pt, idx) => pt[0] === poly2[idx][0] && pt[1] === poly2[idx][1]);
+                    };
+
+                    const singleFences = customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1);
+
+                    return singleFences.map(gf => {
+                      const isChecked = selectedFencesToMerge.includes(gf.id);
+                      
+                      const gfCoords = gf.polygons && gf.polygons[0] 
+                        ? (Array.isArray(gf.polygons[0]) ? gf.polygons[0] : (gf.polygons[0] as any).coords)
+                        : [];
+
+                      const containingGroups = customGeofences
+                        .filter(g => (g.polygons || []).length > 1)
+                        .filter(g => 
+                          (g.polygons || []).some(p => {
+                            const coords = Array.isArray(p) ? p : (p as any).coords;
+                            return isCoordMatch(coords, gfCoords);
+                          })
+                        )
+                        .map(g => g.name);
+
+                      return (
+                        <label 
+                          key={gf.id}
+                          className="flex items-center justify-between p-3 rounded-2xl border border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-950/40 cursor-pointer transition-all"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: gf.color }} />
+                            <div>
+                              <span className="font-bold text-xs text-slate-850 dark:text-slate-200 block">{gf.name}</span>
+                              {containingGroups.length > 0 && (
+                                <span className="text-[9px] text-slate-450 dark:text-slate-500 font-medium block mt-0.5 animate-fade-in">
+                                  Already in: {containingGroups.join(', ')}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <input 
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setSelectedFencesToMerge(prev => 
+                                checked 
+                                  ? [...prev, gf.id] 
+                                  : prev.filter(id => id !== gf.id)
+                              );
+                            }}
+                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                          />
+                        </label>
+                      );
+                    });
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 shrink-0">
+              <button 
+                onClick={async () => {
+                  if (!mergeTargetName.trim() || selectedFencesToMerge.length < 2) return;
+
+                  const fencesToMerge = customGeofences.filter(gf => selectedFencesToMerge.includes(gf.id));
+                  if (fencesToMerge.length === 0) return;
+
+                  let mergedPolygons = fencesToMerge.map(gf => {
+                    const polyObj = gf.polygons && gf.polygons[0] ? gf.polygons[0] : null;
+                    const coords = polyObj ? (Array.isArray(polyObj) ? polyObj : (polyObj as any).coords) : [];
+                    return {
+                      name: gf.name,
+                      coords: coords
+                    };
+                  }).filter(p => p.coords && p.coords.length > 0);
+
+                  let mergedStudentIds: string[] = [];
+                  fencesToMerge.forEach(gf => {
+                    if (gf.studentIds) {
+                      gf.studentIds.forEach(id => {
+                        if (!mergedStudentIds.includes(id)) {
+                          mergedStudentIds.push(id);
+                        }
+                      });
+                    }
+                  });
+
+                  const baseParent = fencesToMerge[0];
+                  
+                  const apiPayload = {
+                    zone_name: mergeTargetName.trim(),
+                    center_lat: baseParent.lat,
+                    center_lng: baseParent.lng,
+                    radius_meters: 100,
+                    coordinates: mergedPolygons.map(p => JSON.stringify(p.coords)), 
+                    is_active: 1,
+                    description: `Merged group: ${fencesToMerge.map(f => f.name).join(', ')}`,
+                    studentIds: mergedStudentIds
+                  };
+
+                  const savedData = await apiService.createGeofence(apiPayload);
+                  
+                  if (savedData) {
+                    const newMergedGeofence = {
+                      id: savedData.zone_id || savedData.id || `GF_MERGED_${Date.now()}`,
+                      name: mergeTargetName.trim(),
+                      shape: 'polygon',
+                      color: baseParent.color || '#3b82f6',
+                      targetBatch: 'ALL',
+                      lat: baseParent.lat,
+                      lng: baseParent.lng,
+                      polygons: mergedPolygons,
+                      studentIds: mergedStudentIds,
+                      description: apiPayload.description
+                    };
+
+                    setCustomGeofences(prev => {
+                      const updated = [newMergedGeofence, ...prev];
+                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                      return updated;
+                    });
+
+                    setIsMergeModalOpen(false);
+                    setMergeTargetName('');
+                    setSelectedFencesToMerge([]);
+                    setFenceTypeTab('grouped');
+                  } else {
+                    alert('Failed to save merged geofence to the server.');
+                  }
+                }}
+                disabled={!mergeTargetName.trim() || selectedFencesToMerge.length < 2}
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800/40 text-white font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs disabled:cursor-not-allowed"
+              >
+                Merge Selected Fences
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -4564,7 +5106,7 @@ function App() {
                     alert('Click points on the map to mark your geofence boundary!');
                   }
                 }}
-                className={`w-14 h-14 bg-gradient-to-r ${isDrawingActive ? 'from-slate-600 to-slate-700 opacity-60 pointer-events-none' : 'from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500'} text-white rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
+                className={`w-14 h-14 bg-gradient-to-r ${isDrawingActive ? 'from-slate-600 to-slate-700 opacity-60 pointer-events-none' : 'from-blue-800 via-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-400'} text-white rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
                 title="Click to draw geofence perimeter"
                 disabled={isDrawingActive}
               >
@@ -4600,48 +5142,67 @@ function App() {
             </div>
 
             <form 
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
                 const nameToSave = newZoneName.trim() || pendingDrawnShape.defaultName;
-                const newShape = {
-                  id: `GF_DRAWN_${Date.now()}`,
-                  name: nameToSave,
-                  shape: 'polygon',
-                  color: newZoneColor || '#3b82f6',
-                  targetBatch: newZoneTargetBatch || 'ALL',
-                  lat: pendingDrawnShape.center.lat,
-                  lng: pendingDrawnShape.center.lng,
-                  coords: pendingDrawnShape.coords
+                
+                const apiPayload = {
+                  zone_name: nameToSave,
+                  center_lat: pendingDrawnShape.center.lat,
+                  center_lng: pendingDrawnShape.center.lng,
+                  radius_meters: 100,
+                  coordinates: [JSON.stringify(pendingDrawnShape.coords)],
+                  is_active: 1,
+                  description: 'Marked on Map',
+                  studentIds: []
                 };
+                
+                const savedData = await apiService.createGeofence(apiPayload);
+                
+                if (savedData) {
+                  const newShape = {
+                    id: savedData.zone_id || savedData.id || `GF_DRAWN_${Date.now()}`,
+                    name: nameToSave,
+                    shape: 'polygon',
+                    color: newZoneColor || '#3b82f6',
+                    targetBatch: newZoneTargetBatch || 'ALL',
+                    lat: pendingDrawnShape.center.lat,
+                    lng: pendingDrawnShape.center.lng,
+                    polygons: [pendingDrawnShape.coords],
+                    studentIds: []
+                  };
 
-                setCustomGeofences(prev => {
-                  const updated = [...prev, newShape];
-                  try {
-                    localStorage.setItem('h3_geofences', JSON.stringify(updated));
-                  } catch {}
-                  return updated;
-                });
+                  setCustomGeofences(prev => {
+                    const updated = [...prev, newShape];
+                    try {
+                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                    } catch {}
+                    return updated;
+                  });
 
-                if (pendingDrawnShape.layer && pendingDrawnShape.layer.bindPopup) {
-                  pendingDrawnShape.layer.bindPopup(`
-                    <div style="font-family: sans-serif; padding: 4px; text-align: left;">
-                      <b style="font-size: 13px; color: #1e293b;">📍 ${nameToSave}</b><br/>
-                      <span style="font-size: 11px; color: #64748b;">Allocated Batch: <b>${newZoneTargetBatch || 'ALL'}</b></span><br/>
-                      <span style="font-size: 11px; font-weight: bold; color: #059669;">✓ Boundary Closed & Active</span>
-                      <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0;">
-                        <button 
-                          onclick="window.deleteGeofenceById('${newShape.id}')"
-                          style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
-                        >
-                          🗑️ Delete Geofence Area
-                        </button>
+                  if (pendingDrawnShape.layer && pendingDrawnShape.layer.bindPopup) {
+                    pendingDrawnShape.layer.bindPopup(`
+                      <div style="font-family: sans-serif; padding: 4px; text-align: left;">
+                        <b style="font-size: 13px; color: #1e293b;">📍 ${nameToSave}</b><br/>
+                        <span style="font-size: 11px; color: #64748b;">Allocated Batch: <b>${newZoneTargetBatch || 'ALL'}</b></span><br/>
+                        <span style="font-size: 11px; font-weight: bold; color: #059669;">✓ Boundary Closed & Active</span>
+                        <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                          <button 
+                            onclick="window.deleteGeofenceById('${newShape.id}', event)"
+                            style="background-color: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer;"
+                          >
+                            🗑️ Delete Geofence Area
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  `).openPopup();
-                }
+                    `).openPopup();
+                  }
 
-                setPendingDrawnShape(null);
-                setNewZoneName('');
+                  setPendingDrawnShape(null);
+                  setNewZoneName('');
+                } else {
+                  alert('Failed to save drawn geofence to server.');
+                }
               }}
               className="space-y-4 text-xs"
             >

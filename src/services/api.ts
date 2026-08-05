@@ -438,15 +438,13 @@ export const apiService = {
     }
   },
 
-  // Fetch API Geofences List (/api/v1/geofences/ or /api/v1/locations/)
+  // Fetch API Geofences List
   getGeofences: async (): Promise<any[]> => {
     try {
-      const data = await apiFetch<any[]>('/api/v1/geofences/', []);
-      if (Array.isArray(data) && data.length > 0) return data;
-      const altData = await apiFetch<any[]>('/api/v1/locations/', []);
-      return Array.isArray(altData) ? altData : [];
+      const data = await apiFetch<any[]>('/api/v1/geofencezones/', []);
+      return Array.isArray(data) ? data : [];
     } catch (err) {
-      console.warn("Could not fetch geofences from API:", err);
+      console.warn("Could not fetch geofencezones from API:", err);
       return [];
     }
   },
@@ -466,7 +464,7 @@ export const apiService = {
   createGeofence: async (payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
-      const res = await fetch(`${BASE_URL}/api/v1/geofences/`, {
+      const res = await fetch(`${BASE_URL}/api/v1/geofencezones/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -477,8 +475,45 @@ export const apiService = {
       if (res.ok) return await res.json();
       return null;
     } catch (err) {
-      console.warn("Error posting geofence to API:", err);
+      console.warn("Error posting geofencezone to API:", err);
       return null;
+    }
+  },
+
+  // Update API Geofence Record
+  updateGeofence: async (id: string, payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/geofencezones/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.warn("Error updating geofencezone via API:", err);
+      return null;
+    }
+  },
+
+  // Delete API Geofence Record
+  deleteGeofence: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/geofencezones/${id}`, {
+        method: 'DELETE',
+        headers: {
+          ...authHeaders,
+        }
+      });
+      return res.ok;
+    } catch (err) {
+      console.warn("Error deleting geofencezone via API:", err);
+      return false;
     }
   },
 
