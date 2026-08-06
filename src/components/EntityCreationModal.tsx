@@ -80,6 +80,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
             <div className="md:col-span-2">
               <CustomInput required name="name" placeholder="Full Name" onChange={handleChange} />
             </div>
+            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
             <CustomInput required name="rollNo" placeholder="Roll Number" onChange={handleChange} />
             <CustomInput required type="number" name="age" placeholder="Age" onChange={handleChange} />
             <CustomSelect 

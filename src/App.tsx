@@ -124,9 +124,11 @@ function App() {
   // Data State
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [volunteers, setVolunteers] = useState<Volunteer[]>(initialVolunteers);
-  const [parents, setParents] = useState<Parent[]>(initialParents);
-  const [donors, setDonors] = useState<Donor[]>(initialDonors);
+  const [parents, setParents] = useState<Parent[]>([]);
+  const [donors, setDonors] = useState<Donor[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(initialActivityLogs);
+  const [adminCount, setAdminCount] = useState<number>(3);
   const [expenseSubTab, setExpenseSubTab] = useState<'records' | 'analytics'>('records');
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('ALL');
   const [expenseSearchQuery, setExpenseSearchQuery] = useState<string>('');
@@ -142,7 +144,6 @@ function App() {
   const [newExpenseReceipt, setNewExpenseReceipt] = useState<string>('');
   const [isSubmittingExpense, setIsSubmittingExpense] = useState<boolean>(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(initialActivityLogs);
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
   const [isLoadingApi, setIsLoadingApi] = useState<boolean>(false);
@@ -351,14 +352,17 @@ function App() {
 
       const fetchedStudents = await apiService.getStudents();
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
         apiService.getExpenses(),
         apiService.getGeofences(),
-        apiService.getTrackingSessions()
+        apiService.getTrackingSessions(),
+        apiService.getAdminsCount()
       ]);
+      
+      setAdminCount(fetchedAdminCount);
       
       let studentsWithLiveLocations = fetchedStudents || [];
       if (fetchedStudents && fetchedStudents.length > 0) {
@@ -1618,17 +1622,21 @@ function App() {
                 <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      {activeRole === 'Student' ? 'My Attendance' : 'Avg Attendance'}
+                      {activeRole === 'Student' ? 'My Attendance' : 'Total Admins'}
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Student' ? '94.5%' : `${avgAttendance}%`}
+                      {activeRole === 'Student' ? '94.5%' : `${volunteers.length} Active`}
                     </h4>
-                    <span className={`text-[10px] flex items-center gap-1 mt-2 font-medium ${avgAttendance >= 90 ? 'text-green-500' : 'text-amber-500'}`}>
-                      <span className="bg-green-500/10 p-0.5 rounded">Target 90%</span> met successfully
+                    <span className={`text-[10px] flex items-center gap-1 mt-2 font-medium ${activeRole === 'Student' ? 'text-green-500' : 'text-blue-500'}`}>
+                      {activeRole === 'Student' ? (
+                        <><span className="bg-green-500/10 p-0.5 rounded">Target 90%</span> met successfully</>
+                      ) : (
+                        'Managing system operations'
+                      )}
                     </span>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                    <Calendar size={22} />
+                    {activeRole === 'Student' ? <Calendar size={22} /> : <ShieldCheck size={22} />}
                   </div>
                 </div>
 
@@ -1636,13 +1644,13 @@ function App() {
                 <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      {activeRole === 'Student' ? 'Sponsor' : 'Total Volunteers'}
+                      {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Student' ? 'Hope3 Foundation' : `${volunteers.length} Active`}
+                      {activeRole === 'Student' ? 'Hope3 Foundation' : `${donors.length} Active`}
                     </h4>
                     <span className="text-[10px] text-blue-500 flex items-center gap-1 mt-2 font-medium">
-                      {activeRole === 'Student' ? 'Full tuition & hostel covered' : 'Dedicated to supporting students'}
+                      {activeRole === 'Student' ? 'Full tuition & hostel covered' : 'Sponsoring education'}
                     </span>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-950/50 text-pink-600 dark:text-pink-400 flex items-center justify-center">
@@ -1654,17 +1662,17 @@ function App() {
                 <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      Pending Approvals
+                      Out of Fence
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {pendingLeaves} Requests
+                      {students.filter(s => s.location.status === 'Out of Bounds').length} Students
                     </h4>
                     <span className="text-[10px] text-amber-500 flex items-center gap-1 mt-2 font-medium">
                       Requires urgent review
                     </span>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                    <Clock size={22} />
+                    <MapPin size={22} />
                   </div>
                 </div>
 

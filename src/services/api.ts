@@ -91,6 +91,22 @@ export function formatAvatarUrl(url?: string): string {
 }
 
 export const apiService = {
+  // Fetch Admins Count
+  getAdminsCount: async (): Promise<number> => {
+    try {
+      const usersData = await apiFetch<any[]>('/api/v1/users/', []);
+      if (!Array.isArray(usersData)) return 3;
+      
+      const adminUsers = usersData.filter(u => 
+        u.role === 'admin' || u.is_superuser === true || u.is_admin === true || u.user_role === 'admin'
+      );
+      
+      return adminUsers.length > 0 ? adminUsers.length : 3;
+    } catch (err) {
+      return 3;
+    }
+  },
+
   // Fetch Students
   getStudents: async (): Promise<Student[]> => {
     const data = await apiFetch<any[]>('/api/v1/students/', []);
@@ -441,7 +457,7 @@ export const apiService = {
   // Fetch API Geofences List
   getGeofences: async (): Promise<any[]> => {
     try {
-      const data = await apiFetch<any[]>('/api/v1/geofencezones/', []);
+      const data = await apiFetch<any[]>('/api/v1/geofences/', []);
       return Array.isArray(data) ? data : [];
     } catch (err) {
       console.warn("Could not fetch geofencezones from API:", err);
@@ -464,7 +480,7 @@ export const apiService = {
   createGeofence: async (payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
-      const res = await fetch(`${BASE_URL}/api/v1/geofencezones/`, {
+      const res = await fetch(`${BASE_URL}/api/v1/geofences/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -484,7 +500,7 @@ export const apiService = {
   updateGeofence: async (id: string, payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
-      const res = await fetch(`${BASE_URL}/api/v1/geofencezones/${id}`, {
+      const res = await fetch(`${BASE_URL}/api/v1/geofences/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -504,7 +520,7 @@ export const apiService = {
   deleteGeofence: async (id: string): Promise<boolean> => {
     try {
       const authHeaders = await getAuthHeader();
-      const res = await fetch(`${BASE_URL}/api/v1/geofencezones/${id}`, {
+      const res = await fetch(`${BASE_URL}/api/v1/geofences/${id}`, {
         method: 'DELETE',
         headers: {
           ...authHeaders,
