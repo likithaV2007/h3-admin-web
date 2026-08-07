@@ -1483,10 +1483,10 @@ function App() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200
                   ${isActive 
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
+                    ? 'bg-blue-600 text-slate-900 shadow-md shadow-blue-500/20' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'}`}
               >
-                <Icon size={18} className={isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-800'} />
+                <Icon size={18} className={isActive ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-800'} />
                 {sidebarOpen && <span>{item.name}</span>}
               </button>
             );
@@ -1503,7 +1503,7 @@ function App() {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-900 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <Menu size={20} />
             </button>
@@ -1585,10 +1585,10 @@ function App() {
             <div className="space-y-6">
               
               {/* HEADING ACCENT */}
-              <div className="bg-gradient-to-r from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-white shadow-xl shadow-blue-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
+              <div className="bg-gradient-to-r from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
                 <div className="absolute -right-10 -top-10 w-72 h-72 bg-gradient-to-br from-white/25 to-transparent rounded-full blur-2xl pointer-events-none"></div>
                 <div className="absolute right-32 -bottom-10 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl pointer-events-none"></div>
-                <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-white drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
+                <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-slate-900 drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
                 <p className="text-blue-100 text-xs max-w-xl">
                   {activeRole === 'Admin' && 'Here is your operational snapshot of Hope3 NGO. Monitor real-time student check-ins, approve pending leaves, and track fundraising.'}
                   {activeRole === 'Student' && 'Review your overall attendance records, submit new leaves, and view comments left by your mentor.'}
@@ -1902,10 +1902,10 @@ function App() {
                               {req.amount && <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Requested: ₹{req.amount}</span>}
                               
                               <div className="flex gap-2 justify-end mt-1">
-                                <button onClick={() => handleStudentRequestAction(req.id, 'Approved')} className="bg-green-600 hover:bg-green-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
+                                <button onClick={() => handleStudentRequestAction(req.id, 'Approved')} className="bg-green-600 hover:bg-green-700 text-slate-900 font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
                                   Approve
                                 </button>
-                                <button onClick={() => handleStudentRequestAction(req.id, 'Rejected')} className="bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
+                                <button onClick={() => handleStudentRequestAction(req.id, 'Rejected')} className="bg-red-600 hover:bg-red-700 text-slate-900 font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
                                   Reject
                                 </button>
                               </div>
@@ -1952,7 +1952,7 @@ function App() {
                           <label className="text-[9px] font-bold text-slate-400 block mb-1">ADDITIONAL DESCRIPTION DETAILS</label>
                           <textarea rows={2} placeholder="Outline details of your request..." value={newStudentRequestDetails} onChange={(e) => setNewStudentRequestDetails(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
                         </div>
-                        <button type="submit" className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-bold p-2 rounded-lg text-xs transition-all shadow-sm">
+                        <button type="submit" className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-slate-900 font-bold p-2 rounded-lg text-xs transition-all shadow-sm">
                           Send Request to Volunteer
                         </button>
                       </form>
@@ -2709,13 +2709,13 @@ function App() {
                                   <div className="flex items-center gap-2">
                                     <button 
                                       onClick={() => handleLeaveAction(req.id, 'Approved')}
-                                      className="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-750 text-white text-xs font-bold transition-colors"
+                                      className="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-750 text-slate-900 text-xs font-bold transition-colors"
                                     >
                                       Approve
                                     </button>
                                     <button 
                                       onClick={() => handleLeaveAction(req.id, 'Rejected')}
-                                      className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-750 text-white text-xs font-bold transition-colors"
+                                      className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-750 text-slate-900 text-xs font-bold transition-colors"
                                     >
                                       Reject
                                     </button>
@@ -2879,7 +2879,7 @@ function App() {
 
                             <button
                               onClick={() => handleAddNote(selectedStudent.id)}
-                              className="w-full bg-blue-600 hover:bg-blue-705 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-md"
+                              className="w-full bg-blue-600 hover:bg-blue-705 text-slate-900 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-md"
                             >
                               <Send size={12} />
                               Save Counseling Note
@@ -3217,20 +3217,20 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Total Spend Card (Matching Admin Dashboard Theme) */}
-                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-white shadow-xl shadow-blue-950/20 flex flex-col justify-between min-h-[160px]">
+                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 flex flex-col justify-between min-h-[160px]">
                   {/* Decorative Translucent Wallet Icon */}
                   <div className="absolute right-6 top-6 opacity-20 pointer-events-none">
-                    <Wallet size={120} className="text-white" />
+                    <Wallet size={120} className="text-slate-900" />
                   </div>
 
                   <div className="space-y-2 relative z-10">
-                    <span className="bg-white/20 backdrop-blur-md text-white text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full border border-white/20 inline-block shadow-sm">
+                    <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full border border-white/20 inline-block shadow-sm">
                       TOTAL SPEND
                     </span>
 
                     <div className="flex items-baseline gap-2 pt-2">
                       <span className="text-2xl font-black text-indigo-100">₹</span>
-                      <h3 className="text-4xl sm:text-5xl font-black tracking-tight font-mono text-white">
+                      <h3 className="text-4xl sm:text-5xl font-black tracking-tight font-mono text-slate-900">
                         {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
                       </h3>
                     </div>
@@ -3238,9 +3238,9 @@ function App() {
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 border-t border-white/15 relative z-10">
                     <div className="flex gap-3 text-xs font-semibold">
-                      <span className="text-indigo-100">Pending Approvals: <strong className="text-white font-mono">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
+                      <span className="text-indigo-100">Pending Approvals: <strong className="text-slate-900 font-mono">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
                       <span className="text-indigo-100">|</span>
-                      <span className="text-indigo-100">Refund Requests: <strong className="text-white font-mono">{expenses.filter(e => e.refund_requested).length}</strong></span>
+                      <span className="text-indigo-100">Refund Requests: <strong className="text-slate-900 font-mono">{expenses.filter(e => e.refund_requested).length}</strong></span>
                     </div>
 
                     <button 
@@ -3284,8 +3284,8 @@ function App() {
                       onClick={() => setExpenseSubTab('records')}
                       className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
                         expenseSubTab === 'records'
-                          ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-teal-600 text-slate-900 shadow-md shadow-teal-500/20'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
                       }`}
                     >
                       All Records
@@ -3294,8 +3294,8 @@ function App() {
                       onClick={() => setExpenseSubTab('analytics')}
                       className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
                         expenseSubTab === 'analytics'
-                          ? 'bg-teal-600 text-white shadow-md shadow-teal-500/20'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                          ? 'bg-teal-600 text-slate-900 shadow-md shadow-teal-500/20'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
                       }`}
                     >
                       Analytics
@@ -3336,8 +3336,8 @@ function App() {
                           }}
                           className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shrink-0 z-10 ${
                             isExpenseSearchExpanded || expenseSearchQuery
-                              ? 'bg-teal-600 text-white shadow-md shadow-teal-500/30'
-                              : 'bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                              ? 'bg-teal-600 text-slate-900 shadow-md shadow-teal-500/30'
+                              : 'bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-slate-900'
                           }`}
                           title="Search expenses by volunteer name or batch"
                         >
@@ -3608,7 +3608,7 @@ function App() {
 
                     <button 
                       onClick={() => setIsFullScreenMapOpen(true)}
-                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
+                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
                       title="Open full screen map to draw, add, or delete geofences"
                     >
                       <Compass size={16} />
@@ -3897,13 +3897,13 @@ function App() {
                     <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
                       <button
                         onClick={() => setMapType('hybrid')}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'hybrid' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'hybrid' ? 'bg-blue-600 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
                       >
                         🛰️ Satellite
                       </button>
                       <button
                         onClick={() => setMapType('streets')}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'streets' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-white'}`}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'streets' ? 'bg-blue-600 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
                       >
                         🗺️ Map
                       </button>
@@ -4066,7 +4066,7 @@ function App() {
 
                 {/* Save action */}
                 <div className="pt-6 flex justify-end">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl text-xs transition-colors shadow-sm">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-slate-900 font-bold py-2 px-6 rounded-xl text-xs transition-colors shadow-sm">
                     Save Changes
                   </button>
                 </div>
@@ -4092,12 +4092,12 @@ function App() {
             {/* Header Banner */}
             <div className="relative bg-blue-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
               <div className="flex justify-between items-center w-full mb-3">
-                <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Admin Profile
                 </span>
                 <button 
                   onClick={() => setSelectedVolunteer(null)}
-                  className="p-1.5 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
+                  className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -4118,7 +4118,7 @@ function App() {
                     <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                       {selectedVolunteer.name}
                       <CheckCircle2 size={18} className="text-blue-200 fill-blue-500/40" />
                     </h3>
@@ -4131,7 +4131,7 @@ function App() {
                     href={getWhatsAppLink(selectedVolunteer.phone)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
                   >
                     <PhoneCall size={14} />
                     <span>Call</span>
@@ -4140,7 +4140,7 @@ function App() {
                     href={getWhatsAppLink(selectedVolunteer.phone, `Hello ${selectedVolunteer.name}, greetings from Hope3 NGO.`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
+                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-slate-900 backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
                   >
                     <MessageSquare size={14} />
                     <span>Message</span>
@@ -4209,12 +4209,12 @@ function App() {
             {/* Header Banner */}
             <div className="relative bg-blue-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
               <div className="flex justify-between items-center w-full mb-3">
-                <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
+                <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Donor Benefactor Profile
                 </span>
                 <button 
                   onClick={() => setSelectedDonor(null)}
-                  className="p-1.5 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
+                  className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -4235,7 +4235,7 @@ function App() {
                     <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-300 border-2 border-white rounded-full"></span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                       {selectedDonor.name}
                       <CheckCircle2 size={18} className="text-emerald-200 fill-emerald-500/40" />
                     </h3>
@@ -4248,7 +4248,7 @@ function App() {
                     href={getWhatsAppLink(selectedDonor.phone)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
                   >
                     <PhoneCall size={14} />
                     <span>Call</span>
@@ -4257,7 +4257,7 @@ function App() {
                     href={getWhatsAppLink(selectedDonor.phone, `Hello ${selectedDonor.name}, thank you for supporting Hope3 NGO scholars.`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-white backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
+                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-slate-900 backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
                   >
                     <MessageSquare size={14} />
                     <span>Message</span>
@@ -4275,7 +4275,7 @@ function App() {
                   <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Total Financial Contribution</span>
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{selectedDonor.formattedAmount}</span>
                 </div>
-                <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm">
+                <span className="bg-emerald-600 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm">
                   {selectedDonor.donorType}
                 </span>
               </div>
@@ -4335,7 +4335,7 @@ function App() {
                 </div>
                 <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Add Expense Record</h4>
               </div>
-              <button onClick={() => setShowExpenseModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full">
+              <button onClick={() => setShowExpenseModal(false)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full">
                 <X size={18} />
               </button>
             </div>
@@ -4442,7 +4442,7 @@ function App() {
               <button 
                 type="submit" 
                 disabled={isSubmittingExpense}
-                className="w-full py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-teal-800/40 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs disabled:cursor-not-allowed"
+                className="w-full py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-teal-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs disabled:cursor-not-allowed"
               >
                 {isSubmittingExpense ? (
                   <RefreshCw size={16} className="animate-spin" />
@@ -4467,7 +4467,7 @@ function App() {
                 </div>
                 <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Expense Details</h4>
               </div>
-              <button onClick={() => setSelectedExpense(null)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full">
+              <button onClick={() => setSelectedExpense(null)} className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full">
                 <X size={18} />
               </button>
             </div>
@@ -4582,7 +4582,7 @@ function App() {
                   className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${
                     selectedExpense.status === 'APPROVED'
                       ? 'bg-emerald-150 dark:bg-emerald-950/30 text-emerald-700 border-emerald-250/30 cursor-not-allowed'
-                      : 'bg-emerald-600 hover:bg-emerald-700 text-white border-transparent shadow-lg shadow-emerald-600/25'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-slate-900 border-transparent shadow-lg shadow-emerald-600/25'
                   }`}
                   disabled={selectedExpense.status === 'APPROVED'}
                 >
@@ -4734,7 +4734,7 @@ function App() {
               <div className="pt-2">
                 <button 
                   type="submit" 
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <MapPin size={16} />
                   <span>Mark & Save Batch Geofence</span>
@@ -4761,7 +4761,7 @@ function App() {
               </div>
               <button 
                 onClick={() => setEditingGeofenceGroup(null)} 
-                className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full"
+                className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full"
               >
                 <X size={18} />
               </button>
@@ -4896,7 +4896,7 @@ function App() {
                     alert('Failed to save group assignment to server');
                   }
                 }}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs"
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs"
               >
                 Save Group Assignment
               </button>
@@ -4921,7 +4921,7 @@ function App() {
               </div>
               <button 
                 onClick={() => setIsMergeModalOpen(false)} 
-                className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-full"
+                className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full"
               >
                 <X size={18} />
               </button>
@@ -5077,7 +5077,7 @@ function App() {
                   }
                 }}
                 disabled={!mergeTargetName.trim() || selectedFencesToMerge.length < 2}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800/40 text-white font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs disabled:cursor-not-allowed"
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs disabled:cursor-not-allowed"
               >
                 Merge Selected Fences
               </button>
@@ -5094,7 +5094,7 @@ function App() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsFullScreenMapOpen(false)}
-                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30"
+                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30"
                 title="Back to Dashboard"
               >
                 <ArrowLeft size={16} />
@@ -5105,7 +5105,7 @@ function App() {
                 <Compass size={20} />
               </div>
               <div>
-                <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                   Full Screen Satellite Geofencing Radar
                   <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-mono">
                     Batch Mode
@@ -5123,7 +5123,7 @@ function App() {
                 <select 
                   value={selectedBatchFilter}
                   onChange={(e) => setSelectedBatchFilter(e.target.value)}
-                  className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer"
+                  className="bg-transparent font-bold text-xs text-slate-900 focus:outline-none cursor-pointer"
                 >
                   <option value="ALL" className="bg-slate-900">All Batches</option>
                   {availableBatches.map(b => (
@@ -5134,14 +5134,14 @@ function App() {
 
               <button
                 onClick={() => setMapType(prev => prev === 'hybrid' ? 'streets' : 'hybrid')}
-                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 rounded-xl text-xs font-bold transition-all"
+                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-900 border border-slate-700 rounded-xl text-xs font-bold transition-all"
               >
                 {mapType === 'hybrid' ? '🛰️ Satellite HD' : '🗺️ Google Streets'}
               </button>
 
               <button
                 onClick={() => setIsFullScreenMapOpen(false)}
-                className="p-2 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white rounded-xl transition-all"
+                className="p-2 bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-slate-900 rounded-xl transition-all"
                 title="Exit full screen map"
               >
                 <X size={20} />
@@ -5166,7 +5166,7 @@ function App() {
                     setIsDrawingActive(false);
                     alert('❌ Drawing cancelled.');
                   }}
-                  className="w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg border-2 border-white/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                  className="w-12 h-12 bg-red-600 hover:bg-red-700 text-slate-900 rounded-full shadow-lg border-2 border-white/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
                   title="Cancel drawing fence"
                 >
                   <X size={20} />
@@ -5199,11 +5199,11 @@ function App() {
                     alert('Click points on the map to mark your geofence boundary!');
                   }
                 }}
-                className={`w-14 h-14 bg-gradient-to-r ${isDrawingActive ? 'from-slate-600 to-slate-700 opacity-60 pointer-events-none' : 'from-blue-800 via-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-400'} text-white rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
+                className={`w-14 h-14 bg-gradient-to-r ${isDrawingActive ? 'from-slate-600 to-slate-700 opacity-60 pointer-events-none' : 'from-blue-800 via-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-400'} text-slate-900 rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
                 title="Click to draw geofence perimeter"
                 disabled={isDrawingActive}
               >
-                <Pencil size={24} className="text-white" />
+                <Pencil size={24} className="text-slate-900" />
               </button>
             </div>
           </div>
@@ -5343,7 +5343,7 @@ function App() {
               <div className="pt-2">
                 <button 
                   type="submit" 
-                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <Check size={16} />
                   <span>Save Geofence Boundary</span>
@@ -5369,7 +5369,7 @@ function App() {
             const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
             setCreationModal({ type, isOpen: true });
           }}
-          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-gradient-to-tr from-blue-700 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-white rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
+          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-gradient-to-tr from-blue-700 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-slate-900 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
           title={`Add New ${activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
         >
           <Plus size={22} />
