@@ -3839,7 +3839,8 @@ function App() {
                                   color: '#3b82f6',
                                   lat,
                                   lng: lon,
-                                  coords: polygonCoords
+                                  targetBatch: 'ALL',
+                                  polygons: [{ name: 'Default Zone', coords: polygonCoords }]
                                 };
 
                                 setCustomGeofences(prev => [...prev, newGeofence]);
@@ -4659,7 +4660,7 @@ function App() {
                     targetBatch: newZoneTargetBatch,
                     lat: baseLat,
                     lng: baseLng,
-                    polygons: [coords]
+                    polygons: [{ name: 'Default Zone', coords }]
                   }
                 ]);
 
@@ -4812,7 +4813,7 @@ function App() {
 
                       let newStudentIds: string[];
                       if (allSelected) {
-                        newStudentIds = currentlyAssigned.filter(id => !filteredIds.includes(id));
+                        newStudentIds = currentlyAssigned.filter((id: string) => !filteredIds.includes(id));
                       } else {
                         newStudentIds = Array.from(new Set([...currentlyAssigned, ...filteredIds]));
                       }
@@ -5260,7 +5261,7 @@ function App() {
                     targetBatch: newZoneTargetBatch || 'ALL',
                     lat: pendingDrawnShape.center.lat,
                     lng: pendingDrawnShape.center.lng,
-                    polygons: [pendingDrawnShape.coords],
+                    polygons: [{ name: 'Default Zone', coords: pendingDrawnShape.coords }],
                     studentIds: []
                   };
 
