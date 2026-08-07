@@ -1685,70 +1685,101 @@ function App() {
                 <div className={`glass-panel rounded-2xl p-5 space-y-4 w-full ${activeRole === 'Admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
                   <div className="flex justify-between items-center">
                     <div>
-                      <h4 className="font-bold text-sm">Monthly Fundraising vs Student Costs</h4>
-                      <p className="text-[11px] text-slate-400">Comparing donor funds against hostel and academic expenditures</p>
-                    </div>
-                    <div className="flex gap-2 text-[10px] font-semibold">
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-blue-600 rounded-sm"></span>Donations</span>
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-sky-400 rounded-sm"></span>Support Cost</span>
+                      <h4 className="font-bold text-sm">Monthly Expenses Chart</h4>
                     </div>
                   </div>
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
-                  <div className="relative pt-4 h-60 max-w-xl mx-auto">
-                    <svg className="w-full h-full" viewBox="0 0 600 220" preserveAspectRatio="none">
-                      {/* Grid lines */}
-                      <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                      <line x1="40" y1="70" x2="580" y2="70" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                      <line x1="40" y1="120" x2="580" y2="120" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                      <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                  {(() => {
+                    // Dynamically get the last 6 months up to current month
+                    const currentMonth = new Date().getMonth();
+                    const monthIndices: number[] = [];
+                    const monthLabels: string[] = [];
+                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    
+                    for (let i = 5; i >= 0; i--) {
+                      let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
+                      monthIndices.push(d.getMonth());
+                      monthLabels.push(monthNames[d.getMonth()]);
+                    }
 
-                      {/* Chart Bars - Donation volumes (Blue) */}
-                      {/* Jan */}
-                      <rect x="80" y="60" width="14" height="110" rx="2" fill="#001780" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Feb */}
-                      <rect x="160" y="45" width="14" height="125" rx="2" fill="#001780" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Mar */}
-                      <rect x="240" y="80" width="14" height="90" rx="2" fill="#001780" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Apr */}
-                      <rect x="320" y="30" width="14" height="140" rx="2" fill="#001780" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* May */}
-                      <rect x="400" y="50" width="14" height="120" rx="2" fill="#001780" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Jun */}
-                      <rect x="480" y="25" width="14" height="145" rx="2" fill="#001780" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
+                    const monthlyCosts = monthIndices.map(monthIdx => {
+                      return expenses.filter(e => {
+                        if (!e.date) return false;
+                        const d = new Date(e.date);
+                        return d.getMonth() === monthIdx;
+                      }).reduce((sum, e) => sum + e.amount, 0);
+                    });
 
-                      {/* Chart Bars - Student Costs (Indigo light) */}
-                      {/* Jan */}
-                      <rect x="96" y="85" width="14" height="85" rx="2" fill="#38bdf8" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Feb */}
-                      <rect x="176" y="80" width="14" height="90" rx="2" fill="#38bdf8" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Mar */}
-                      <rect x="256" y="75" width="14" height="95" rx="2" fill="#38bdf8" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Apr */}
-                      <rect x="336" y="70" width="14" height="100" rx="2" fill="#38bdf8" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* May */}
-                      <rect x="416" y="65" width="14" height="105" rx="2" fill="#38bdf8" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
-                      {/* Jun */}
-                      <rect x="496" y="60" width="14" height="110" rx="2" fill="#38bdf8" opacity="0.85" className="transition-all hover:opacity-100 cursor-pointer" />
+                    // Dynamically compute max from costs, round up to nearest nice step
+                    const dataMax = Math.max(...monthlyCosts, 1000);
+                    const step = Math.pow(10, Math.floor(Math.log10(dataMax)));
+                    const maxChartValue = Math.ceil(dataMax / step) * step;
+                    const yStep = maxChartValue / 3;
 
-                      {/* X Axis line */}
-                      <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" />
+                    const formatK = (val: number) => {
+                      if (val >= 100000) return `₹${(val / 100000).toFixed(0)}L`;
+                      if (val >= 1000) return `₹${(val / 1000).toFixed(0)}k`;
+                      return `₹${val}`;
+                    };
 
-                      {/* X Labels */}
-                      <text x="95" y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">Jan</text>
-                      <text x="175" y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">Feb</text>
-                      <text x="255" y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">Mar</text>
-                      <text x="335" y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">Apr</text>
-                      <text x="415" y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">May</text>
-                      <text x="495" y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">Jun</text>
+                    const chartHeight = 150;
+                    const chartYStart = 170;
 
-                      {/* Y Labels */}
-                      <text x="30" y="24" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">₹15L</text>
-                      <text x="30" y="74" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">₹10L</text>
-                      <text x="30" y="124" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">₹5L</text>
-                      <text x="30" y="174" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">0</text>
-                    </svg>
-                  </div>
+                    const costPoints = monthlyCosts.map((val, i) => {
+                      const x = 95 + (i * 80);
+                      const y = chartYStart - (Math.min(val, maxChartValue) / maxChartValue) * chartHeight;
+                      return {x, y};
+                    });
+
+                    const costPolyline = costPoints.map(p => `${p.x},${p.y}`).join(' ');
+                    const costPolygon = `95,170 ${costPolyline} 495,170`;
+
+                    return (
+                      <div className="relative pt-4 h-60 max-w-xl mx-auto">
+                        <svg className="w-full h-full" viewBox="0 0 600 220" preserveAspectRatio="none">
+                          {/* Grid lines */}
+                          <defs>
+                            <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.3"/>
+                              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0"/>
+                            </linearGradient>
+                          </defs>
+                          <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                          <line x1="40" y1="70" x2="580" y2="70" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                          <line x1="40" y1="120" x2="580" y2="120" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                          <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+
+                          {/* Chart Areas */}
+                          <polygon points={costPolygon} fill="url(#costsGrad)" />
+
+                          {/* Chart Lines */}
+                          <polyline points={costPolyline} fill="none" stroke="#38bdf8" strokeWidth="3" className="drop-shadow-sm" />
+
+                          {/* Data Points */}
+                          {costPoints.map((p, i) => (
+                            <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#38bdf8" stroke="#fff" strokeWidth="2" />
+                          ))}
+
+                          {/* X Axis line */}
+                          <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" />
+
+                          {/* X Labels */}
+                          {monthLabels.map((label, idx) => (
+                            <text key={idx} x={95 + (idx * 80)} y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">
+                              {label}
+                            </text>
+                          ))}
+
+                          {/* Y Labels */}
+                          <text x="30" y="24" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">{formatK(maxChartValue)}</text>
+                          <text x="30" y="74" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">{formatK(yStep * 2)}</text>
+                          <text x="30" y="124" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">{formatK(yStep)}</text>
+                          <text x="30" y="174" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">0</text>
+                        </svg>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Recent Activity Logs (Right side of the chart) */}
@@ -1763,24 +1794,77 @@ function App() {
                       </div>
 
                       <div className="space-y-4 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
-                        {activityLogs.slice(0, 4).map(log => (
-                          <div key={log.id} className="flex gap-4 relative">
-                            <div className={`w-7.5 h-7.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10
-                              ${log.category === 'leave' ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400' :
-                                log.category === 'general' ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
-                                log.category === 'academic' ? 'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400' :
-                                'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
-                            >
-                              {log.role.substring(0, 1)}
+                        {(() => {
+                          const combinedLogs = [...activityLogs.map(l => ({...l, timestamp: 0}))];
+                          
+                          // Add recent expenses
+                          expenses.slice(0, 10).forEach(exp => {
+                            combinedLogs.push({
+                              id: `dyn-exp-${exp.id}`,
+                              user: exp.created_by_name || 'Admin',
+                              role: 'Admin',
+                              action: `Added expense: ${exp.title} (₹${exp.amount.toLocaleString('en-IN')})`,
+                              time: exp.date ? new Date(exp.date).toLocaleDateString() : 'Recently',
+                              category: 'general',
+                              timestamp: exp.date ? new Date(exp.date).getTime() : 0
+                            });
+                          });
+
+                          // Add leave requests and notes
+                          students.forEach(s => {
+                            s.leaveRequests?.forEach(lr => {
+                              combinedLogs.push({
+                                id: `dyn-lr-${lr.id}`,
+                                user: lr.studentName,
+                                role: 'Student',
+                                action: `Requested ${lr.type} (${lr.status})`,
+                                time: lr.requestedAt ? new Date(lr.requestedAt).toLocaleDateString() : 'Recently',
+                                category: 'leave',
+                                timestamp: lr.requestedAt ? new Date(lr.requestedAt).getTime() : 0
+                              });
+                            });
+                            
+                            s.notes?.forEach((n: any) => {
+                              const noteText = typeof n === 'string' ? n : (n.note || '');
+                              const author = typeof n === 'string' ? 'Admin' : (n.author || 'Admin');
+                              const date = typeof n === 'string' ? null : n.date;
+                              
+                              if (!noteText) return; // Skip empty notes
+
+                              combinedLogs.push({
+                                id: `dyn-note-${s.id}-${typeof n !== 'string' ? n.id : Math.random()}`,
+                                user: author,
+                                role: 'Admin',
+                                action: `Added note for ${s.name}: ${noteText.substring(0, 40)}...`,
+                                time: date ? new Date(date).toLocaleDateString() : 'Recently',
+                                category: 'academic',
+                                timestamp: date ? new Date(date).getTime() : 0
+                              });
+                            });
+                          });
+
+                          // Sort by timestamp descending
+                          combinedLogs.sort((a, b) => b.timestamp - a.timestamp);
+
+                          return combinedLogs.slice(0, 4).map(log => (
+                            <div key={log.id} className="flex gap-4 relative">
+                              <div className={`w-7.5 h-7.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10
+                                ${log.category === 'leave' ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400' :
+                                  log.category === 'general' ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
+                                  log.category === 'academic' ? 'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400' :
+                                  'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
+                              >
+                                {log.role.substring(0, 1)}
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-xs text-slate-700 dark:text-slate-300">
+                                  <span className="font-bold text-slate-900 dark:text-white">{log.user}</span> ({log.role}): {log.action}
+                                </p>
+                                <span className="text-[9px] text-slate-400 block mt-0.5">{log.time}</span>
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className="text-xs text-slate-700 dark:text-slate-300">
-                                <span className="font-bold text-slate-900 dark:text-white">{log.user}</span> ({log.role}): {log.action}
-                              </p>
-                              <span className="text-[9px] text-slate-400 block mt-0.5">{log.time}</span>
-                            </div>
-                          </div>
-                        ))}
+                          ));
+                        })()}
                       </div>
                     </div>
                   </div>
