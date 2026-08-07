@@ -1585,8 +1585,8 @@ function App() {
             <div className="space-y-6">
               
               {/* HEADING ACCENT */}
-              <div className="bg-gradient-to-r from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
-                <div className="absolute -right-10 -top-10 w-72 h-72 bg-gradient-to-br from-white/25 to-transparent rounded-full blur-2xl pointer-events-none"></div>
+              <div className="bg-blue-600 rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
+                <div className="absolute -right-10 -top-10 w-72 h-72 bg-white/25 rounded-full blur-2xl pointer-events-none"></div>
                 <div className="absolute right-32 -bottom-10 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl pointer-events-none"></div>
                 <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-slate-900 drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
                 <p className="text-blue-100 text-xs max-w-xl">
@@ -3217,7 +3217,7 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Total Spend Card (Matching Admin Dashboard Theme) */}
-                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-700 to-white rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 flex flex-col justify-between min-h-[160px]">
+                <div className="lg:col-span-2 relative overflow-hidden bg-blue-600 rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 flex flex-col justify-between min-h-[160px]">
                   {/* Decorative Translucent Wallet Icon */}
                   <div className="absolute right-6 top-6 opacity-20 pointer-events-none">
                     <Wallet size={120} className="text-slate-900" />
@@ -4270,7 +4270,7 @@ function App() {
             <div className="p-6 space-y-6">
 
               {/* Highlight Contribution Box */}
-              <div className="glass-panel p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border border-emerald-200/50 dark:border-emerald-800/40 flex justify-between items-center">
+              <div className="glass-panel p-5 rounded-2xl bg-blue-600 border border-emerald-200/50 dark:border-emerald-800/40 flex justify-between items-center">
                 <div>
                   <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Total Financial Contribution</span>
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{selectedDonor.formattedAmount}</span>
@@ -5199,7 +5199,7 @@ function App() {
                     alert('Click points on the map to mark your geofence boundary!');
                   }
                 }}
-                className={`w-14 h-14 bg-gradient-to-r ${isDrawingActive ? 'from-slate-600 to-slate-700 opacity-60 pointer-events-none' : 'from-blue-800 via-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-400'} text-slate-900 rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
+                className={`w-14 h-14 ${isDrawingActive ? 'bg-slate-300 opacity-60 pointer-events-none' : 'bg-blue-600 hover:bg-blue-500'} text-slate-900 rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
                 title="Click to draw geofence perimeter"
                 disabled={isDrawingActive}
               >
@@ -5343,7 +5343,7 @@ function App() {
               <div className="pt-2">
                 <button 
                   type="submit" 
-                  className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <Check size={16} />
                   <span>Save Geofence Boundary</span>
@@ -5369,7 +5369,7 @@ function App() {
             const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
             setCreationModal({ type, isOpen: true });
           }}
-          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-gradient-to-tr from-blue-700 to-indigo-600 hover:from-blue-600 hover:to-indigo-500 text-slate-900 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
+          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-blue-600 hover:bg-blue-500 text-slate-900 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
           title={`Add New ${activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
         >
           <Plus size={22} />
