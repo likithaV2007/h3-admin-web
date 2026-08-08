@@ -1454,7 +1454,7 @@ function App() {
             <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-9 h-9 object-contain rounded-xl" />
             {sidebarOpen && (
               <div>
-                <h1 className="font-bold text-base leading-none text-blue-600 dark:text-blue-400">Hope3</h1>
+                <h1 className="font-bold text-base leading-none text-violet-600 dark:text-blue-400">Hope3</h1>
                 <span className="text-[10px] text-slate-500 font-medium">ADMIN PORTAL</span>
               </div>
             )}
@@ -1483,10 +1483,10 @@ function App() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200
                   ${isActive 
-                    ? 'bg-blue-600 text-slate-900 shadow-md shadow-blue-500/20' 
+                    ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-md shadow-violet-500/25' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'}`}
               >
-                <Icon size={18} className={isActive ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-800'} />
+                <Icon size={18} className={isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-800'} />
                 {sidebarOpen && <span>{item.name}</span>}
               </button>
             );
@@ -1553,7 +1553,7 @@ function App() {
                       <span className="font-bold text-sm">Notifications</span>
                       <button 
                         onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
-                        className="text-[10px] text-blue-600 dark:text-blue-400 font-semibold hover:underline"
+                        className="text-[10px] text-violet-600 dark:text-blue-400 font-semibold hover:underline"
                       >
                         Mark all as read
                       </button>
@@ -1585,7 +1585,7 @@ function App() {
             <div className="space-y-6">
               
               {/* HEADING ACCENT */}
-              <div className="bg-blue-600 rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
+              <div className="bg-violet-600 rounded-3xl p-7 text-slate-900 shadow-xl shadow-violet-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
                 <div className="absolute -right-10 -top-10 w-72 h-72 bg-white/25 rounded-full blur-2xl pointer-events-none"></div>
                 <div className="absolute right-32 -bottom-10 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl pointer-events-none"></div>
                 <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-slate-900 drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
@@ -1601,9 +1601,9 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 
                 {/* Metric 1 */}
-                <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       Total Students
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
@@ -1613,15 +1613,15 @@ function App() {
                       <span className="bg-green-500/10 p-0.5 rounded">+12%</span> vs last semester
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/50 text-violet-600 dark:text-blue-400 flex items-center justify-center">
                     <Users size={22} />
                   </div>
                 </div>
 
                 {/* Metric 2 */}
-                <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       {activeRole === 'Student' ? 'My Attendance' : 'Total Admins'}
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
@@ -1641,9 +1641,9 @@ function App() {
                 </div>
 
                 {/* Metric 3 */}
-                <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
@@ -1659,9 +1659,9 @@ function App() {
                 </div>
 
                 {/* Metric 4 */}
-                <div className="glass-panel rounded-2xl p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       Out of Fence
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
@@ -1682,7 +1682,7 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* Visual Chart Card */}
-                <div className={`glass-panel rounded-2xl p-5 space-y-4 w-full ${activeRole === 'Admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+                <div className={`glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 w-full ${activeRole === 'Admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="font-bold text-sm">Monthly Expenses Chart</h4>
@@ -1784,7 +1784,7 @@ function App() {
 
                 {/* Recent Activity Logs (Right side of the chart) */}
                 {activeRole === 'Admin' && (
-                  <div className="glass-panel rounded-2xl p-5 space-y-4 lg:col-span-1 w-full flex flex-col justify-between">
+                  <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 lg:col-span-1 w-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-center mb-4">
                         <div>
@@ -1851,7 +1851,7 @@ function App() {
                               <div className={`w-7.5 h-7.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10
                                 ${log.category === 'leave' ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400' :
                                   log.category === 'general' ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
-                                  log.category === 'academic' ? 'bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400' :
+                                  log.category === 'academic' ? 'bg-blue-100 text-violet-600 dark:bg-blue-950 dark:text-blue-400' :
                                   'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
                               >
                                 {log.role.substring(0, 1)}
@@ -1879,7 +1879,7 @@ function App() {
                 {activeRole === 'Volunteer' && (
                   <>
                     {/* Student Requests Pending */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">Scholars requests pending review</h4>
                         <p className="text-[11px] text-slate-400">Review student leave, fees, and achievements</p>
@@ -1894,7 +1894,7 @@ function App() {
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h5 className="font-bold text-xs">{req.studentName}</h5>
-                                  <span className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 font-mono">{req.type}</span>
+                                  <span className="text-[9px] font-semibold text-violet-600 dark:text-blue-400 font-mono">{req.type}</span>
                                 </div>
                                 <span className="text-[10px] text-slate-400">{req.date}</span>
                               </div>
@@ -1923,7 +1923,7 @@ function App() {
                 {activeRole === 'Student' && (
                   <>
                     {/* Submit request form */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">Submit Request to Volunteer</h4>
                         <p className="text-[11px] text-slate-400">Apply for leaves, fee support registration, or achievement recognition</p>
@@ -1952,14 +1952,14 @@ function App() {
                           <label className="text-[9px] font-bold text-slate-400 block mb-1">ADDITIONAL DESCRIPTION DETAILS</label>
                           <textarea rows={2} placeholder="Outline details of your request..." value={newStudentRequestDetails} onChange={(e) => setNewStudentRequestDetails(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
                         </div>
-                        <button type="submit" className="w-full bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-slate-900 font-bold p-2 rounded-lg text-xs transition-all shadow-sm">
+                        <button type="submit" className="w-full bg-violet-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white font-bold p-2 rounded-lg text-xs transition-all shadow-sm">
                           Send Request to Volunteer
                         </button>
                       </form>
                     </div>
 
                     {/* Request history status list */}
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">My Active Requests & Statuses</h4>
                         <p className="text-[11px] text-slate-400">Track approvals of leave and financial requests submitted to volunteers</p>
@@ -1977,7 +1977,7 @@ function App() {
                                 {req.status}
                               </span>
                             </div>
-                            <h5 className="font-bold text-xs mt-2 text-slate-800 dark:text-white">{req.title}</h5>
+                            <h5 className="font-bold text-xs mt-2 text-white">{req.title}</h5>
                             <p className="text-[11px] text-slate-500 mt-1 leading-normal">{req.details}</p>
                             {req.amount && <div className="text-[10px] font-bold text-slate-600 mt-1">Requested Amount: ₹{req.amount}</div>}
                           </div>
@@ -1992,7 +1992,7 @@ function App() {
                 {/* PARENT VIEW: child telemetry overview & mentor contacts */}
                 {activeRole === 'Parent' && (
                   <>
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">My Child's Residency status</h4>
                         <p className="text-[11px] text-slate-400">Track checkins and geofence locations of Aravind Swamy</p>
@@ -2000,7 +2000,7 @@ function App() {
                       <div className="p-3 border border-slate-100 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 space-y-3 text-xs">
                         <div className="flex justify-between">
                           <span className="text-slate-400">Current Node:</span>
-                          <span className="font-bold text-slate-800 dark:text-white">Block B Main Residency Portal</span>
+                          <span className="font-bold text-white">Block B Main Residency Portal</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-400">Attendance Ratio:</span>
@@ -2008,11 +2008,11 @@ function App() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-400">Weekly GPAs:</span>
-                          <span className="font-bold text-blue-600 dark:text-blue-400">9.1/10 (Excellent)</span>
+                          <span className="font-bold text-violet-600 dark:text-blue-400">9.1/10 (Excellent)</span>
                         </div>
                       </div>
                     </div>
-                    <div className="glass-panel rounded-2xl p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">Academic Counseling Mentor</h4>
                         <p className="text-[11px] text-slate-400">Reach out to your child's guide counselor directly</p>
@@ -2020,9 +2020,9 @@ function App() {
                       <div className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-white dark:bg-slate-900/30 flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 flex items-center justify-center font-bold">AS</div>
                         <div>
-                          <h5 className="font-bold text-xs text-slate-800 dark:text-white">Prof. Ananya Sen</h5>
+                          <h5 className="font-bold text-xs text-white">Prof. Ananya Sen</h5>
                           <span className="text-[10px] text-slate-400 block">Senior Mentor Counselor</span>
-                          <span className="text-[10px] text-blue-600 dark:text-blue-400 block mt-1 font-mono">ananya.sen@hope3.org</span>
+                          <span className="text-[10px] text-violet-600 dark:text-blue-400 block mt-1 font-mono">ananya.sen@hope3.org</span>
                         </div>
                       </div>
                     </div>
@@ -2043,7 +2043,7 @@ function App() {
               
               {!selectedStudent ? (
                 /* MAIN STUDENT LIST */
-                <div className="glass-panel rounded-2xl p-5 space-y-4">
+                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                       <h4 className="font-bold text-base">Student Database</h4>
@@ -2058,7 +2058,7 @@ function App() {
                         <select 
                           value={studentBatchFilter}
                           onChange={(e) => setStudentBatchFilter(e.target.value)}
-                          className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer"
+                          className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer"
                         >
                           <option value="ALL">All Batches</option>
                           {availableBatches.map(b => (
@@ -2073,7 +2073,7 @@ function App() {
                         placeholder="Search student, college, ID..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                        className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -2115,12 +2115,12 @@ function App() {
                             </td>
                             <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
                             <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-violet-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
                                 {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
                               </span>
                             </td>
                             <td className="p-4">
-                              <span className="block font-medium text-slate-700 dark:text-slate-350">{student.grade}</span>
+                              <span className="block font-medium text-white">{student.grade}</span>
                               <span className="text-[10px] text-slate-400 block max-w-[180px] truncate">{student.college}</span>
                             </td>
                             <td className="p-4">
@@ -2136,7 +2136,7 @@ function App() {
                             </td>
                             <td className="p-4">
                               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px]
-                                ${student.location.status === 'In College' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                                ${student.location.status === 'In College' ? 'bg-blue-500/10 text-violet-600 dark:text-blue-400' :
                                   student.location.status === 'In Hostel' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
                                   student.location.status === 'On Leave' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
                                   'bg-red-500/10 text-red-600 dark:text-red-400'}`}
@@ -2169,7 +2169,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -2187,7 +2187,7 @@ function App() {
                 <div className="space-y-6">
                   
                   {/* PROFILE HEADER PANEL */}
-                  <div className="glass-panel rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+                  <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
                     <button 
                       onClick={() => setSelectedStudent(null)} 
                       className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -2214,7 +2214,7 @@ function App() {
                         
                         {/* Basic badges */}
                         <div className="flex gap-2 mt-3 flex-wrap">
-                          <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200/30">
+                          <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/20 text-violet-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200/30">
                             Hostel Room: {selectedStudent.hostelRoom}
                           </span>
                           <span className="text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded border border-purple-200/30">
@@ -2236,7 +2236,7 @@ function App() {
                         </button>
                         <button 
                           onClick={() => handleSimulateLocationUpdate(selectedStudent.id, 'In College')}
-                          className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-blue-200/50 text-blue-600 hover:bg-blue-50 transition-colors"
+                          className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-blue-200/50 text-violet-600 hover:bg-blue-50 transition-colors"
                         >
                           College
                         </button>
@@ -2258,7 +2258,7 @@ function App() {
                         onClick={() => setProfileTab(tab)}
                         className={`px-4 py-2 font-bold text-xs shrink-0 border-b-2 transition-all duration-200
                           ${profileTab === tab 
-                            ? 'border-blue-600 text-blue-600 dark:text-blue-400' 
+                            ? 'border-violet-600 text-violet-600 dark:text-blue-400' 
                             : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                       >
                         {tab}
@@ -2277,7 +2277,7 @@ function App() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                           
                           {/* Card 1: Personal Profile */}
-                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <User size={16} className="text-blue-500" />
                               Personal Information
@@ -2319,7 +2319,7 @@ function App() {
                           </div>
 
                           {/* Card 2: Academic & School/College Info */}
-                          <div className="glass-panel rounded-2xl p-5 space-y-4 lg:col-span-2">
+                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 lg:col-span-2">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <Award size={16} className="text-indigo-500" />
                               Academic & Education Details
@@ -2370,7 +2370,7 @@ function App() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                           {/* Card 3: Family & Parent Info */}
-                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <Users size={16} className="text-emerald-500" />
                               Family & Parent Details
@@ -2410,7 +2410,7 @@ function App() {
                           </div>
 
                           {/* Card 4: Address & Residential Location */}
-                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <FileText size={16} className="text-purple-500" />
                               Address & Residential Details
@@ -2445,7 +2445,7 @@ function App() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                           {/* Card 5: Bank Account Info */}
-                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <ClipboardList size={16} className="text-amber-500" />
                               Bank Account Details
@@ -2471,7 +2471,7 @@ function App() {
                           </div>
 
                           {/* Card 6: Funding, Sponsorship & Documents */}
-                          <div className="glass-panel rounded-2xl p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <Heart size={16} className="text-rose-500" />
                               Scholarship, Funding & Documents
@@ -2502,7 +2502,7 @@ function App() {
                               {selectedStudent.folder_link && (
                                 <div className="sm:col-span-2">
                                   <span className="text-slate-400 block font-semibold text-[10px] uppercase">Google Drive Folder</span>
-                                  <a href={selectedStudent.folder_link} target="_blank" rel="noreferrer" className="text-blue-600 dark:text-blue-400 font-semibold underline truncate block">
+                                  <a href={selectedStudent.folder_link} target="_blank" rel="noreferrer" className="text-violet-600 dark:text-blue-400 font-semibold underline truncate block">
                                     {selectedStudent.folder_link}
                                   </a>
                                 </div>
@@ -2519,7 +2519,7 @@ function App() {
                         </div>
 
                         {/* 4. TRACKING, VOLUNTEERING & NOTES */}
-                        <div className="glass-panel rounded-2xl p-5 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                           <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                             <Clock size={16} className="text-blue-500" />
                             Tracking, Emergency & Notes
@@ -2558,7 +2558,7 @@ function App() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         
                         {/* Metric Indicator Circular bar */}
-                        <div className="glass-panel rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex flex-col items-center justify-center text-center space-y-4">
                           <h4 className="font-bold text-sm self-start">Attendance Rate</h4>
                           
                           {/* Circular SVG Progress */}
@@ -2591,7 +2591,7 @@ function App() {
                         </div>
 
                         {/* Attendance daily history */}
-                        <div className="glass-panel rounded-2xl p-5 md:col-span-2 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 md:col-span-2 space-y-4">
                           <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2">Recent Attendance Logs</h4>
                           <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                             <div className="flex justify-between items-center text-xs border-b border-slate-100 dark:border-slate-800/40 pb-2">
@@ -2633,7 +2633,7 @@ function App() {
                       <div className="max-w-2xl">
                         
                         {/* Map Details telemetries */}
-                        <div className="glass-panel rounded-2xl p-6 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-6 space-y-4">
                           <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-3">Location Telemetry</h4>
                           
                           <div className="space-y-4 text-xs">
@@ -2677,7 +2677,7 @@ function App() {
 
                     {/* PROFILE TAB: LEAVE REQUESTS */}
                     {profileTab === 'Leave Requests' && (
-                      <div className="glass-panel rounded-2xl p-5 space-y-4">
+                      <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                         <div className="flex justify-between items-center">
                           <h4 className="font-bold text-sm">Leave Applications</h4>
                         </div>
@@ -2699,7 +2699,7 @@ function App() {
                                       {req.status}
                                     </span>
                                   </div>
-                                  <p className="text-xs font-bold text-slate-700 dark:text-slate-350">{req.type} ({req.days} Days)</p>
+                                  <p className="text-xs font-bold text-white">{req.type} ({req.days} Days)</p>
                                   <p className="text-xs text-slate-500">{req.reason}</p>
                                   <span className="text-[10px] text-slate-400 block">Dates: {req.fromDate} to {req.toDate} | Submitted: {req.requestedAt}</span>
                                 </div>
@@ -2733,7 +2733,7 @@ function App() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         
                         {/* GPA Progress chart */}
-                        <div className="glass-panel rounded-2xl p-5 md:col-span-2 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 md:col-span-2 space-y-4">
                           <h4 className="font-bold text-sm">Semester-wise GPA Progression</h4>
                           
                           {/* GPA Line Chart */}
@@ -2789,7 +2789,7 @@ function App() {
                         </div>
 
                         {/* Subject marks listing */}
-                        <div className="glass-panel rounded-2xl p-5 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                           <h4 className="font-bold text-sm">Current Semester Subjects</h4>
                           
                           <div className="space-y-3">
@@ -2819,7 +2819,7 @@ function App() {
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         
                         {/* Note feed */}
-                        <div className="glass-panel rounded-2xl p-5 md:col-span-2 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 md:col-span-2 space-y-4">
                           <h4 className="font-bold text-sm">Counseling & Guidance Log</h4>
                           
                           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
@@ -2847,7 +2847,7 @@ function App() {
                         </div>
 
                         {/* Add note interface (counselor / admin roles) */}
-                        <div className="glass-panel rounded-2xl p-5 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
                           <h4 className="font-bold text-sm">Add Counsel Note</h4>
                           
                           {/* Note type selection */}
@@ -2879,7 +2879,7 @@ function App() {
 
                             <button
                               onClick={() => handleAddNote(selectedStudent.id)}
-                              className="w-full bg-blue-600 hover:bg-blue-705 text-slate-900 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-md"
+                              className="w-full bg-violet-600 hover:bg-blue-705 text-slate-900 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-md"
                             >
                               <Send size={12} />
                               Save Counseling Note
@@ -2900,7 +2900,7 @@ function App() {
 
           {/* MODULE: PARENTS */}
           {activeTab === 'Parents' && (
-            <div className="glass-panel rounded-2xl p-5 space-y-4">
+            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Parent Database</h4>
@@ -2913,7 +2913,7 @@ function App() {
                   placeholder="Filter by parent or student name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -2943,13 +2943,13 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block">{par.name}</span>
+                              <span className="font-bold text-white block">{par.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{par.email || 'parent@hope3.org'}</span>
                             </div>
                           </div>
                         </td>
                         <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-200/40">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-violet-600 dark:text-blue-400 border border-blue-200/40">
                             {par.guardianName || par.relationship || par.relation || 'Guardian'}
                           </span>
                         </td>
@@ -2959,7 +2959,7 @@ function App() {
                               const std = students.find(s => s.id === par.childId || (s as any).student_id === par.childId || s.student_code === par.childId);
                               if (std) { setSelectedStudent(std); setActiveTab('Students'); setProfileTab('Overview'); }
                             }}
-                            className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                            className="font-bold text-violet-600 dark:text-blue-400 hover:underline"
                           >
                             {par.childName}
                           </button>
@@ -2985,7 +2985,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={15} />
                             </a>
@@ -3001,7 +3001,7 @@ function App() {
 
           {/* MODULE: VOLUNTEERS (ADMINS) */}
           {(activeTab === 'Admins' || activeTab === 'Volunteers') && (
-            <div className="glass-panel rounded-2xl p-5 space-y-4">
+            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Active Admin Network</h4>
@@ -3014,7 +3014,7 @@ function App() {
                   placeholder="Filter by admin name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -3048,7 +3048,7 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{vol.name}</span>
+                              <span className="font-bold text-white block hover:text-violet-600 transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
                             </div>
                           </div>
@@ -3058,7 +3058,7 @@ function App() {
                             {vol.specialization || vol.program}
                           </span>
                         </td>
-                        <td className="p-4 font-mono font-bold text-blue-600 dark:text-blue-400">{vol.hoursContributed} Hours</td>
+                        <td className="p-4 font-mono font-bold text-violet-600 dark:text-blue-400">{vol.hoursContributed} Hours</td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{vol.phone}</td>
                         <td className="p-4">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px]
@@ -3072,7 +3072,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedVolunteer(vol)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-violet-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
                             >
                               View Profile
                             </button>
@@ -3090,7 +3090,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3106,7 +3106,7 @@ function App() {
 
           {/* MODULE: DONORS */}
           {activeTab === 'Donors' && (
-            <div className="glass-panel rounded-2xl p-5 space-y-4">
+            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Donors & Financial Benefactors</h4>
@@ -3119,7 +3119,7 @@ function App() {
                   placeholder="Filter by donor name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -3153,7 +3153,7 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{donor.name}</span>
+                              <span className="font-bold text-white block hover:text-violet-600 transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
                             </div>
                           </div>
@@ -3177,7 +3177,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedDonor(donor)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-violet-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
                             >
                               View Profile
                             </button>
@@ -3195,7 +3195,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3216,58 +3216,63 @@ function App() {
               {/* TOP HERO BANNER & STATS CARD (MATCHING MOBILE SCREENSHOT) */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Total Spend Card (Matching Admin Dashboard Theme) */}
-                <div className="lg:col-span-2 relative overflow-hidden bg-blue-600 rounded-3xl p-7 text-slate-900 shadow-xl shadow-blue-950/20 flex flex-col justify-between min-h-[160px]">
-                  {/* Decorative Translucent Wallet Icon */}
-                  <div className="absolute right-6 top-6 opacity-20 pointer-events-none">
-                    <Wallet size={120} className="text-slate-900" />
+                {/* Total Spend Card */}
+                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] rounded-[2rem] p-8 text-white border-none shadow-sm border border-purple-100 flex flex-col justify-between min-h-[180px]">
+                  {/* Decorative wavy background */}
+                  <svg className="absolute bottom-0 left-0 w-full h-full pointer-events-none opacity-60" preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fill-opacity="0.1" d="M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,197.3C672,203,768,181,864,154.7C960,128,1056,96,1152,96C1248,96,1344,128,1392,144L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
+                  
+                  {/* Decorative Wallet Icon */}
+                  <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-100 pointer-events-none hidden sm:block">
+                    <div className="w-[120px] h-[100px] bg-white rounded-2xl flex items-center justify-center shadow-[0_4px_20px_-4px_rgba(167,139,250,0.3)] border border-purple-50">
+                      <Wallet size={56} className="text-violet-500 stroke-[1.5]" />
+                    </div>
                   </div>
 
-                  <div className="space-y-2 relative z-10">
-                    <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full border border-white/20 inline-block shadow-sm">
+                  <div className="space-y-1 relative z-10">
+                    <span className="text-white text-[12px] font-bold uppercase tracking-widest inline-block mb-1">
                       TOTAL SPEND
                     </span>
 
-                    <div className="flex items-baseline gap-2 pt-2">
-                      <span className="text-2xl font-black text-indigo-100">₹</span>
-                      <h3 className="text-4xl sm:text-5xl font-black tracking-tight font-mono text-slate-900">
+                    <div className="flex items-baseline gap-2 pt-1">
+                      <span className="text-3xl font-semibold text-white/90">₹</span>
+                      <h3 className="text-[2.75rem] leading-none font-extrabold tracking-tight font-sans text-white">
                         {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
                       </h3>
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-6 border-t border-white/15 relative z-10">
-                    <div className="flex gap-3 text-xs font-semibold">
-                      <span className="text-indigo-100">Pending Approvals: <strong className="text-slate-900 font-mono">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
-                      <span className="text-indigo-100">|</span>
-                      <span className="text-indigo-100">Refund Requests: <strong className="text-slate-900 font-mono">{expenses.filter(e => e.refund_requested).length}</strong></span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-10 relative z-10">
+                    <div className="flex gap-4 text-[13px] font-medium items-center">
+                      <span className="text-white/80">Pending Approvals: <strong className="text-white font-semibold">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
+                      <span className="text-white/40">|</span>
+                      <span className="text-white/80">Refund Requests: <strong className="text-white font-semibold">{expenses.filter(e => e.refund_requested).length}</strong></span>
                     </div>
 
                     <button 
                       onClick={() => setShowExpenseModal(true)}
-                      className="bg-white hover:bg-indigo-50 text-indigo-800 font-extrabold px-4 py-2 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-105 active:scale-95 shrink-0"
+                      className="bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] hover:brightness-110 text-white font-semibold px-6 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 shadow-md shadow-violet-500/30 transition-all hover:scale-105 active:scale-95 shrink-0"
                     >
-                      <Plus size={16} className="text-indigo-600" />
-                      <span>Add Record</span>
+                      <Plus size={18} className="text-white" />
+                      Add Record
                     </button>
                   </div>
                 </div>
 
-                {/* Sub-Stats Summary Box */}
-                <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between space-y-4">
+                {/* Financial Overview Summary Card */}
+                <div className="bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] rounded-3xl p-6 shadow-md border-none text-white flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Financial Overview</span>
-                    <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Volunteer Spend Tracker</h4>
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-white/80 mb-2">Financial Overview</h4>
+                    <h3 className="text-[1.1rem] font-bold text-white">Volunteer Spend Tracker</h3>
                   </div>
 
-                  <div className="space-y-3 pt-2">
-                    <div className="flex justify-between items-center text-xs p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
-                      <span className="text-slate-500 font-medium">Top Category:</span>
-                      <span className="font-bold text-teal-600 dark:text-teal-400 uppercase font-mono">Snacks & Food</span>
+                  <div className="space-y-3 mt-6">
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 border border-white/20">
+                      <span className="text-xs text-white/90 font-medium">Top Category:</span>
+                      <span className="text-[10px] font-bold text-white bg-white/20 px-2.5 py-1 rounded-md uppercase tracking-wide">Snacks & Food</span>
                     </div>
-                    <div className="flex justify-between items-center text-xs p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800">
-                      <span className="text-slate-500 font-medium">Audit Compliance:</span>
-                      <span className="font-bold text-green-600 dark:text-green-400">100% Verified</span>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 border border-white/20">
+                      <span className="text-xs text-white/90 font-medium">Audit Compliance:</span>
+                      <span className="text-[10px] font-bold text-emerald-300 bg-emerald-400/20 px-2.5 py-1 rounded-md uppercase tracking-wide">100% Verified</span>
                     </div>
                   </div>
                 </div>
@@ -3275,7 +3280,7 @@ function App() {
               </div>
 
               {/* CONTROLS HEADER: SUB-TABS (All Records | Analytics), CATEGORY FILTERS */}
-              <div className="glass-panel rounded-3xl p-5 space-y-4">
+              <div className="glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
 
                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-4">
                   {/* Mobile-Style Pill Switcher: All Records vs Analytics */}
@@ -3284,7 +3289,7 @@ function App() {
                       onClick={() => setExpenseSubTab('records')}
                       className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
                         expenseSubTab === 'records'
-                          ? 'bg-teal-600 text-slate-900 shadow-md shadow-teal-500/20'
+                          ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-md shadow-violet-500/20'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
                       }`}
                     >
@@ -3294,7 +3299,7 @@ function App() {
                       onClick={() => setExpenseSubTab('analytics')}
                       className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
                         expenseSubTab === 'analytics'
-                          ? 'bg-teal-600 text-slate-900 shadow-md shadow-teal-500/20'
+                          ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-md shadow-violet-500/20'
                           : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
                       }`}
                     >
@@ -3312,10 +3317,10 @@ function App() {
                           <button
                             key={cat}
                             onClick={() => setExpenseCategoryFilter(cat)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 capitalize ${
+                            className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 capitalize border ${
                               isActive
-                                ? 'bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30'
-                                : 'bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                                ? 'bg-white text-violet-600 border-violet-200 shadow-sm'
+                                : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'
                             }`}
                           >
                             {cat === 'ALL' ? 'All' : cat}
@@ -3336,7 +3341,7 @@ function App() {
                           }}
                           className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shrink-0 z-10 ${
                             isExpenseSearchExpanded || expenseSearchQuery
-                              ? 'bg-teal-600 text-slate-900 shadow-md shadow-teal-500/30'
+                              ? 'bg-violet-600 text-slate-900 shadow-md shadow-teal-500/30'
                               : 'bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-slate-900'
                           }`}
                           title="Search expenses by volunteer name or batch"
@@ -3386,7 +3391,7 @@ function App() {
                             return catMatch && searchMatch;
                           }).length
                         } of {expenses.length} Expense Logs
-                        {expenseSearchQuery && <span className="text-teal-600 dark:text-teal-400 font-semibold ml-1.5">(Filtered by "{expenseSearchQuery}")</span>}
+                        {expenseSearchQuery && <span className="text-violet-600 dark:text-teal-400 font-semibold ml-1.5">(Filtered by "{expenseSearchQuery}")</span>}
                       </span>
                     </div>
 
@@ -3427,64 +3432,71 @@ function App() {
                             <div 
                               key={item.id} 
                               onClick={() => setSelectedExpense(item)}
-                              className="p-5 border border-slate-200/60 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/50 hover:shadow-xl hover:border-teal-300 dark:hover:border-teal-700 transition-all flex flex-col justify-between gap-4 group relative overflow-hidden cursor-pointer animate-fade-in"
+                              className="p-5 border border-white/20 rounded-[1.5rem] bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white hover:shadow-md hover:border-violet-200 dark:hover:border-teal-700 transition-all flex flex-col justify-between gap-5 group relative overflow-hidden cursor-pointer animate-fade-in"
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-start gap-3.5">
                                   {/* Icon Thumbnail */}
-                                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center shrink-0 border border-cyan-500/20 shadow-sm">
-                                    <CategoryIcon size={22} />
+                                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${
+                                    catLower.includes('snack') || catLower.includes('food') ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
+                                    catLower.includes('sport') ? 'bg-orange-50 text-orange-500 border-orange-100' :
+                                    catLower.includes('travel') ? 'bg-blue-50 text-blue-500 border-blue-100' :
+                                    catLower.includes('groc') ? 'bg-amber-50 text-amber-500 border-amber-100' : 
+                                    catLower.includes('med') ? 'bg-rose-50 text-rose-500 border-rose-100' :
+                                    'bg-violet-50 text-violet-500 border-violet-100'
+                                  }`}>
+                                    <CategoryIcon size={20} />
                                   </div>
 
                                   <div className="space-y-1">
-                                    <h5 className="font-extrabold text-sm text-slate-900 dark:text-white leading-snug group-hover:text-cyan-600 transition-colors">
+                                    <h5 className="font-bold text-[15px] text-white leading-snug group-hover:text-violet-600 transition-colors">
                                       {item.title}
                                     </h5>
                                     
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-350">
+                                    <div className="flex items-center gap-3 pt-0.5">
+                                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-emerald-50 text-emerald-600 tracking-wider">
                                         {item.category}
                                       </span>
-                                      <span className="text-[10px] text-slate-400 font-medium">
+                                      <span className="text-[11px] text-white/70 font-medium">
                                         {formattedDate}
                                       </span>
                                     </div>
                                   </div>
                                 </div>
 
-                                {/* Status Badge (e.g. PENDING in amber) */}
-                                <span className={`px-3 py-1 rounded-full font-extrabold text-[10px] tracking-wider uppercase shrink-0
-                                  ${item.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400' : item.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border border-rose-200/50' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200/50'}`}
+                                {/* Status Badge (e.g. PENDING in amber/orange) */}
+                                <span className={`px-2.5 py-1 rounded-full font-bold text-[9px] tracking-widest uppercase shrink-0
+                                  ${item.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : item.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' : 'bg-orange-50 text-orange-500 dark:bg-orange-950/40 dark:text-orange-400'}`}
                                 >
                                   {item.status}
                                 </span>
                               </div>
 
                               {/* Footer: Creator & Amount */}
-                              <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800/60 mt-1">
-                                <div className="flex flex-col gap-1 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                              <div className="flex items-end justify-between pt-4 border-t border-dashed border-white/20 mt-1">
+                                <div className="flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-white/70 font-medium">
                                   <div className="flex items-center gap-1.5">
-                                    <User size={13} className="text-slate-400 shrink-0" />
-                                    <span>By: <strong className="text-slate-700 dark:text-slate-350">{item.created_by_name || 'System Admin'}</strong></span>
-                                    <span className="text-slate-200 dark:text-slate-800">|</span>
-                                    <span>For: <strong className="text-slate-700 dark:text-slate-350 font-mono">{item.target_group || 'ALL'}</strong></span>
+                                    <User size={13} className="text-white/70 shrink-0" />
+                                    <span>By: <strong className="text-white">{item.created_by_name || 'System Admin'}</strong></span>
+                                    <span className="text-white/40">|</span>
+                                    <span>For: <strong className="text-white font-bold">{item.target_group || 'ALL'}</strong></span>
                                   </div>
                                   <div className="flex items-center gap-1.5 pl-[19px]">
-                                    <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Approved By:</span>
-                                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded-md border ${
+                                    <span className="text-[10px] text-white/60 uppercase tracking-widest">Approved By:</span>
+                                    <span className={`text-[10px] font-bold ${
                                       item.status === 'APPROVED'
-                                        ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-450 border-emerald-200/50'
+                                        ? 'text-emerald-600 dark:text-emerald-450'
                                         : item.status === 'REJECTED'
-                                        ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-450 border-rose-200/50'
-                                        : 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-450 border-amber-200/50'
+                                        ? 'text-rose-600 dark:text-rose-450'
+                                        : 'text-orange-500 dark:text-amber-450 bg-orange-50 px-1.5 rounded'
                                     }`}>
                                       {item.status === 'APPROVED' ? (item.approved_by_name || 'System Admin') : item.status === 'REJECTED' ? 'Rejected' : 'Pending'}
                                     </span>
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-3">
-                                  <span className="text-lg font-black text-cyan-600 dark:text-cyan-400 font-mono">
+                                <div className="flex items-center gap-4">
+                                  <span className="text-lg font-black text-emerald-600 dark:text-cyan-400 font-mono">
                                     ₹ {item.amount.toLocaleString('en-IN')}
                                   </span>
 
@@ -3494,9 +3506,9 @@ function App() {
                                       handleDeleteExpense(item.id);
                                     }}
                                     title="Delete expense entry"
-                                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
+                                    className="p-1.5 text-white/50 hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
                                   >
-                                    <Trash2 size={14} />
+                                    <Trash2 size={15} strokeWidth={2} />
                                   </button>
                                 </div>
                               </div>
@@ -3526,10 +3538,10 @@ function App() {
                               <div key={cat} className="space-y-1">
                                 <div className="flex justify-between text-xs font-bold">
                                   <span className="capitalize text-slate-800 dark:text-slate-200">{cat}</span>
-                                  <span className="font-mono text-cyan-600">₹{catTotal.toLocaleString('en-IN')} ({pct}%)</span>
+                                  <span className="font-mono text-emerald-600">₹{catTotal.toLocaleString('en-IN')} ({pct}%)</span>
                                 </div>
                                 <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                  <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${pct}%` }}></div>
+                                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%` }}></div>
                                 </div>
                               </div>
                             );
@@ -3545,7 +3557,7 @@ function App() {
                               <h6 className="font-bold text-xs">Monthly Field Expense Audit</h6>
                               <p className="text-[10px] text-slate-400">July 2026 volunteer refunds & receipts</p>
                             </div>
-                            <button onClick={() => handleDownloadPDF('July_Expense_Audit')} className="text-cyan-600 text-xs font-bold hover:underline">Download PDF</button>
+                            <button onClick={() => handleDownloadPDF('July_Expense_Audit')} className="text-emerald-600 text-xs font-bold hover:underline">Download PDF</button>
                           </div>
                         </div>
                       </div>
@@ -3562,7 +3574,7 @@ function App() {
           {activeTab === 'Location' && (
             <div className="space-y-6">
               {/* Header Banner */}
-              <div className="glass-panel rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
@@ -3570,7 +3582,7 @@ function App() {
                       Live GPS & Geofence Engine
                     </span>
                   </div>
-                  <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">
+                  <h3 className="text-xl font-black text-white tracking-tight">
                     Student Geofence & Location Control
                   </h3>
                 </div>
@@ -3583,7 +3595,7 @@ function App() {
                     <select 
                       value={selectedGeofenceFilter}
                       onChange={(e) => setSelectedGeofenceFilter(e.target.value)}
-                      className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer max-w-[160px]"
+                      className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer max-w-[160px]"
                     >
                       <option value="ALL">All Fences</option>
                       {customGeofences.map(gf => (
@@ -3608,7 +3620,7 @@ function App() {
 
                     <button 
                       onClick={() => setIsFullScreenMapOpen(true)}
-                      className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
+                      className="px-4 py-2.5 bg-violet-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
                       title="Open full screen map to draw, add, or delete geofences"
                     >
                       <Compass size={16} />
@@ -3628,13 +3640,13 @@ function App() {
                     <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/40 dark:border-slate-700/50">
                       <button 
                         onClick={() => setFenceTypeTab('single')}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
                         Single Fences ({customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
                       </button>
                       <button 
                         onClick={() => setFenceTypeTab('grouped')}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
                         Grouped Fences ({customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
                       </button>
@@ -3687,7 +3699,7 @@ function App() {
                     return (
                       <div 
                         key={gf.id}
-                        className={`flex-shrink-0 w-80 glass-panel rounded-2xl p-5 relative overflow-hidden group transition-all snap-start border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
+                        className={`flex-shrink-0 w-80 glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 relative overflow-hidden group transition-all snap-start border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
                         style={{ borderLeftColor: accentColor }}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -3728,7 +3740,7 @@ function App() {
                             </span>
                           </div>
                         </div>
-                        <h4 className="font-bold text-sm text-slate-800 dark:text-white truncate" title={gf.name}>{gf.name}</h4>
+                        <h4 className="font-bold text-sm text-white truncate" title={gf.name}>{gf.name}</h4>
                         <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
                           {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
                         </p>
@@ -3765,7 +3777,7 @@ function App() {
                         >
                           <button
                             onClick={() => setEditingGeofenceGroup(gf)}
-                            className="text-[10px] font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
+                            className="text-[10px] font-bold text-violet-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
                           >
                             <Users size={12} />
                             <span>Manage Group</span>
@@ -3785,12 +3797,12 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
                 {/* MAP GRAPHIC CANVAS SIMULATOR */}
-                <div className="lg:col-span-2 glass-panel rounded-3xl p-5 space-y-4 relative min-h-[380px] flex flex-col justify-between overflow-hidden">
+                <div className="lg:col-span-2 glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 relative min-h-[380px] flex flex-col justify-between overflow-hidden">
                   {/* Google Street Map Location Search Bar & Geofencer Header */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-10">
                     <div className="flex items-center gap-2">
-                      <MapPin size={18} className="text-blue-600 dark:text-blue-400" />
-                      <h4 className="font-bold text-sm text-slate-800 dark:text-white">Google Maps Geofence Radar</h4>
+                      <MapPin size={18} className="text-violet-600 dark:text-blue-400" />
+                      <h4 className="font-bold text-sm text-white">Google Maps Geofence Radar</h4>
                     </div>
 
                     {/* Place Name Search & Auto-Geofence Form */}
@@ -3883,7 +3895,7 @@ function App() {
                           placeholder="Search place name to fence (e.g. Koviloor)..." 
                           value={locationSearchQuery}
                           onChange={(e) => setLocationSearchQuery(e.target.value)}
-                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 shadow-sm font-semibold"
+                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 shadow-sm font-semibold"
                         />
                         {isSearchingLocation ? (
                           <RefreshCw size={14} className="absolute left-2.5 top-2 text-blue-500 animate-spin" />
@@ -3897,13 +3909,13 @@ function App() {
                     <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
                       <button
                         onClick={() => setMapType('hybrid')}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'hybrid' ? 'bg-blue-600 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'hybrid' ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
                       >
                         🛰️ Satellite
                       </button>
                       <button
                         onClick={() => setMapType('streets')}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'streets' ? 'bg-blue-600 text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'streets' ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
                       >
                         🗺️ Map
                       </button>
@@ -3917,9 +3929,9 @@ function App() {
                 </div>
 
                 {/* REAL-TIME STUDENT LOCATION TABLE & CHECK-IN OVERRIDE */}
-                <div className="glass-panel rounded-3xl p-5 space-y-4 flex flex-col justify-between">
+                <div className="glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 flex flex-col justify-between">
                   <div>
-                    <h4 className="font-bold text-sm text-slate-800 dark:text-white flex items-center gap-2 mb-3">
+                    <h4 className="font-bold text-sm text-white flex items-center gap-2 mb-3">
                       <Compass size={16} className="text-red-500 animate-pulse" />
                       Out-of-Bounds Radar ({students.filter(s => s.location?.status === 'Out of Bounds').length})
                     </h4>
@@ -3975,7 +3987,7 @@ function App() {
 
           {/* MODULE: SETTINGS */}
           {activeTab === 'Settings' && (
-            <div className="glass-panel rounded-2xl p-5 space-y-6">
+            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-6">
               
               <div>
                 <h4 className="font-bold text-base">Configuration Settings</h4>
@@ -3986,7 +3998,7 @@ function App() {
                 
                 {/* Organization Profile */}
                 <div className="pt-2 pb-2 space-y-4">
-                  <h5 className="font-bold text-sm text-slate-800 dark:text-white">Organization Profile</h5>
+                  <h5 className="font-bold text-sm text-white">Organization Profile</h5>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] text-slate-400 block font-semibold mb-1">NGO REGISTERED NAME</label>
@@ -4005,7 +4017,7 @@ function App() {
 
                 {/* System Settings */}
                 <div className="pt-6 pb-2 space-y-4">
-                  <h5 className="font-bold text-sm text-slate-800 dark:text-white">System Configuration</h5>
+                  <h5 className="font-bold text-sm text-white">System Configuration</h5>
                   <div className="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900">
                     <div>
                       <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Enable Maintenance Mode</h6>
@@ -4037,25 +4049,25 @@ function App() {
 
                 {/* Notification Preferences */}
                 <div className="pt-6 pb-2 space-y-4">
-                  <h5 className="font-bold text-sm text-slate-800 dark:text-white">Notification & Alert Preferences</h5>
+                  <h5 className="font-bold text-sm text-white">Notification & Alert Preferences</h5>
                   
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500" />
                       <div>
                         <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Email Activity Summaries</h6>
                         <p className="text-[10px] text-slate-400">Receive weekly digests of all volunteer and mentor logs.</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500" />
                       <div>
                         <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Donor Contribution Alerts</h6>
                         <p className="text-[10px] text-slate-400">Get instant notifications when a new donation is processed.</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500" />
+                      <input type="checkbox" className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500" />
                       <div>
                         <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">SMS Emergency Alerts</h6>
                         <p className="text-[10px] text-slate-400">Enable text alerts for severe location out-of-bounds events.</p>
@@ -4066,7 +4078,7 @@ function App() {
 
                 {/* Save action */}
                 <div className="pt-6 flex justify-end">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-slate-900 font-bold py-2 px-6 rounded-xl text-xs transition-colors shadow-sm">
+                  <button className="bg-violet-600 hover:bg-blue-700 text-slate-900 font-bold py-2 px-6 rounded-xl text-xs transition-colors shadow-sm">
                     Save Changes
                   </button>
                 </div>
@@ -4079,7 +4091,7 @@ function App() {
         </main>
 
         {/* BOTTOM METRIC BAR OR FOOTER */}
-        <footer className="mt-auto border-t border-slate-200/50 dark:border-slate-800/50 py-4 px-6 text-center text-[10px] text-slate-400 font-medium">
+        <footer className="mt-auto border-t border-slate-200/50 dark:border-slate-800/50 py-4 px-6 text-center text-[10px] text-white/70 font-medium">
           Hope3 NGO Student Management System • Powered by React.js & Tailwind CSS v4
         </footer>
 
@@ -4090,7 +4102,7 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-blue-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
+            <div className="relative bg-violet-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
               <div className="flex justify-between items-center w-full mb-3">
                 <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Admin Profile
@@ -4181,7 +4193,7 @@ function App() {
 
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Total Service Hours</span>
-                  <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
+                  <span className="font-mono font-bold text-xs text-violet-600 dark:text-blue-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
@@ -4207,7 +4219,7 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-blue-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
+            <div className="relative bg-violet-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
               <div className="flex justify-between items-center w-full mb-3">
                 <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Donor Benefactor Profile
@@ -4270,7 +4282,7 @@ function App() {
             <div className="p-6 space-y-6">
 
               {/* Highlight Contribution Box */}
-              <div className="glass-panel p-5 rounded-2xl bg-blue-600 border border-emerald-200/50 dark:border-emerald-800/40 flex justify-between items-center">
+              <div className="glass-panel p-5 rounded-2xl bg-violet-600 border border-emerald-200/50 dark:border-emerald-800/40 flex justify-between items-center">
                 <div>
                   <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Total Financial Contribution</span>
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{selectedDonor.formattedAmount}</span>
@@ -4330,7 +4342,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-violet-600 flex items-center justify-center font-bold">
                   <Plus size={16} />
                 </div>
                 <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Add Expense Record</h4>
@@ -4423,7 +4435,7 @@ function App() {
                     type="checkbox" 
                     checked={newExpenseRefund} 
                     onChange={(e) => setNewExpenseRefund(e.target.checked)} 
-                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 rounded text-violet-600 focus:ring-teal-500"
                   />
                   <span className="font-semibold text-slate-700 dark:text-slate-300">Refund Requested</span>
                 </label>
@@ -4433,7 +4445,7 @@ function App() {
                     type="checkbox" 
                     checked={newExpenseFoundationPaid} 
                     onChange={(e) => setNewExpenseFoundationPaid(e.target.checked)} 
-                    className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500"
+                    className="w-4 h-4 rounded text-violet-600 focus:ring-teal-500"
                   />
                   <span className="font-semibold text-slate-700 dark:text-slate-300">Foundation Paid</span>
                 </label>
@@ -4442,7 +4454,7 @@ function App() {
               <button 
                 type="submit" 
                 disabled={isSubmittingExpense}
-                className="w-full py-3 bg-teal-600 hover:bg-teal-700 disabled:bg-teal-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs disabled:cursor-not-allowed"
+                className="w-full py-3 bg-violet-600 hover:bg-teal-700 disabled:bg-teal-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs disabled:cursor-not-allowed"
               >
                 {isSubmittingExpense ? (
                   <RefreshCw size={16} className="animate-spin" />
@@ -4462,7 +4474,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">
                   <Receipt size={16} />
                 </div>
                 <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Expense Details</h4>
@@ -4475,7 +4487,7 @@ function App() {
             <div className="flex-1 overflow-y-auto space-y-4 text-xs pr-1 scrollbar-none">
               <div className="text-center py-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">TOTAL AMOUNT</span>
-                <span className="text-3xl font-black text-cyan-600 dark:text-cyan-400 font-mono">
+                <span className="text-3xl font-black text-emerald-600 dark:text-cyan-400 font-mono">
                   ₹ {selectedExpense.amount.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -4483,7 +4495,7 @@ function App() {
               <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Title / Description</span>
-                  <span className="font-extrabold text-sm text-slate-800 dark:text-white mt-0.5 block">{selectedExpense.title}</span>
+                  <span className="font-extrabold text-sm text-white mt-0.5 block">{selectedExpense.title}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Category</span>
@@ -4600,11 +4612,11 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-600 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-violet-600 flex items-center justify-center font-bold">
                   <MapPin size={18} />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">Create Geofence Zone</h4>
+                  <h4 className="font-extrabold text-sm text-white">Create Geofence Zone</h4>
                   <p className="text-[10px] text-slate-400">Map custom polygon shapes on OpenStreetMap</p>
                 </div>
               </div>
@@ -4707,7 +4719,7 @@ function App() {
                       key={sh.id}
                       type="button"
                       onClick={() => setNewZoneShape(sh.id as any)}
-                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-blue-600 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-violet-600 bg-blue-50 dark:bg-blue-950/40 text-violet-600 dark:text-blue-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
                     >
                       <span className="text-lg leading-none">{sh.icon}</span>
                       <span className="text-[10px]">{sh.id}</span>
@@ -4734,7 +4746,7 @@ function App() {
               <div className="pt-2">
                 <button 
                   type="submit" 
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                  className="w-full py-3 bg-violet-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <MapPin size={16} />
                   <span>Mark & Save Batch Geofence</span>
@@ -4751,7 +4763,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh]">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-violet-600 dark:text-blue-400 flex items-center justify-center font-bold">
                   <Users size={16} />
                 </div>
                 <div>
@@ -4821,7 +4833,7 @@ function App() {
                       setEditingGeofenceGroup({ ...editingGeofenceGroup, studentIds: newStudentIds });
                       setCustomGeofences(prev => prev.map(gf => gf.id === editingGeofenceGroup.id ? { ...gf, studentIds: newStudentIds } : gf));
                     }}
-                    className="p-1 px-2.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 text-blue-600 dark:text-blue-400 rounded-xl text-[10px] font-bold transition-all border border-blue-200/40"
+                    className="p-1 px-2.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 text-violet-600 dark:text-blue-400 rounded-xl text-[10px] font-bold transition-all border border-blue-200/40"
                   >
                     {(() => {
                       const filteredStudents = students.filter(student => modalBatchFilter === 'ALL' || (student.batch || student.current_year || '2026') === modalBatchFilter);
@@ -4875,7 +4887,7 @@ function App() {
                             return gf;
                           }));
                         }}
-                        className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                        className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
                       />
                     </label>
                   );
@@ -4896,7 +4908,7 @@ function App() {
                     alert('Failed to save group assignment to server');
                   }
                 }}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs"
+                className="w-full py-2.5 bg-violet-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs"
               >
                 Save Group Assignment
               </button>
@@ -4911,7 +4923,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh] space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-violet-600 dark:text-blue-400 flex items-center justify-center font-bold">
                   <Layers size={16} />
                 </div>
                 <div>
@@ -4995,7 +5007,7 @@ function App() {
                                   : prev.filter(id => id !== gf.id)
                               );
                             }}
-                            className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                            className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
                           />
                         </label>
                       );
@@ -5077,7 +5089,7 @@ function App() {
                   }
                 }}
                 disabled={!mergeTargetName.trim() || selectedFencesToMerge.length < 2}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs disabled:cursor-not-allowed"
+                className="w-full py-2.5 bg-violet-600 hover:bg-blue-700 disabled:bg-blue-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs disabled:cursor-not-allowed"
               >
                 Merge Selected Fences
               </button>
@@ -5094,14 +5106,14 @@ function App() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsFullScreenMapOpen(false)}
-                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30"
+                className="px-3.5 py-2 bg-violet-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30"
                 title="Back to Dashboard"
               >
                 <ArrowLeft size={16} />
                 <span>Back</span>
               </button>
 
-              <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
+              <div className="w-9 h-9 rounded-xl bg-violet-600/30 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
                 <Compass size={20} />
               </div>
               <div>
@@ -5199,7 +5211,7 @@ function App() {
                     alert('Click points on the map to mark your geofence boundary!');
                   }
                 }}
-                className={`w-14 h-14 ${isDrawingActive ? 'bg-slate-300 opacity-60 pointer-events-none' : 'bg-blue-600 hover:bg-blue-500'} text-slate-900 rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
+                className={`w-14 h-14 ${isDrawingActive ? 'bg-slate-300 opacity-60 pointer-events-none' : 'bg-violet-600 hover:bg-blue-500'} text-slate-900 rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
                 title="Click to draw geofence perimeter"
                 disabled={isDrawingActive}
               >
@@ -5216,11 +5228,11 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-blue-500/15 text-blue-600 flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-2xl bg-blue-500/15 text-violet-600 flex items-center justify-center font-bold">
                   <Pencil size={20} />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-white">Save Marked Geofence</h4>
+                  <h4 className="font-extrabold text-sm text-white">Save Marked Geofence</h4>
                   <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
                     ✓ Closed Polygon Loop ({pendingDrawnShape.coords.length} points)
                   </p>
@@ -5343,7 +5355,7 @@ function App() {
               <div className="pt-2">
                 <button 
                   type="submit" 
-                  className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                  className="w-full py-3.5 bg-violet-600 hover:bg-blue-500 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <Check size={16} />
                   <span>Save Geofence Boundary</span>
@@ -5369,7 +5381,7 @@ function App() {
             const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
             setCreationModal({ type, isOpen: true });
           }}
-          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-blue-600 hover:bg-blue-500 text-slate-900 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
+          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-violet-600 hover:bg-blue-500 text-slate-900 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
           title={`Add New ${activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
         >
           <Plus size={22} />

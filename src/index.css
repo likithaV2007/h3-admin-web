@@ -205,3 +205,17 @@ html, body, #root {
 .dark h5.font-bold {
   color: #f8fafc !important;
 }
+
+/* Force white text in gradient cards for readability */
+.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] * {
+  color: white !important;
+}
+
+.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] .text-slate-400, 
+.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] .text-slate-500 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] .bg-white\\/10 * {
+  color: white !important;
+}
