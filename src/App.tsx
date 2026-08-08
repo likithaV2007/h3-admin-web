@@ -1585,11 +1585,11 @@ function App() {
             <div className="space-y-6">
               
               {/* HEADING ACCENT */}
-              <div className="bg-violet-600 rounded-3xl p-7 text-slate-900 shadow-xl shadow-violet-950/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
+              <div className="bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] rounded-3xl p-7 text-white shadow-xl shadow-[#3f2b96]/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
                 <div className="absolute -right-10 -top-10 w-72 h-72 bg-white/25 rounded-full blur-2xl pointer-events-none"></div>
-                <div className="absolute right-32 -bottom-10 w-48 h-48 bg-teal-400/20 rounded-full blur-2xl pointer-events-none"></div>
-                <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-slate-900 drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
-                <p className="text-blue-100 text-xs max-w-xl">
+                <div className="absolute right-32 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+                <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-white drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
+                <p className="text-blue-50 text-xs max-w-xl opacity-90">
                   {activeRole === 'Admin' && 'Here is your operational snapshot of Hope3 NGO. Monitor real-time student check-ins, approve pending leaves, and track fundraising.'}
                   {activeRole === 'Student' && 'Review your overall attendance records, submit new leaves, and view comments left by your mentor.'}
                   {activeRole === 'Parent' && 'Monitor your child academic performance, check their hostel residency logs, and contact their mentor.'}
