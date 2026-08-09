@@ -17,7 +17,8 @@
   --color-blue-300: #93c8d6;
   --color-blue-400: #6ab3c7;
   --color-blue-500: #429fb8;
-  --color-blue-600: #BBDCE5; /* Replaced the old 600 with the requested secondary color */
+  --color-blue-600: #BBDCE5;
+  /* Replaced the old 600 with the requested secondary color */
   --color-blue-700: #357f93;
   --color-blue-800: #285f6e;
   --color-blue-900: #1a404a;
@@ -31,7 +32,9 @@
   --color-emerald-700: #357f93;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -41,7 +44,9 @@ html, body, #root {
   transition: background-color 0.3s ease;
 }
 
-.dark html, .dark body, .dark #root {
+.dark html,
+.dark body,
+.dark #root {
   background-color: #080c14;
 }
 
@@ -52,7 +57,7 @@ html, body, #root {
   -webkit-backdrop-filter: blur(24px) saturate(200%);
   border: 1.5px solid rgba(0, 23, 128, 0.22);
   outline: 1px solid rgba(16, 185, 129, 0.25);
-  box-shadow: 
+  box-shadow:
     0 14px 30px -5px rgba(0, 23, 128, 0.12),
     0 6px 12px -3px rgba(0, 0, 0, 0.08),
     inset 0 1.5px 1px 0 rgba(255, 255, 255, 1);
@@ -65,7 +70,7 @@ html, body, #root {
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1.5px solid rgba(59, 130, 246, 0.35);
   outline: 1px solid rgba(16, 185, 129, 0.25);
-  box-shadow: 
+  box-shadow:
     0 25px 40px -5px rgba(0, 0, 0, 0.75),
     0 12px 20px -5px rgba(37, 99, 235, 0.25),
     inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
@@ -76,25 +81,30 @@ html, body, #root {
   background: rgba(255, 255, 255, 0.45) !important;
   backdrop-filter: blur(8px);
 }
+
 .dark .glass-panel table thead tr {
   background: rgba(15, 23, 42, 0.45) !important;
   backdrop-filter: blur(8px);
 }
 
-.glass-panel input, .glass-panel select {
+.glass-panel input,
+.glass-panel select {
   background: rgba(255, 255, 255, 0.75) !important;
   backdrop-filter: blur(8px);
   border: 1.5px solid rgba(203, 213, 225, 0.9) !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
-.dark .glass-panel input, .dark .glass-panel select {
+
+.dark .glass-panel input,
+.dark .glass-panel select {
   background: rgba(15, 23, 42, 0.65) !important;
   backdrop-filter: blur(8px);
   border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
-.glass-panel input:focus, .glass-panel select:focus {
+.glass-panel input:focus,
+.glass-panel select:focus {
   border-color: #3b5bf6 !important;
   box-shadow: 0 0 0 3px rgba(59, 91, 246, 0.25) !important;
 }
@@ -103,7 +113,7 @@ html, body, #root {
 .glass-panel:hover {
   transform: translateY(-2px);
   background-color: rgba(255, 255, 255, 0.75);
-  box-shadow: 
+  box-shadow:
     0 18px 35px -5px rgba(0, 23, 128, 0.1),
     0 10px 15px -5px rgba(0, 0, 0, 0.05),
     inset 0 1px 2px 0 rgba(255, 255, 255, 1);
@@ -112,7 +122,7 @@ html, body, #root {
 .dark .glass-panel:hover {
   background-color: rgba(15, 23, 42, 0.65);
   border-color: rgba(255, 255, 255, 0.22);
-  box-shadow: 
+  box-shadow:
     0 30px 40px -5px rgba(0, 0, 0, 0.6),
     0 15px 25px -5px rgba(37, 99, 235, 0.2),
     inset 0 1px 2px 0 rgba(255, 255, 255, 0.28);
@@ -146,10 +156,12 @@ html, body, #root {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   }
+
   70% {
     transform: scale(1);
     box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
   }
+
   100% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
@@ -161,13 +173,16 @@ html, body, #root {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.25);
   border-radius: 8px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(59, 130, 246, 0.45);
 }
@@ -179,43 +194,24 @@ html, body, #root {
 
 /* Dark mode text visibility overrides */
 .dark .text-slate-900 {
-  color: #f8fafc !important; /* slate-50 */
-}
-.dark .text-slate-800 {
-  color: #f1f5f9 !important; /* slate-100 */
-}
-.dark .text-slate-750 {
-  color: #e2e8f0 !important; /* slate-200 */
-}
-.dark .text-slate-700 {
-  color: #cbd5e1 !important; /* slate-300 */
-}
-.dark .text-slate-600 {
-  color: #94a3b8 !important; /* slate-400 */
-}
-.dark .text-slate-500 {
-  color: #94a3b8 !important; /* slate-400 */
-}
-.dark .text-slate-400 {
-  color: #64748b !important; /* slate-500 */
-}
-.dark span.font-bold, 
-.dark p.font-bold,
-.dark h4.font-bold,
-.dark h5.font-bold {
   color: #f8fafc !important;
+  /* slate-50 */
 }
 
-/* Force white text in gradient cards for readability */
-.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] * {
+.dark .text-slate-800 {
+  color: #f1f5f9 !important;
+  /* slate-100 */
+}
+
+.dark .text-slate-750 {
+  color: #e2e8f0 !important;
+}
+
+/* Custom Gradient for Buttons and Tabs */
+.gradient-btn-tab {
+  background: #20002c !important;
+  background: -webkit-linear-gradient(to right, #20002c, #cbb4d4) !important;
+  background: linear-gradient(to right, #20002c, #cbb4d4) !important;
   color: white !important;
-}
-
-.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] .text-slate-400, 
-.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] .text-slate-500 {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.bg-gradient-to-br.from-\\[\\#a8c0ff\\].to-\\[\\#3f2b96\\] .bg-white\\/10 * {
-  color: white !important;
+  border: none !important;
 }

@@ -120,7 +120,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<string>('Dashboard');
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
-  
+
   // Data State
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [volunteers, setVolunteers] = useState<Volunteer[]>(initialVolunteers);
@@ -309,7 +309,7 @@ function App() {
               polygons: d.polygons || (d.coords ? [{ name: d.name, coords: d.coords }] : []),
               studentIds: d.studentIds || []
             }));
-          
+
           const combined = [...parsed, ...missingDefaults];
           return combined.map((gf: any) => {
             const mappedPolys = (gf.polygons || []).map((p: any, idx: number) => {
@@ -326,7 +326,7 @@ function App() {
           });
         }
       }
-    } catch {}
+    } catch { }
     return defaultApiGeofences.map((gf: any) => ({
       ...gf,
       polygons: gf.polygons || (gf.coords ? [{ name: gf.name, coords: gf.coords }] : []),
@@ -340,7 +340,7 @@ function App() {
       if (customGeofences.length > 0) {
         localStorage.setItem('h3_geofences', JSON.stringify(customGeofences));
       }
-    } catch {}
+    } catch { }
   }, [customGeofences]);
 
   const loadDataFromApi = async () => {
@@ -361,9 +361,9 @@ function App() {
         apiService.getTrackingSessions(),
         apiService.getAdminsCount()
       ]);
-      
+
       setAdminCount(fetchedAdminCount);
-      
+
       let studentsWithLiveLocations = fetchedStudents || [];
       if (fetchedStudents && fetchedStudents.length > 0) {
         if (fetchedSessions && fetchedSessions.length > 0) {
@@ -385,11 +385,11 @@ function App() {
               if (!isNaN(lat) && !isNaN(lng)) {
                 let statusName: 'In Hostel' | 'In College' | 'Out of Bounds' | 'On Leave' = 'Out of Bounds';
                 let locationStatus: 'Hostel' | 'College' | 'Office' | 'Out' | 'HQ' | 'On Leave' | 'Out of Bounds' = 'Out of Bounds';
-                
+
                 if (session.is_inside_geofence) {
                   const gfZone = (fetchedGeofences || []).find((g: any) => (g.zone_id === session.geofence_zone_id || g.id === session.geofence_zone_id));
                   const zoneNameLower = gfZone ? (gfZone.zone_name || gfZone.name || '').toLowerCase() : '';
-                  
+
                   if (zoneNameLower.includes('hostel')) {
                     statusName = 'In Hostel';
                     locationStatus = 'Hostel';
@@ -427,10 +427,10 @@ function App() {
       if (fetchedParents && fetchedParents.length > 0) setParents(fetchedParents);
       if (fetchedDonors && fetchedDonors.length > 0) setDonors(fetchedDonors);
       if (fetchedExpenses && fetchedExpenses.length > 0) setExpenses(fetchedExpenses);
-      
+
       if (fetchedGeofences && fetchedGeofences.length > 0) {
         const mappedGeofences: any[] = [];
-        
+
         fetchedGeofences.forEach((gf: any, idx: number) => {
           const name = gf.zone_name || gf.name || gf.title || gf.location_name || `Geofence ${idx + 1}`;
           if (!name || name === 'string') return;
@@ -482,7 +482,7 @@ function App() {
           setCustomGeofences(mappedGeofences);
           try {
             localStorage.setItem('h3_geofences', JSON.stringify(mappedGeofences));
-          } catch {}
+          } catch { }
         }
       }
     } catch (err) {
@@ -507,7 +507,7 @@ function App() {
       const [xi, yi] = polygon[i];
       const [xj, yj] = polygon[j];
       const intersect = ((yi > y) !== (yj > y))
-          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
       if (intersect) inside = !inside;
     }
     return inside;
@@ -528,9 +528,9 @@ function App() {
           const polygonsList = assignedFence.polygons || [];
           const isInside = polygonsList.length > 0
             ? polygonsList.some(poly => {
-                const coords = Array.isArray(poly) ? poly : (poly as any).coords;
-                return isPointInPolygon([parts[0], parts[1]], coords);
-              })
+              const coords = Array.isArray(poly) ? poly : (poly as any).coords;
+              return isPointInPolygon([parts[0], parts[1]], coords);
+            })
             : false;
           if (!isInside && student.location.status !== 'Out of Bounds' && student.location.status !== 'On Leave') {
             stateChanged = true;
@@ -585,7 +585,7 @@ function App() {
       if (!mapContainer || !(window as any).L) return;
 
       const L = (window as any).L;
-      
+
       // Clear previous map instance if initialized
       if ((mapContainer as any)._leaflet_id) {
         (mapContainer as any)._leaflet_id = null;
@@ -612,7 +612,7 @@ function App() {
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
             map.setView([userLat, userLng], 15);
-            
+
             const myLocMarker = L.marker([userLat, userLng]).addTo(map);
             myLocMarker.bindPopup('<b>📍 Your Current Live Location</b><br/>Super Admin GPS Position').openPopup();
           },
@@ -652,7 +652,7 @@ function App() {
               const updated = prev.filter(g => g.id !== geofenceId);
               try {
                 localStorage.setItem('h3_geofences', JSON.stringify(updated));
-              } catch {}
+              } catch { }
               return updated;
             });
           } else {
@@ -700,13 +700,13 @@ function App() {
       });
 
       // Render Student Location Pins on the Map (matching selected geofence filter)
-      const studentPins = selectedGeofenceFilter === 'ALL' 
-        ? students 
+      const studentPins = selectedGeofenceFilter === 'ALL'
+        ? students
         : (() => {
-            const selectedFence = customGeofences.find(gf => gf.id === selectedGeofenceFilter);
-            const assignedIds = selectedFence?.studentIds || [];
-            return students.filter(s => assignedIds.includes(s.id));
-          })();
+          const selectedFence = customGeofences.find(gf => gf.id === selectedGeofenceFilter);
+          const assignedIds = selectedFence?.studentIds || [];
+          return students.filter(s => assignedIds.includes(s.id));
+        })();
 
       // Student pin offsets around Koviloor campus
       const campusOffsetLat = [0.0012, -0.0008, 0.0018, -0.0014, 0.0005, -0.0020, 0.0022];
@@ -801,9 +801,9 @@ function App() {
           if (Array.isArray(latlngs) && latlngs.length > 0 && Array.isArray(latlngs[0])) {
             latlngs = latlngs[0];
           }
-          
+
           let coords: Array<[number, number]> = Array.isArray(latlngs) ? latlngs.map((pt: any) => [pt.lat, pt.lng]) : [];
-          
+
           // Automatic polygon closure check: ensure first and last vertex point match
           if (coords.length >= 3) {
             const first = coords[0];
@@ -814,7 +814,7 @@ function App() {
           }
 
           const center = layer.getBounds ? layer.getBounds().getCenter() : { lat: 10.0815515, lng: 78.7463343 };
-          
+
           // Auto-generate a clean default name
           const defaultCount = customGeofences.length + 1;
           const defaultName = `Marked Geofence #${defaultCount}`;
@@ -845,9 +845,9 @@ function App() {
               remainingCoords.push(c);
             }
           });
-          
+
           setCustomGeofences(prev => {
-            const filtered = prev.filter(g => 
+            const filtered = prev.filter(g =>
               remainingCoords.some(rc => (g.polygons || []).some(poly => {
                 const coords = Array.isArray(poly) ? poly : (poly as any).coords;
                 return coords.length === rc.length;
@@ -855,7 +855,7 @@ function App() {
             );
             try {
               localStorage.setItem('h3_geofences', JSON.stringify(filtered));
-            } catch {}
+            } catch { }
             return filtered;
           });
         });
@@ -953,7 +953,7 @@ function App() {
 
   // Form States for Class Creation
   const [newClassName, setNewClassName] = useState('');
-  
+
   const [selectedClassVolunteer, setSelectedClassVolunteer] = useState('');
   const [newClassDescription, setNewClassDescription] = useState('');
   const [newClassSchedule, setNewClassSchedule] = useState('');
@@ -989,7 +989,7 @@ function App() {
 
   // Filtered Students List with Search & Batch Filter
   const filteredStudents = students.filter(student => {
-    const matchesSearch = 
+    const matchesSearch =
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (student.rollNo && student.rollNo.toLowerCase().includes(searchQuery.toLowerCase())) ||
       student.college.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1007,11 +1007,11 @@ function App() {
     const byteCharacters = atob(pdfBase64);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
     const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], {type: "application/pdf"});
-    
+    const blob = new Blob([byteArray], { type: "application/pdf" });
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -1109,7 +1109,7 @@ function App() {
   // Volunteer approves/rejects student requests
   const handleStudentRequestAction = (reqId: string, status: 'Approved' | 'Rejected') => {
     setStudentRequests(prev => prev.map(r => r.id === reqId ? { ...r, status } : r));
-    
+
     // Add activity log
     const target = studentRequests.find(r => r.id === reqId);
     const newLog: ActivityLog = {
@@ -1127,16 +1127,16 @@ function App() {
   const handleLeaveAction = (id: string, newStatus: 'Approved' | 'Rejected') => {
     // Update global leave list
     setLeaveRequests(prev => prev.map(lr => lr.id === id ? { ...lr, status: newStatus } : lr));
-    
+
     // Find associated student and update their inner leave list
     const targetLeave = leaveRequests.find(lr => lr.id === id);
     if (targetLeave) {
       setStudents(prevStudents => prevStudents.map(student => {
         if (student.id === targetLeave.studentId) {
-          const updatedRequests = student.leaveRequests.map(lr => 
+          const updatedRequests = student.leaveRequests.map(lr =>
             lr.id === id ? { ...lr, status: newStatus } : lr
           );
-          
+
           // Also dynamically modify student location if leave is approved and today falls in range
           let updatedLocation = student.location;
           if (newStatus === 'Approved') {
@@ -1235,7 +1235,7 @@ function App() {
       };
 
       const apiResult = await apiService.createStudent(payload);
-      
+
       const newStudent: Student = {
         id: apiResult?.student_code || apiResult?.id || `STU${Date.now()}`,
         name: data.name,
@@ -1326,7 +1326,7 @@ function App() {
   const handleCreateExpenseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newExpenseTitle || !newExpenseAmount || isSubmittingExpense) return;
-    
+
     setIsSubmittingExpense(true);
     try {
       const amountVal = parseFloat(newExpenseAmount) || 0;
@@ -1443,18 +1443,18 @@ function App() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 flex ${darkMode ? 'dark bg-[#0b0f19] text-slate-100' : 'bg-[#f8fafc] text-slate-800'}`}>
-      
+
       {/* SIDEBAR NAVIGATION */}
       <aside className={`glass-sidebar fixed lg:static top-0 bottom-0 left-0 z-40 transition-all duration-300 flex flex-col h-screen
         ${sidebarOpen ? 'w-64' : 'w-0 lg:w-20 -translate-x-full lg:translate-x-0'} overflow-hidden shadow-xl lg:shadow-none`}>
-        
+
         {/* Brand/Logo Header */}
         <div className="p-5 flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/50">
           <div className="flex items-center gap-3">
             <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-9 h-9 object-contain rounded-xl" />
             {sidebarOpen && (
               <div>
-                <h1 className="font-bold text-base leading-none text-violet-600 dark:text-blue-400">Hope3</h1>
+                <h1 className="font-bold text-base leading-none text-slate-800 dark:text-blue-400">Hope3</h1>
                 <span className="text-[10px] text-slate-500 font-medium">ADMIN PORTAL</span>
               </div>
             )}
@@ -1478,12 +1478,12 @@ function App() {
                 onClick={() => {
                   setActiveTab(item.name);
                   setSelectedStudent(null); // Clear selected profile when switching modules
-                  
+
                   if (window.innerWidth < 1024) setSidebarOpen(false); // Auto close sidebar on mobile
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200
-                  ${isActive 
-                    ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-md shadow-violet-500/25' 
+                  ${isActive
+                    ? 'gradient-btn-tab text-white shadow-md shadow-[#20002c]/25'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'}`}
               >
                 <Icon size={18} className={isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-800'} />
@@ -1497,17 +1497,17 @@ function App() {
 
       {/* MAIN CONTAINER */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen">
-        
+
         {/* HEADER BAR */}
         <header className="sticky top-0 z-30 bg-white/70 dark:bg-[#080c14]/70 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-900 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <Menu size={20} />
             </button>
-            
+
             {/* Title / Module Name */}
             <div>
               <h2 className="text-lg font-bold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -1551,17 +1551,17 @@ function App() {
                   <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in-50 slide-in-from-top-2">
                     <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                       <span className="font-bold text-sm">Notifications</span>
-                      <button 
+                      <button
                         onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
-                        className="text-[10px] text-violet-600 dark:text-blue-400 font-semibold hover:underline"
+                        className="text-[10px] text-slate-800 dark:text-blue-400 font-semibold hover:underline"
                       >
                         Mark all as read
                       </button>
                     </div>
                     <div className="max-h-72 overflow-y-auto py-1">
                       {notifications.map(noti => (
-                        <div 
-                          key={noti.id} 
+                        <div
+                          key={noti.id}
                           className={`px-4 py-3 border-b border-slate-100 dark:border-slate-800/40 text-xs flex flex-col gap-1 transition-colors
                             ${noti.read ? 'opacity-70' : 'bg-blue-50/20 dark:bg-blue-950/10'}`}
                         >
@@ -1583,9 +1583,9 @@ function App() {
           {/* MODULE: DASHBOARD */}
           {activeTab === 'Dashboard' && !selectedStudent && (
             <div className="space-y-6">
-              
+
               {/* HEADING ACCENT */}
-              <div className="bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] rounded-3xl p-7 text-white shadow-xl shadow-[#3f2b96]/20 relative overflow-hidden border border-white/20 backdrop-blur-md">
+              <div className="gradient-btn-tab rounded-3xl p-7 text-white shadow-[#20002c]/20 shadow-xl relative overflow-hidden">
                 <div className="absolute -right-10 -top-10 w-72 h-72 bg-white/25 rounded-full blur-2xl pointer-events-none"></div>
                 <div className="absolute right-32 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
                 <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-white drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
@@ -1599,9 +1599,9 @@ function App() {
 
               {/* ANALYTICS METRIC CARDS */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                
+
                 {/* Metric 1 */}
-                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       Total Students
@@ -1613,13 +1613,13 @@ function App() {
                       <span className="bg-green-500/10 p-0.5 rounded">+12%</span> vs last semester
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/50 text-violet-600 dark:text-blue-400 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/50 text-slate-800 dark:text-blue-400 flex items-center justify-center">
                     <Users size={22} />
                   </div>
                 </div>
 
                 {/* Metric 2 */}
-                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       {activeRole === 'Student' ? 'My Attendance' : 'Total Admins'}
@@ -1641,7 +1641,7 @@ function App() {
                 </div>
 
                 {/* Metric 3 */}
-                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
@@ -1659,7 +1659,7 @@ function App() {
                 </div>
 
                 {/* Metric 4 */}
-                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex items-center justify-between">
+                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
                       Out of Fence
@@ -1680,9 +1680,9 @@ function App() {
 
               {/* DOUBLE CHART & MAP SECTION */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* Visual Chart Card */}
-                <div className={`glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 w-full ${activeRole === 'Admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+                <div className={`glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full ${activeRole === 'Admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="font-bold text-sm">Monthly Expenses Chart</h4>
@@ -1696,7 +1696,7 @@ function App() {
                     const monthIndices: number[] = [];
                     const monthLabels: string[] = [];
                     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                    
+
                     for (let i = 5; i >= 0; i--) {
                       let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
                       monthIndices.push(d.getMonth());
@@ -1729,7 +1729,7 @@ function App() {
                     const costPoints = monthlyCosts.map((val, i) => {
                       const x = 95 + (i * 80);
                       const y = chartYStart - (Math.min(val, maxChartValue) / maxChartValue) * chartHeight;
-                      return {x, y};
+                      return { x, y };
                     });
 
                     const costPolyline = costPoints.map(p => `${p.x},${p.y}`).join(' ');
@@ -1741,8 +1741,8 @@ function App() {
                           {/* Grid lines */}
                           <defs>
                             <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.3"/>
-                              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0"/>
+                              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.3" />
+                              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
                             </linearGradient>
                           </defs>
                           <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
@@ -1784,7 +1784,7 @@ function App() {
 
                 {/* Recent Activity Logs (Right side of the chart) */}
                 {activeRole === 'Admin' && (
-                  <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 lg:col-span-1 w-full flex flex-col justify-between">
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 lg:col-span-1 w-full flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-center mb-4">
                         <div>
@@ -1795,8 +1795,8 @@ function App() {
 
                       <div className="space-y-4 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
                         {(() => {
-                          const combinedLogs = [...activityLogs.map(l => ({...l, timestamp: 0}))];
-                          
+                          const combinedLogs = [...activityLogs.map(l => ({ ...l, timestamp: 0 }))];
+
                           // Add recent expenses
                           expenses.slice(0, 10).forEach(exp => {
                             combinedLogs.push({
@@ -1823,12 +1823,12 @@ function App() {
                                 timestamp: lr.requestedAt ? new Date(lr.requestedAt).getTime() : 0
                               });
                             });
-                            
+
                             s.notes?.forEach((n: any) => {
                               const noteText = typeof n === 'string' ? n : (n.note || '');
                               const author = typeof n === 'string' ? 'Admin' : (n.author || 'Admin');
                               const date = typeof n === 'string' ? null : n.date;
-                              
+
                               if (!noteText) return; // Skip empty notes
 
                               combinedLogs.push({
@@ -1851,8 +1851,8 @@ function App() {
                               <div className={`w-7.5 h-7.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10
                                 ${log.category === 'leave' ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400' :
                                   log.category === 'general' ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
-                                  log.category === 'academic' ? 'bg-blue-100 text-violet-600 dark:bg-blue-950 dark:text-blue-400' :
-                                  'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
+                                    log.category === 'academic' ? 'bg-blue-100 text-slate-800 dark:bg-blue-950 dark:text-blue-400' :
+                                      'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
                               >
                                 {log.role.substring(0, 1)}
                               </div>
@@ -1879,7 +1879,7 @@ function App() {
                 {activeRole === 'Volunteer' && (
                   <>
                     {/* Student Requests Pending */}
-                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">Scholars requests pending review</h4>
                         <p className="text-[11px] text-slate-400">Review student leave, fees, and achievements</p>
@@ -1894,13 +1894,13 @@ function App() {
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h5 className="font-bold text-xs">{req.studentName}</h5>
-                                  <span className="text-[9px] font-semibold text-violet-600 dark:text-blue-400 font-mono">{req.type}</span>
+                                  <span className="text-[9px] font-semibold text-slate-800 dark:text-blue-400 font-mono">{req.type}</span>
                                 </div>
                                 <span className="text-[10px] text-slate-400">{req.date}</span>
                               </div>
                               <p className="text-[11px] text-slate-600 dark:text-slate-350"><strong>{req.title}:</strong> {req.details}</p>
                               {req.amount && <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Requested: ₹{req.amount}</span>}
-                              
+
                               <div className="flex gap-2 justify-end mt-1">
                                 <button onClick={() => handleStudentRequestAction(req.id, 'Approved')} className="bg-green-600 hover:bg-green-700 text-slate-900 font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
                                   Approve
@@ -1923,7 +1923,7 @@ function App() {
                 {activeRole === 'Student' && (
                   <>
                     {/* Submit request form */}
-                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">Submit Request to Volunteer</h4>
                         <p className="text-[11px] text-slate-400">Apply for leaves, fee support registration, or achievement recognition</p>
@@ -1952,14 +1952,14 @@ function App() {
                           <label className="text-[9px] font-bold text-slate-400 block mb-1">ADDITIONAL DESCRIPTION DETAILS</label>
                           <textarea rows={2} placeholder="Outline details of your request..." value={newStudentRequestDetails} onChange={(e) => setNewStudentRequestDetails(e.target.value)} className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:outline-none" required />
                         </div>
-                        <button type="submit" className="w-full bg-violet-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white font-bold p-2 rounded-lg text-xs transition-all shadow-sm">
+                        <button type="submit" className="w-full gradient-btn-tab hover:brightness-110 font-bold p-2 rounded-lg text-xs transition-all shadow-sm">
                           Send Request to Volunteer
                         </button>
                       </form>
                     </div>
 
                     {/* Request history status list */}
-                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">My Active Requests & Statuses</h4>
                         <p className="text-[11px] text-slate-400">Track approvals of leave and financial requests submitted to volunteers</p>
@@ -1992,7 +1992,7 @@ function App() {
                 {/* PARENT VIEW: child telemetry overview & mentor contacts */}
                 {activeRole === 'Parent' && (
                   <>
-                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">My Child's Residency status</h4>
                         <p className="text-[11px] text-slate-400">Track checkins and geofence locations of Aravind Swamy</p>
@@ -2008,11 +2008,11 @@ function App() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-400">Weekly GPAs:</span>
-                          <span className="font-bold text-violet-600 dark:text-blue-400">9.1/10 (Excellent)</span>
+                          <span className="font-bold text-slate-800 dark:text-blue-400">9.1/10 (Excellent)</span>
                         </div>
                       </div>
                     </div>
-                    <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                       <div>
                         <h4 className="font-bold text-sm">Academic Counseling Mentor</h4>
                         <p className="text-[11px] text-slate-400">Reach out to your child's guide counselor directly</p>
@@ -2022,7 +2022,7 @@ function App() {
                         <div>
                           <h5 className="font-bold text-xs text-white">Prof. Ananya Sen</h5>
                           <span className="text-[10px] text-slate-400 block">Senior Mentor Counselor</span>
-                          <span className="text-[10px] text-violet-600 dark:text-blue-400 block mt-1 font-mono">ananya.sen@hope3.org</span>
+                          <span className="text-[10px] text-slate-800 dark:text-blue-400 block mt-1 font-mono">ananya.sen@hope3.org</span>
                         </div>
                       </div>
                     </div>
@@ -2040,10 +2040,10 @@ function App() {
           {/* MODULE: STUDENTS (DATA TABLE & DETAILS CONTAINER) */}
           {activeTab === 'Students' && (
             <div className="space-y-6">
-              
+
               {!selectedStudent ? (
                 /* MAIN STUDENT LIST */
-                <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                       <h4 className="font-bold text-base">Student Database</h4>
@@ -2055,7 +2055,7 @@ function App() {
                       <div className="flex items-center gap-2 bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-sm">
                         <Filter size={14} className="text-blue-500" />
                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Batch:</span>
-                        <select 
+                        <select
                           value={studentBatchFilter}
                           onChange={(e) => setStudentBatchFilter(e.target.value)}
                           className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer"
@@ -2094,16 +2094,16 @@ function App() {
                       </thead>
                       <tbody>
                         {filteredStudents.map(student => (
-                          <tr 
-                            key={student.id} 
+                          <tr
+                            key={student.id}
                             onClick={() => { setSelectedStudent(student); setProfileTab('Overview'); }}
                             className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
                           >
                             <td className="p-4 flex items-center gap-3">
-                              <img 
-                                src={student.avatar} 
-                                alt={student.name} 
-                                className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700" 
+                              <img
+                                src={student.avatar}
+                                alt={student.name}
+                                className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
                                 }}
@@ -2115,7 +2115,7 @@ function App() {
                             </td>
                             <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
                             <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-violet-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-slate-800 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
                                 {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
                               </span>
                             </td>
@@ -2126,7 +2126,7 @@ function App() {
                             <td className="p-4">
                               <div className="flex items-center gap-2">
                                 <div className="w-16 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                  <div 
+                                  <div
                                     className={`h-full rounded-full ${student.attendance >= 90 ? 'bg-green-500' : student.attendance >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}
                                     style={{ width: `${student.attendance}%` }}
                                   ></div>
@@ -2136,16 +2136,16 @@ function App() {
                             </td>
                             <td className="p-4">
                               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px]
-                                ${student.location.status === 'In College' ? 'bg-blue-500/10 text-violet-600 dark:text-blue-400' :
+                                ${student.location.status === 'In College' ? 'bg-blue-500/10 text-slate-800 dark:text-blue-400' :
                                   student.location.status === 'In Hostel' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
-                                  student.location.status === 'On Leave' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
-                                  'bg-red-500/10 text-red-600 dark:text-red-400'}`}
+                                    student.location.status === 'On Leave' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                                      'bg-red-500/10 text-red-600 dark:text-red-400'}`}
                               >
                                 <span className={`w-1.5 h-1.5 rounded-full
                                   ${student.location.status === 'In College' ? 'bg-blue-500' :
                                     student.location.status === 'In Hostel' ? 'bg-purple-500' :
-                                    student.location.status === 'On Leave' ? 'bg-amber-500' :
-                                    'bg-red-500 animate-ping'}`}
+                                      student.location.status === 'On Leave' ? 'bg-amber-500' :
+                                        'bg-red-500 animate-ping'}`}
                                 ></span>
                                 {student.location.status}
                               </span>
@@ -2153,9 +2153,9 @@ function App() {
                             <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                               <div className="flex items-center justify-end gap-2">
                                 {/* WHATSAPP PHONE CALL ICON BUTTON */}
-                                <a 
-                                  href={getWhatsAppLink(student.parentPhone)} 
-                                  target="_blank" 
+                                <a
+                                  href={getWhatsAppLink(student.parentPhone)}
+                                  target="_blank"
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
                                   className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
@@ -2164,12 +2164,12 @@ function App() {
                                 </a>
 
                                 {/* WHATSAPP MESSAGE ICON BUTTON */}
-                                <a 
-                                  href={getWhatsAppLink(student.parentPhone, `Hello, regarding student ${student.name} from Hope3 NGO.`)} 
-                                  target="_blank" 
+                                <a
+                                  href={getWhatsAppLink(student.parentPhone, `Hello, regarding student ${student.name} from Hope3 NGO.`)}
+                                  target="_blank"
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
+                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -2182,14 +2182,14 @@ function App() {
                   </div>
                 </div>
               ) : (
-                
+
                 /* DETAILED STUDENT PROFILE */
                 <div className="space-y-6">
-                  
+
                   {/* PROFILE HEADER PANEL */}
-                  <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-                    <button 
-                      onClick={() => setSelectedStudent(null)} 
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+                    <button
+                      onClick={() => setSelectedStudent(null)}
                       className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                       title="Back to Database"
                     >
@@ -2197,10 +2197,10 @@ function App() {
                     </button>
 
                     <div className="flex items-center gap-5">
-                      <img 
-                        src={selectedStudent.avatar} 
-                        alt={selectedStudent.name} 
-                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md" 
+                      <img
+                        src={selectedStudent.avatar}
+                        alt={selectedStudent.name}
+                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
                         }}
@@ -2211,10 +2211,10 @@ function App() {
                           <span className="text-[10px] font-mono bg-slate-200 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded">{selectedStudent.id}</span>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">{selectedStudent.grade}</p>
-                        
+
                         {/* Basic badges */}
                         <div className="flex gap-2 mt-3 flex-wrap">
-                          <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/20 text-violet-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200/30">
+                          <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/20 text-slate-800 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200/30">
                             Hostel Room: {selectedStudent.hostelRoom}
                           </span>
                           <span className="text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded border border-purple-200/30">
@@ -2228,19 +2228,19 @@ function App() {
                     {(activeRole === 'Admin') && (
                       <div className="flex flex-wrap gap-2 pt-4 md:pt-0 border-t md:border-t-0 border-slate-200/50 dark:border-slate-800/50">
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block w-full">Simulate Check-in:</span>
-                        <button 
+                        <button
                           onClick={() => handleSimulateLocationUpdate(selectedStudent.id, 'In Hostel')}
                           className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-purple-200/50 text-purple-600 hover:bg-purple-50 transition-colors"
                         >
                           Hostel
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleSimulateLocationUpdate(selectedStudent.id, 'In College')}
-                          className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-blue-200/50 text-violet-600 hover:bg-blue-50 transition-colors"
+                          className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-blue-200/50 text-slate-800 hover:bg-blue-50 transition-colors"
                         >
                           College
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleSimulateLocationUpdate(selectedStudent.id, 'Out of Bounds')}
                           className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-red-200/50 text-red-600 hover:bg-red-50 transition-colors"
                         >
@@ -2257,8 +2257,8 @@ function App() {
                         key={tab}
                         onClick={() => setProfileTab(tab)}
                         className={`px-4 py-2 font-bold text-xs shrink-0 border-b-2 transition-all duration-200
-                          ${profileTab === tab 
-                            ? 'border-violet-600 text-violet-600 dark:text-blue-400' 
+                          ${profileTab === tab
+                            ? 'border-violet-600 text-slate-800 dark:text-blue-400'
                             : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                       >
                         {tab}
@@ -2268,16 +2268,16 @@ function App() {
 
                   {/* PROFILE TAB CONTAINER DETAILS */}
                   <div className="space-y-6">
-                    
+
                     {/* PROFILE TAB: OVERVIEW */}
                     {profileTab === 'Overview' && (
                       <div className="space-y-6">
-                        
+
                         {/* 1. PERSONAL INFORMATION & ACADEMIC SUMMARY */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                          
+
                           {/* Card 1: Personal Profile */}
-                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <User size={16} className="text-blue-500" />
                               Personal Information
@@ -2319,7 +2319,7 @@ function App() {
                           </div>
 
                           {/* Card 2: Academic & School/College Info */}
-                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 lg:col-span-2">
+                          <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 lg:col-span-2">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <Award size={16} className="text-indigo-500" />
                               Academic & Education Details
@@ -2370,7 +2370,7 @@ function App() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                           {/* Card 3: Family & Parent Info */}
-                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <Users size={16} className="text-emerald-500" />
                               Family & Parent Details
@@ -2410,7 +2410,7 @@ function App() {
                           </div>
 
                           {/* Card 4: Address & Residential Location */}
-                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <FileText size={16} className="text-purple-500" />
                               Address & Residential Details
@@ -2445,7 +2445,7 @@ function App() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                           {/* Card 5: Bank Account Info */}
-                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <ClipboardList size={16} className="text-amber-500" />
                               Bank Account Details
@@ -2471,7 +2471,7 @@ function App() {
                           </div>
 
                           {/* Card 6: Funding, Sponsorship & Documents */}
-                          <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                          <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                               <Heart size={16} className="text-rose-500" />
                               Scholarship, Funding & Documents
@@ -2502,7 +2502,7 @@ function App() {
                               {selectedStudent.folder_link && (
                                 <div className="sm:col-span-2">
                                   <span className="text-slate-400 block font-semibold text-[10px] uppercase">Google Drive Folder</span>
-                                  <a href={selectedStudent.folder_link} target="_blank" rel="noreferrer" className="text-violet-600 dark:text-blue-400 font-semibold underline truncate block">
+                                  <a href={selectedStudent.folder_link} target="_blank" rel="noreferrer" className="text-slate-800 dark:text-blue-400 font-semibold underline truncate block">
                                     {selectedStudent.folder_link}
                                   </a>
                                 </div>
@@ -2519,7 +2519,7 @@ function App() {
                         </div>
 
                         {/* 4. TRACKING, VOLUNTEERING & NOTES */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                           <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
                             <Clock size={16} className="text-blue-500" />
                             Tracking, Emergency & Notes
@@ -2556,25 +2556,25 @@ function App() {
                     {/* PROFILE TAB: ATTENDANCE */}
                     {profileTab === 'Attendance' && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
+
                         {/* Metric Indicator Circular bar */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 flex flex-col items-center justify-center text-center space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex flex-col items-center justify-center text-center space-y-4">
                           <h4 className="font-bold text-sm self-start">Attendance Rate</h4>
-                          
+
                           {/* Circular SVG Progress */}
                           <div className="relative w-36 h-36">
                             <svg className="w-full h-full transform -rotate-95" viewBox="0 0 100 100">
                               <circle cx="50" cy="50" r="40" fill="transparent" stroke="rgba(148, 163, 184, 0.1)" strokeWidth="8" />
-                              <circle 
-                                cx="50" 
-                                cy="50" 
-                                r="40" 
-                                fill="transparent" 
-                                stroke="#3b82f6" 
-                                strokeWidth="8" 
+                              <circle
+                                cx="50"
+                                cy="50"
+                                r="40"
+                                fill="transparent"
+                                stroke="#3b82f6"
+                                strokeWidth="8"
                                 strokeDasharray={2 * Math.PI * 40}
                                 strokeDashoffset={2 * Math.PI * 40 * (1 - selectedStudent.attendance / 100)}
-                                strokeLinecap="round" 
+                                strokeLinecap="round"
                               />
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -2591,7 +2591,7 @@ function App() {
                         </div>
 
                         {/* Attendance daily history */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 md:col-span-2 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 md:col-span-2 space-y-4">
                           <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-2">Recent Attendance Logs</h4>
                           <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                             <div className="flex justify-between items-center text-xs border-b border-slate-100 dark:border-slate-800/40 pb-2">
@@ -2631,11 +2631,11 @@ function App() {
                     {/* PROFILE TAB: CURRENT LOCATION */}
                     {profileTab === 'Current Location' && (
                       <div className="max-w-2xl">
-                        
+
                         {/* Map Details telemetries */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-6 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-6 space-y-4">
                           <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-3">Location Telemetry</h4>
-                          
+
                           <div className="space-y-4 text-xs">
                             <div>
                               <span className="text-slate-400 block font-semibold text-[10px] uppercase">Current Geofence Zone</span>
@@ -2643,8 +2643,8 @@ function App() {
                                 <span className={`w-3 h-3 rounded-full inline-block
                                   ${selectedStudent.location.status === 'In College' ? 'bg-blue-500' :
                                     selectedStudent.location.status === 'In Hostel' ? 'bg-purple-500' :
-                                    selectedStudent.location.status === 'On Leave' ? 'bg-amber-500' :
-                                    'bg-red-500 pulse-green'}`}
+                                      selectedStudent.location.status === 'On Leave' ? 'bg-amber-500' :
+                                        'bg-red-500 pulse-green'}`}
                                 ></span>
                                 <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.location.status}</span>
                               </div>
@@ -2677,7 +2677,7 @@ function App() {
 
                     {/* PROFILE TAB: LEAVE REQUESTS */}
                     {profileTab === 'Leave Requests' && (
-                      <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                      <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                         <div className="flex justify-between items-center">
                           <h4 className="font-bold text-sm">Leave Applications</h4>
                         </div>
@@ -2694,7 +2694,7 @@ function App() {
                                     <span className={`text-[10px] px-2 py-0.5 rounded font-bold
                                       ${req.status === 'Approved' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' :
                                         req.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' :
-                                        'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}
+                                          'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}
                                     >
                                       {req.status}
                                     </span>
@@ -2707,13 +2707,13 @@ function App() {
                                 {/* Decision actions directly on profile */}
                                 {req.status === 'Pending' && (activeRole === 'Admin') && (
                                   <div className="flex items-center gap-2">
-                                    <button 
+                                    <button
                                       onClick={() => handleLeaveAction(req.id, 'Approved')}
                                       className="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-750 text-slate-900 text-xs font-bold transition-colors"
                                     >
                                       Approve
                                     </button>
-                                    <button 
+                                    <button
                                       onClick={() => handleLeaveAction(req.id, 'Rejected')}
                                       className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-750 text-slate-900 text-xs font-bold transition-colors"
                                     >
@@ -2731,11 +2731,11 @@ function App() {
                     {/* PROFILE TAB: ACADEMIC DETAILS */}
                     {profileTab === 'Academic Details' && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
+
                         {/* GPA Progress chart */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 md:col-span-2 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 md:col-span-2 space-y-4">
                           <h4 className="font-bold text-sm">Semester-wise GPA Progression</h4>
-                          
+
                           {/* GPA Line Chart */}
                           <div className="relative pt-2 h-44">
                             <svg className="w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="none">
@@ -2747,11 +2747,11 @@ function App() {
                               {/* Progression Polyline */}
                               {selectedStudent.academicProgress.length === 4 ? (
                                 <>
-                                  <polyline 
-                                    fill="none" 
-                                    stroke="#3b82f6" 
-                                    strokeWidth="2.5" 
-                                    points="50,85 150,75 250,55 350,30" 
+                                  <polyline
+                                    fill="none"
+                                    stroke="#3b82f6"
+                                    strokeWidth="2.5"
+                                    points="50,85 150,75 250,55 350,30"
                                   />
                                   {/* Circles */}
                                   <circle cx="50" cy="85" r="4.5" fill="#3b82f6" className="cursor-pointer" />
@@ -2761,11 +2761,11 @@ function App() {
                                 </>
                               ) : (
                                 <>
-                                  <polyline 
-                                    fill="none" 
-                                    stroke="#3b82f6" 
-                                    strokeWidth="2.5" 
-                                    points="50,90 200,85 350,60" 
+                                  <polyline
+                                    fill="none"
+                                    stroke="#3b82f6"
+                                    strokeWidth="2.5"
+                                    points="50,90 200,85 350,60"
                                   />
                                   {/* Circles */}
                                   <circle cx="50" cy="90" r="4.5" fill="#3b82f6" />
@@ -2789,9 +2789,9 @@ function App() {
                         </div>
 
                         {/* Subject marks listing */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                           <h4 className="font-bold text-sm">Current Semester Subjects</h4>
-                          
+
                           <div className="space-y-3">
                             {selectedStudent.subjects.map((sub, idx) => (
                               <div key={idx} className="flex justify-between items-center text-xs pb-2 border-b border-slate-100 dark:border-slate-800/40">
@@ -2802,7 +2802,7 @@ function App() {
                                 <span className={`font-black text-xs px-2 py-0.5 rounded
                                   ${sub.grade === 'O' ? 'bg-green-100 text-green-700' :
                                     sub.grade === 'A+' ? 'bg-blue-100 text-blue-700' :
-                                    'bg-slate-100 text-slate-700'}`}
+                                      'bg-slate-100 text-slate-700'}`}
                                 >
                                   {sub.grade}
                                 </span>
@@ -2817,11 +2817,11 @@ function App() {
                     {/* PROFILE TAB: NOTES */}
                     {profileTab === 'Notes' && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        
+
                         {/* Note feed */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 md:col-span-2 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 md:col-span-2 space-y-4">
                           <h4 className="font-bold text-sm">Counseling & Guidance Log</h4>
-                          
+
                           <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
                             {selectedStudent.notes.length === 0 ? (
                               <p className="text-xs text-slate-400 py-4 text-center">No counseling logs filed yet.</p>
@@ -2836,7 +2836,7 @@ function App() {
                                   <span className={`inline-block text-[9px] uppercase font-bold px-1.5 py-0.25 rounded mt-2
                                     ${note.type === 'academic' ? 'bg-blue-100 text-blue-700' :
                                       note.type === 'health' ? 'bg-red-100 text-red-700' :
-                                      'bg-amber-100 text-amber-700'}`}
+                                        'bg-amber-100 text-amber-700'}`}
                                   >
                                     {note.type}
                                   </span>
@@ -2847,14 +2847,14 @@ function App() {
                         </div>
 
                         {/* Add note interface (counselor / admin roles) */}
-                        <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                           <h4 className="font-bold text-sm">Add Counsel Note</h4>
-                          
+
                           {/* Note type selection */}
                           <div className="space-y-3">
                             <div>
                               <label className="text-[10px] font-bold text-slate-400 uppercase">Category</label>
-                              <select 
+                              <select
                                 value={newNoteType}
                                 onChange={(e) => setNewNoteType(e.target.value)}
                                 className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 mt-1"
@@ -2879,7 +2879,7 @@ function App() {
 
                             <button
                               onClick={() => handleAddNote(selectedStudent.id)}
-                              className="w-full bg-violet-600 hover:bg-blue-705 text-slate-900 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-md"
+                              className="w-full gradient-btn-tab hover:opacity-90 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-md"
                             >
                               <Send size={12} />
                               Save Counseling Note
@@ -2900,7 +2900,7 @@ function App() {
 
           {/* MODULE: PARENTS */}
           {activeTab === 'Parents' && (
-            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+            <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Parent Database</h4>
@@ -2934,8 +2934,8 @@ function App() {
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img 
-                              src={formatAvatarUrl(par.profile_photo_link)} 
+                            <img
+                              src={formatAvatarUrl(par.profile_photo_link)}
                               alt={par.name}
                               className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
                               onError={(e) => {
@@ -2949,17 +2949,17 @@ function App() {
                           </div>
                         </td>
                         <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-violet-600 dark:text-blue-400 border border-blue-200/40">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-slate-800 dark:text-blue-400 border border-blue-200/40">
                             {par.guardianName || par.relationship || par.relation || 'Guardian'}
                           </span>
                         </td>
                         <td className="p-4">
-                          <button 
+                          <button
                             onClick={() => {
                               const std = students.find(s => s.id === par.childId || (s as any).student_id === par.childId || s.student_code === par.childId);
                               if (std) { setSelectedStudent(std); setActiveTab('Students'); setProfileTab('Overview'); }
                             }}
-                            className="font-bold text-violet-600 dark:text-blue-400 hover:underline"
+                            className="font-bold text-slate-800 dark:text-blue-400 hover:underline"
                           >
                             {par.childName}
                           </button>
@@ -2969,9 +2969,9 @@ function App() {
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             {/* WHATSAPP PHONE CALL ICON BUTTON */}
-                            <a 
-                              href={getWhatsAppLink(par.phone)} 
-                              target="_blank" 
+                            <a
+                              href={getWhatsAppLink(par.phone)}
+                              target="_blank"
                               rel="noreferrer"
                               title={`Call ${par.name} via WhatsApp (${par.phone})`}
                               className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
@@ -2980,12 +2980,12 @@ function App() {
                             </a>
 
                             {/* WHATSAPP MESSAGE ICON BUTTON */}
-                            <a 
-                              href={getWhatsAppLink(par.phone, `Hello ${par.name}, greetings from Hope3 NGO.`)} 
-                              target="_blank" 
+                            <a
+                              href={getWhatsAppLink(par.phone, `Hello ${par.name}, greetings from Hope3 NGO.`)}
+                              target="_blank"
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={15} />
                             </a>
@@ -3001,7 +3001,7 @@ function App() {
 
           {/* MODULE: VOLUNTEERS (ADMINS) */}
           {(activeTab === 'Admins' || activeTab === 'Volunteers') && (
-            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+            <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Active Admin Network</h4>
@@ -3032,15 +3032,15 @@ function App() {
                   </thead>
                   <tbody>
                     {filteredVolunteers.map(vol => (
-                      <tr 
-                        key={vol.id} 
+                      <tr
+                        key={vol.id}
                         className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
                         onClick={() => setSelectedVolunteer(vol)}
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img 
-                              src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'} 
+                            <img
+                              src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'}
                               alt={vol.name}
                               className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
                               onError={(e) => {
@@ -3048,7 +3048,7 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-white block hover:text-violet-600 transition-colors">{vol.name}</span>
+                              <span className="font-bold text-white block hover:text-slate-800 transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
                             </div>
                           </div>
@@ -3058,7 +3058,7 @@ function App() {
                             {vol.specialization || vol.program}
                           </span>
                         </td>
-                        <td className="p-4 font-mono font-bold text-violet-600 dark:text-blue-400">{vol.hoursContributed} Hours</td>
+                        <td className="p-4 font-mono font-bold text-slate-800 dark:text-blue-400">{vol.hoursContributed} Hours</td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{vol.phone}</td>
                         <td className="p-4">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px]
@@ -3070,27 +3070,27 @@ function App() {
                         </td>
                         <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
-                            <button 
+                            <button
                               onClick={() => setSelectedVolunteer(vol)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-violet-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-slate-800 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
                             >
                               View Profile
                             </button>
-                            <a 
-                              href={getWhatsAppLink(vol.phone)} 
-                              target="_blank" 
+                            <a
+                              href={getWhatsAppLink(vol.phone)}
+                              target="_blank"
                               rel="noreferrer"
                               title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
                               className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
-                            <a 
-                              href={getWhatsAppLink(vol.phone, `Hello ${vol.name}, greetings from Hope3 NGO.`)} 
-                              target="_blank" 
+                            <a
+                              href={getWhatsAppLink(vol.phone, `Hello ${vol.name}, greetings from Hope3 NGO.`)}
+                              target="_blank"
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3106,7 +3106,7 @@ function App() {
 
           {/* MODULE: DONORS */}
           {activeTab === 'Donors' && (
-            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+            <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Donors & Financial Benefactors</h4>
@@ -3137,15 +3137,15 @@ function App() {
                   </thead>
                   <tbody>
                     {filteredDonors.map(donor => (
-                      <tr 
-                        key={donor.id} 
+                      <tr
+                        key={donor.id}
                         className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
                         onClick={() => setSelectedDonor(donor)}
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img 
-                              src={formatAvatarUrl(donor.profile_photo_link)} 
+                            <img
+                              src={formatAvatarUrl(donor.profile_photo_link)}
                               alt={donor.name}
                               className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
                               onError={(e) => {
@@ -3153,7 +3153,7 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-white block hover:text-violet-600 transition-colors">{donor.name}</span>
+                              <span className="font-bold text-white block hover:text-slate-800 transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
                             </div>
                           </div>
@@ -3175,27 +3175,27 @@ function App() {
                         </td>
                         <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
-                            <button 
+                            <button
                               onClick={() => setSelectedDonor(donor)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-violet-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-slate-800 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
                             >
                               View Profile
                             </button>
-                            <a 
-                              href={getWhatsAppLink(donor.phone)} 
-                              target="_blank" 
+                            <a
+                              href={getWhatsAppLink(donor.phone)}
+                              target="_blank"
                               rel="noreferrer"
                               title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
                               className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
-                            <a 
-                              href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)} 
-                              target="_blank" 
+                            <a
+                              href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)}
+                              target="_blank"
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-violet-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3217,10 +3217,10 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Total Spend Card */}
-                <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] rounded-[2rem] p-8 text-white border-none shadow-sm border border-purple-100 flex flex-col justify-between min-h-[180px]">
+                <div className="lg:col-span-2 relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] p-8 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-h-[180px]">
                   {/* Decorative wavy background */}
                   <svg className="absolute bottom-0 left-0 w-full h-full pointer-events-none opacity-60" preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fill-opacity="0.1" d="M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,197.3C672,203,768,181,864,154.7C960,128,1056,96,1152,96C1248,96,1344,128,1392,144L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
-                  
+
                   {/* Decorative Wallet Icon */}
                   <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-100 pointer-events-none hidden sm:block">
                     <div className="w-[120px] h-[100px] bg-white rounded-2xl flex items-center justify-center shadow-[0_4px_20px_-4px_rgba(167,139,250,0.3)] border border-purple-50">
@@ -3248,9 +3248,9 @@ function App() {
                       <span className="text-white/80">Refund Requests: <strong className="text-white font-semibold">{expenses.filter(e => e.refund_requested).length}</strong></span>
                     </div>
 
-                    <button 
+                    <button
                       onClick={() => setShowExpenseModal(true)}
-                      className="bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] hover:brightness-110 text-white font-semibold px-6 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 shadow-md shadow-violet-500/30 transition-all hover:scale-105 active:scale-95 shrink-0"
+                      className="gradient-btn-tab hover:brightness-110 font-semibold px-6 py-2.5 rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 shrink-0"
                     >
                       <Plus size={18} className="text-white" />
                       Add Record
@@ -3259,7 +3259,7 @@ function App() {
                 </div>
 
                 {/* Financial Overview Summary Card */}
-                <div className="bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] rounded-3xl p-6 shadow-md border-none text-white flex flex-col justify-between">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-slate-800 dark:text-slate-100 flex flex-col justify-between">
                   <div>
                     <h4 className="text-[11px] font-bold uppercase tracking-wider text-white/80 mb-2">Financial Overview</h4>
                     <h3 className="text-[1.1rem] font-bold text-white">Volunteer Spend Tracker</h3>
@@ -3280,28 +3280,26 @@ function App() {
               </div>
 
               {/* CONTROLS HEADER: SUB-TABS (All Records | Analytics), CATEGORY FILTERS */}
-              <div className="glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4">
+              <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
 
                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-200/50 dark:border-slate-800/50 pb-4">
                   {/* Mobile-Style Pill Switcher: All Records vs Analytics */}
                   <div className="bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl flex gap-1 shrink-0">
-                    <button 
+                    <button
                       onClick={() => setExpenseSubTab('records')}
-                      className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
-                        expenseSubTab === 'records'
-                          ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-md shadow-violet-500/20'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
-                      }`}
+                      className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${expenseSubTab === 'records'
+                        ? 'gradient-btn-tab shadow-md'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
+                        }`}
                     >
                       All Records
                     </button>
-                    <button 
+                    <button
                       onClick={() => setExpenseSubTab('analytics')}
-                      className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${
-                        expenseSubTab === 'analytics'
-                          ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-md shadow-violet-500/20'
-                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
-                      }`}
+                      className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${expenseSubTab === 'analytics'
+                        ? 'gradient-btn-tab shadow-md'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-900'
+                        }`}
                     >
                       Analytics
                     </button>
@@ -3317,11 +3315,10 @@ function App() {
                           <button
                             key={cat}
                             onClick={() => setExpenseCategoryFilter(cat)}
-                            className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 capitalize border ${
-                              isActive
-                                ? 'bg-white text-violet-600 border-violet-200 shadow-sm'
-                                : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'
-                            }`}
+                            className={`px-4 py-1.5 rounded-full text-[11px] font-bold transition-all shrink-0 capitalize border ${isActive
+                              ? 'bg-white text-slate-800 border-violet-200 shadow-sm'
+                              : 'bg-white text-slate-500 border-slate-100 hover:bg-slate-50'
+                              }`}
                           >
                             {cat === 'ALL' ? 'All' : cat}
                           </button>
@@ -3331,19 +3328,17 @@ function App() {
 
                     {/* EXPANDABLE SEARCH BAR BUTTON & INPUT */}
                     <div className="relative flex items-center shrink-0">
-                      <div className={`flex items-center transition-all duration-300 ${
-                        isExpenseSearchExpanded || expenseSearchQuery ? 'w-64 sm:w-72' : 'w-10'
-                      }`}>
+                      <div className={`flex items-center transition-all duration-300 ${isExpenseSearchExpanded || expenseSearchQuery ? 'w-64 sm:w-72' : 'w-10'
+                        }`}>
                         <button
                           onClick={() => {
                             setIsExpenseSearchExpanded(!isExpenseSearchExpanded);
                             if (isExpenseSearchExpanded) setExpenseSearchQuery('');
                           }}
-                          className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shrink-0 z-10 ${
-                            isExpenseSearchExpanded || expenseSearchQuery
-                              ? 'bg-violet-600 text-slate-900 shadow-md shadow-teal-500/30'
-                              : 'bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-slate-900'
-                          }`}
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all shrink-0 z-10 ${isExpenseSearchExpanded || expenseSearchQuery
+                            ? 'gradient-btn-tab shadow-md'
+                            : 'bg-slate-100 dark:bg-slate-900 text-slate-500 hover:text-slate-900 dark:hover:text-slate-900'
+                            }`}
                           title="Search expenses by volunteer name or batch"
                         >
                           <Search size={18} />
@@ -3383,7 +3378,7 @@ function App() {
                           expenses.filter(e => {
                             const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
                             const query = expenseSearchQuery.trim().toLowerCase();
-                            const searchMatch = !query || 
+                            const searchMatch = !query ||
                               (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
                               (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
                               (e.title && e.title.toLowerCase().includes(query)) ||
@@ -3391,7 +3386,7 @@ function App() {
                             return catMatch && searchMatch;
                           }).length
                         } of {expenses.length} Expense Logs
-                        {expenseSearchQuery && <span className="text-violet-600 dark:text-teal-400 font-semibold ml-1.5">(Filtered by "{expenseSearchQuery}")</span>}
+                        {expenseSearchQuery && <span className="text-slate-800 dark:text-teal-400 font-semibold ml-1.5">(Filtered by "{expenseSearchQuery}")</span>}
                       </span>
                     </div>
 
@@ -3400,7 +3395,7 @@ function App() {
                         .filter(e => {
                           const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
                           const query = expenseSearchQuery.trim().toLowerCase();
-                          const searchMatch = !query || 
+                          const searchMatch = !query ||
                             (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
                             (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
                             (e.title && e.title.toLowerCase().includes(query)) ||
@@ -3411,13 +3406,13 @@ function App() {
                         .map(item => {
                           // Pick icon based on category
                           const catLower = item.category.toLowerCase();
-                          const CategoryIcon = 
+                          const CategoryIcon =
                             catLower.includes('snack') || catLower.includes('food') ? Coffee :
-                            catLower.includes('sport') ? Trophy :
-                            catLower.includes('travel') || catLower.includes('transport') ? Bus :
-                            catLower.includes('med') ? Stethoscope :
-                            catLower.includes('station') ? BookOpen :
-                            catLower.includes('groc') ? ShoppingBag : Receipt;
+                              catLower.includes('sport') ? Trophy :
+                                catLower.includes('travel') || catLower.includes('transport') ? Bus :
+                                  catLower.includes('med') ? Stethoscope :
+                                    catLower.includes('station') ? BookOpen :
+                                      catLower.includes('groc') ? ShoppingBag : Receipt;
 
                           // Format Date e.g. "23 Jul 2026"
                           let formattedDate = item.date;
@@ -3426,33 +3421,32 @@ function App() {
                             if (!isNaN(d.getTime())) {
                               formattedDate = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                             }
-                          } catch {}
+                          } catch { }
 
                           return (
-                            <div 
-                              key={item.id} 
+                            <div
+                              key={item.id}
                               onClick={() => setSelectedExpense(item)}
-                              className="p-5 border border-white/20 rounded-[1.5rem] bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white hover:shadow-md hover:border-violet-200 dark:hover:border-teal-700 transition-all flex flex-col justify-between gap-5 group relative overflow-hidden cursor-pointer animate-fade-in"
+                              className="p-5 border border-slate-200 dark:border-slate-800 rounded-[1.5rem] bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 hover:shadow-md transition-all flex flex-col justify-between gap-5 group relative overflow-hidden cursor-pointer animate-fade-in"
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-start gap-3.5">
                                   {/* Icon Thumbnail */}
-                                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${
-                                    catLower.includes('snack') || catLower.includes('food') ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
+                                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${catLower.includes('snack') || catLower.includes('food') ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
                                     catLower.includes('sport') ? 'bg-orange-50 text-orange-500 border-orange-100' :
-                                    catLower.includes('travel') ? 'bg-blue-50 text-blue-500 border-blue-100' :
-                                    catLower.includes('groc') ? 'bg-amber-50 text-amber-500 border-amber-100' : 
-                                    catLower.includes('med') ? 'bg-rose-50 text-rose-500 border-rose-100' :
-                                    'bg-violet-50 text-violet-500 border-violet-100'
-                                  }`}>
+                                      catLower.includes('travel') ? 'bg-blue-50 text-blue-500 border-blue-100' :
+                                        catLower.includes('groc') ? 'bg-amber-50 text-amber-500 border-amber-100' :
+                                          catLower.includes('med') ? 'bg-rose-50 text-rose-500 border-rose-100' :
+                                            'bg-violet-50 text-violet-500 border-violet-100'
+                                    }`}>
                                     <CategoryIcon size={20} />
                                   </div>
 
                                   <div className="space-y-1">
-                                    <h5 className="font-bold text-[15px] text-white leading-snug group-hover:text-violet-600 transition-colors">
+                                    <h5 className="font-bold text-[15px] text-white leading-snug group-hover:text-slate-800 transition-colors">
                                       {item.title}
                                     </h5>
-                                    
+
                                     <div className="flex items-center gap-3 pt-0.5">
                                       <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-emerald-50 text-emerald-600 tracking-wider">
                                         {item.category}
@@ -3483,13 +3477,12 @@ function App() {
                                   </div>
                                   <div className="flex items-center gap-1.5 pl-[19px]">
                                     <span className="text-[10px] text-white/60 uppercase tracking-widest">Approved By:</span>
-                                    <span className={`text-[10px] font-bold ${
-                                      item.status === 'APPROVED'
-                                        ? 'text-emerald-600 dark:text-emerald-450'
-                                        : item.status === 'REJECTED'
+                                    <span className={`text-[10px] font-bold ${item.status === 'APPROVED'
+                                      ? 'text-emerald-600 dark:text-emerald-450'
+                                      : item.status === 'REJECTED'
                                         ? 'text-rose-600 dark:text-rose-450'
                                         : 'text-orange-500 dark:text-amber-450 bg-orange-50 px-1.5 rounded'
-                                    }`}>
+                                      }`}>
                                       {item.status === 'APPROVED' ? (item.approved_by_name || 'System Admin') : item.status === 'REJECTED' ? 'Rejected' : 'Pending'}
                                     </span>
                                   </div>
@@ -3500,7 +3493,7 @@ function App() {
                                     ₹ {item.amount.toLocaleString('en-IN')}
                                   </span>
 
-                                  <button 
+                                  <button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleDeleteExpense(item.id);
@@ -3525,7 +3518,7 @@ function App() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
                         <h5 className="font-bold text-xs uppercase tracking-wider text-slate-400">Category Spend Breakdown</h5>
-                        
+
                         <div className="space-y-3">
                           {['snacks', 'groceries', 'sports', 'travel', 'medical', 'stationary'].map(cat => {
                             const catTotal = expenses
@@ -3574,7 +3567,7 @@ function App() {
           {activeTab === 'Location' && (
             <div className="space-y-6">
               {/* Header Banner */}
-              <div className="glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
@@ -3592,7 +3585,7 @@ function App() {
                   <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
                     <Filter size={14} className="text-blue-500" />
                     <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Group Filter:</span>
-                    <select 
+                    <select
                       value={selectedGeofenceFilter}
                       onChange={(e) => setSelectedGeofenceFilter(e.target.value)}
                       className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer max-w-[160px]"
@@ -3605,7 +3598,7 @@ function App() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <button 
+                    <button
                       onClick={() => {
                         setSelectedFencesToMerge([]);
                         setMergeTargetName('');
@@ -3618,9 +3611,9 @@ function App() {
                       <span>Merge / Group Fences</span>
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => setIsFullScreenMapOpen(true)}
-                      className="px-4 py-2.5 bg-violet-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
+                      className="px-4 py-2.5 gradient-btn-tab hover:opacity-90 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
                       title="Open full screen map to draw, add, or delete geofences"
                     >
                       <Compass size={16} />
@@ -3638,29 +3631,29 @@ function App() {
                       Active Geofence Zones ({customGeofences.length})
                     </h4>
                     <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/40 dark:border-slate-700/50">
-                      <button 
+                      <button
                         onClick={() => setFenceTypeTab('single')}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
                         Single Fences ({customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
                       </button>
-                      <button 
+                      <button
                         onClick={() => setFenceTypeTab('grouped')}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
                         Grouped Fences ({customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
                       </button>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button 
+                    <button
                       onClick={() => scrollGeofences('left')}
                       className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
                       title="Scroll Left"
                     >
                       <ChevronLeft size={16} />
                     </button>
-                    <button 
+                    <button
                       onClick={() => scrollGeofences('right')}
                       className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
                       title="Scroll Right"
@@ -3670,7 +3663,7 @@ function App() {
                   </div>
                 </div>
 
-                <div 
+                <div
                   ref={scrollContainerRef}
                   className="flex gap-4 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory scrollbar-none"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -3681,132 +3674,131 @@ function App() {
                       return fenceTypeTab === 'grouped' ? isGrouped : !isGrouped;
                     })
                     .map((gf) => {
-                    const assignedStudentIds = gf.studentIds || [];
-                    const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
-                    const hasViolation = assignedStudents.some(s => s.location?.status === 'Out of Bounds');
-                    const insideCount = assignedStudents.filter(s => s.location?.status !== 'Out of Bounds' && s.location?.status !== 'On Leave').length;
+                      const assignedStudentIds = gf.studentIds || [];
+                      const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
+                      const hasViolation = assignedStudents.some(s => s.location?.status === 'Out of Bounds');
+                      const insideCount = assignedStudents.filter(s => s.location?.status !== 'Out of Bounds' && s.location?.status !== 'On Leave').length;
 
-                    const getGeofenceIcon = (name: string) => {
-                      const nameLower = name.toLowerCase();
-                      if (nameLower.includes('hostel')) return <Home size={20} />;
-                      if (nameLower.includes('college') || nameLower.includes('campus')) return <GraduationCap size={20} />;
-                      if (nameLower.includes('office') || nameLower.includes('ngo') || nameLower.includes('hub')) return <Building size={20} />;
-                      return <Compass size={20} />;
-                    };
+                      const getGeofenceIcon = (name: string) => {
+                        const nameLower = name.toLowerCase();
+                        if (nameLower.includes('hostel')) return <Home size={20} />;
+                        if (nameLower.includes('college') || nameLower.includes('campus')) return <GraduationCap size={20} />;
+                        if (nameLower.includes('office') || nameLower.includes('ngo') || nameLower.includes('hub')) return <Building size={20} />;
+                        return <Compass size={20} />;
+                      };
 
-                    const accentColor = hasViolation ? '#ef4444' : (gf.color || '#3b82f6');
+                      const accentColor = hasViolation ? '#ef4444' : (gf.color || '#3b82f6');
 
-                    return (
-                      <div 
-                        key={gf.id}
-                        className={`flex-shrink-0 w-80 glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 relative overflow-hidden group transition-all snap-start border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
-                        style={{ borderLeftColor: accentColor }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div 
-                            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
-                            style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
-                          >
-                            {getGeofenceIcon(gf.name)}
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <button
-                              onClick={() => {
-                                if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
-                                  setCustomGeofences(prev => {
-                                    const updated = prev.filter(g => g.id !== gf.id);
-                                    localStorage.setItem('h3_geofences', JSON.stringify(updated));
-                                    return updated;
-                                  });
-                                }
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
-                              title="Delete Geofence"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                            <span 
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                                hasViolation 
-                                  ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-650 dark:text-red-400' 
-                                  : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-250/30 text-emerald-600 dark:text-emerald-450'
-                              }`}
-                            >
-                              {hasViolation ? (
-                                <>⚠️ Out of Bounds Alert</>
-                              ) : (
-                                <><ShieldCheck size={12} /> Geofence Active</>
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                        <h4 className="font-bold text-sm text-white truncate" title={gf.name}>{gf.name}</h4>
-                        <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
-                          {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
-                        </p>
-
-                        {assignedStudents.length > 0 ? (
-                          <div className="flex items-center gap-1.5 mt-3">
-                            <div className="flex -space-x-2 overflow-hidden">
-                              {assignedStudents.slice(0, 4).map(s => (
-                                <img
-                                  key={s.id}
-                                  className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                                  src={s.avatar}
-                                  alt={s.name}
-                                  title={s.name}
-                                />
-                              ))}
-                              {assignedStudents.length > 4 && (
-                                <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 ring-2 ring-white dark:ring-slate-900">
-                                  +{assignedStudents.length - 4}
-                                </div>
-                              )}
-                            </div>
-                            <span className="text-[10px] text-slate-450 dark:text-slate-350 font-extrabold font-mono">
-                              {insideCount}/{assignedStudents.length} Inside
-                            </span>
-                          </div>
-                        ) : (
-                          <p className="text-[10px] text-slate-400 mt-3 font-medium italic">No students assigned to group</p>
-                        )}
-                        
-                        <div 
-                          className="mt-4 pt-3 border-t flex justify-between items-center text-xs"
-                          style={{ borderColor: `${accentColor}15` }}
+                      return (
+                        <div
+                          key={gf.id}
+                          className={`flex-shrink-0 w-80 glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 relative overflow-hidden group transition-all snap-start border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
+                          style={{ borderLeftColor: accentColor }}
                         >
-                          <button
-                            onClick={() => setEditingGeofenceGroup(gf)}
-                            className="text-[10px] font-bold text-violet-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
-                          >
-                            <Users size={12} />
-                            <span>Manage Group</span>
-                          </button>
+                          <div className="flex items-center justify-between mb-3">
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
+                              style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
+                            >
+                              {getGeofenceIcon(gf.name)}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
+                                    setCustomGeofences(prev => {
+                                      const updated = prev.filter(g => g.id !== gf.id);
+                                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                                      return updated;
+                                    });
+                                  }
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
+                                title="Delete Geofence"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                              <span
+                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${hasViolation
+                                  ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-650 dark:text-red-400'
+                                  : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-250/30 text-emerald-600 dark:text-emerald-450'
+                                  }`}
+                              >
+                                {hasViolation ? (
+                                  <>⚠️ Out of Bounds Alert</>
+                                ) : (
+                                  <><ShieldCheck size={12} /> Geofence Active</>
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                          <h4 className="font-bold text-sm text-white truncate" title={gf.name}>{gf.name}</h4>
+                          <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
+                            {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
+                          </p>
 
-                          <span className="text-[10px] text-slate-450 dark:text-slate-550 font-bold uppercase tracking-wider font-mono">
-                            {gf.targetBatch || 'ALL'}
-                          </span>
+                          {assignedStudents.length > 0 ? (
+                            <div className="flex items-center gap-1.5 mt-3">
+                              <div className="flex -space-x-2 overflow-hidden">
+                                {assignedStudents.slice(0, 4).map(s => (
+                                  <img
+                                    key={s.id}
+                                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
+                                    src={s.avatar}
+                                    alt={s.name}
+                                    title={s.name}
+                                  />
+                                ))}
+                                {assignedStudents.length > 4 && (
+                                  <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 ring-2 ring-white dark:ring-slate-900">
+                                    +{assignedStudents.length - 4}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-slate-450 dark:text-slate-350 font-extrabold font-mono">
+                                {insideCount}/{assignedStudents.length} Inside
+                              </span>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-400 mt-3 font-medium italic">No students assigned to group</p>
+                          )}
+
+                          <div
+                            className="mt-4 pt-3 border-t flex justify-between items-center text-xs"
+                            style={{ borderColor: `${accentColor}15` }}
+                          >
+                            <button
+                              onClick={() => setEditingGeofenceGroup(gf)}
+                              className="text-[10px] font-bold text-slate-800 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
+                            >
+                              <Users size={12} />
+                              <span>Manage Group</span>
+                            </button>
+
+                            <span className="text-[10px] text-slate-450 dark:text-slate-550 font-bold uppercase tracking-wider font-mono">
+                              {gf.targetBatch || 'ALL'}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </div>
 
               {/* LIVE MAP VISUALIZER & GEOFENCE RADAR */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
+
                 {/* MAP GRAPHIC CANVAS SIMULATOR */}
-                <div className="lg:col-span-2 glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 relative min-h-[380px] flex flex-col justify-between overflow-hidden">
+                <div className="lg:col-span-2 glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 relative min-h-[380px] flex flex-col justify-between overflow-hidden">
                   {/* Google Street Map Location Search Bar & Geofencer Header */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-10">
                     <div className="flex items-center gap-2">
-                      <MapPin size={18} className="text-violet-600 dark:text-blue-400" />
+                      <MapPin size={18} className="text-slate-800 dark:text-blue-400" />
                       <h4 className="font-bold text-sm text-white">Google Maps Geofence Radar</h4>
                     </div>
 
                     {/* Place Name Search & Auto-Geofence Form */}
-                    <form 
+                    <form
                       onSubmit={async (e) => {
                         e.preventDefault();
                         if (!locationSearchQuery.trim()) return;
@@ -3858,7 +3850,7 @@ function App() {
                                 setCustomGeofences(prev => [...prev, newGeofence]);
                                 try {
                                   await apiService.createGeofence(newGeofence);
-                                } catch {}
+                                } catch { }
 
                                 // Draw interactive boundary layer
                                 const poly = L.polygon(polygonCoords, {
@@ -3890,9 +3882,9 @@ function App() {
                       className="flex items-center gap-2 w-full sm:w-96"
                     >
                       <div className="relative w-full">
-                        <input 
-                          type="text" 
-                          placeholder="Search place name to fence (e.g. Koviloor)..." 
+                        <input
+                          type="text"
+                          placeholder="Search place name to fence (e.g. Koviloor)..."
                           value={locationSearchQuery}
                           onChange={(e) => setLocationSearchQuery(e.target.value)}
                           className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 shadow-sm font-semibold"
@@ -3909,13 +3901,13 @@ function App() {
                     <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
                       <button
                         onClick={() => setMapType('hybrid')}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'hybrid' ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'hybrid' ? 'gradient-btn-tab shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
                       >
                         🛰️ Satellite
                       </button>
                       <button
                         onClick={() => setMapType('streets')}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'streets' ? 'bg-gradient-to-r from-[#a8c0ff] to-[#3f2b96] text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${mapType === 'streets' ? 'gradient-btn-tab shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-900'}`}
                       >
                         🗺️ Map
                       </button>
@@ -3929,7 +3921,7 @@ function App() {
                 </div>
 
                 {/* REAL-TIME STUDENT LOCATION TABLE & CHECK-IN OVERRIDE */}
-                <div className="glass-panel rounded-3xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-4 flex flex-col justify-between">
+                <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 flex flex-col justify-between">
                   <div>
                     <h4 className="font-bold text-sm text-white flex items-center gap-2 mb-3">
                       <Compass size={16} className="text-red-500 animate-pulse" />
@@ -3952,15 +3944,15 @@ function App() {
                         return outFliers.map(std => {
                           const assignedFence = customGeofences.find(gf => gf.studentIds && gf.studentIds.includes(std.id));
                           return (
-                            <div 
+                            <div
                               key={std.id}
                               className="p-3 rounded-2xl border border-red-200/60 dark:border-red-950/40 bg-red-50/30 dark:bg-red-950/10 flex items-center justify-between gap-3 hover:bg-red-50/50 transition-colors border-l-4 border-l-red-500"
                             >
                               <div className="flex items-center gap-2.5">
-                                <img 
-                                  src={std.avatar} 
-                                  alt={std.name} 
-                                  className="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-800" 
+                                <img
+                                  src={std.avatar}
+                                  alt={std.name}
+                                  className="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-800"
                                 />
                                 <div>
                                   <span className="font-bold text-xs text-slate-850 dark:text-white block">{std.name}</span>
@@ -3987,15 +3979,15 @@ function App() {
 
           {/* MODULE: SETTINGS */}
           {activeTab === 'Settings' && (
-            <div className="glass-panel rounded-2xl bg-gradient-to-br from-[#a8c0ff] to-[#3f2b96] text-white border-none p-5 space-y-6">
-              
+            <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-6">
+
               <div>
                 <h4 className="font-bold text-base">Configuration Settings</h4>
                 <p className="text-xs text-slate-400">Manage admin modules, biometric sensors, and geofence parameters</p>
               </div>
 
               <div className="space-y-6 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-                
+
                 {/* Organization Profile */}
                 <div className="pt-2 pb-2 space-y-4">
                   <h5 className="font-bold text-sm text-white">Organization Profile</h5>
@@ -4027,7 +4019,7 @@ function App() {
                       <div className="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm"></div>
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="text-[10px] text-slate-400 block font-semibold mb-1">DEFAULT CURRENCY</label>
@@ -4050,24 +4042,24 @@ function App() {
                 {/* Notification Preferences */}
                 <div className="pt-6 pb-2 space-y-4">
                   <h5 className="font-bold text-sm text-white">Notification & Alert Preferences</h5>
-                  
+
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500" />
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500" />
                       <div>
                         <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Email Activity Summaries</h6>
                         <p className="text-[10px] text-slate-400">Receive weekly digests of all volunteer and mentor logs.</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500" />
+                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500" />
                       <div>
                         <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Donor Contribution Alerts</h6>
                         <p className="text-[10px] text-slate-400">Get instant notifications when a new donation is processed.</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <input type="checkbox" className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500" />
+                      <input type="checkbox" className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500" />
                       <div>
                         <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">SMS Emergency Alerts</h6>
                         <p className="text-[10px] text-slate-400">Enable text alerts for severe location out-of-bounds events.</p>
@@ -4078,7 +4070,7 @@ function App() {
 
                 {/* Save action */}
                 <div className="pt-6 flex justify-end">
-                  <button className="bg-violet-600 hover:bg-blue-700 text-slate-900 font-bold py-2 px-6 rounded-xl text-xs transition-colors shadow-sm">
+                  <button className="gradient-btn-tab hover:opacity-90 font-bold py-2 px-6 rounded-xl text-xs transition-colors shadow-sm">
                     Save Changes
                   </button>
                 </div>
@@ -4102,12 +4094,12 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-violet-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
+            <div className="relative bg-white dark:bg-slate-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-slate-200 dark:border-slate-800">
               <div className="flex justify-between items-center w-full mb-3">
                 <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Admin Profile
                 </span>
-                <button 
+                <button
                   onClick={() => setSelectedVolunteer(null)}
                   className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
                 >
@@ -4119,8 +4111,8 @@ function App() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <img 
-                      src={formatAvatarUrl(selectedVolunteer.profile_photo_link)} 
+                    <img
+                      src={formatAvatarUrl(selectedVolunteer.profile_photo_link)}
                       alt={selectedVolunteer.name}
                       className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
                       onError={(e) => {
@@ -4139,7 +4131,7 @@ function App() {
                 </div>
 
                 <div className="flex gap-2">
-                  <a 
+                  <a
                     href={getWhatsAppLink(selectedVolunteer.phone)}
                     target="_blank"
                     rel="noreferrer"
@@ -4148,7 +4140,7 @@ function App() {
                     <PhoneCall size={14} />
                     <span>Call</span>
                   </a>
-                  <a 
+                  <a
                     href={getWhatsAppLink(selectedVolunteer.phone, `Hello ${selectedVolunteer.name}, greetings from Hope3 NGO.`)}
                     target="_blank"
                     rel="noreferrer"
@@ -4193,7 +4185,7 @@ function App() {
 
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Total Service Hours</span>
-                  <span className="font-mono font-bold text-xs text-violet-600 dark:text-blue-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
+                  <span className="font-mono font-bold text-xs text-slate-800 dark:text-blue-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
@@ -4219,12 +4211,12 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-violet-600 dark:bg-blue-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-blue-500/30">
+            <div className="relative bg-white dark:bg-slate-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-slate-200 dark:border-slate-800">
               <div className="flex justify-between items-center w-full mb-3">
                 <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Donor Benefactor Profile
                 </span>
-                <button 
+                <button
                   onClick={() => setSelectedDonor(null)}
                   className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
                 >
@@ -4236,8 +4228,8 @@ function App() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <img 
-                      src={formatAvatarUrl(selectedDonor.profile_photo_link)} 
+                    <img
+                      src={formatAvatarUrl(selectedDonor.profile_photo_link)}
                       alt={selectedDonor.name}
                       className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
                       onError={(e) => {
@@ -4256,7 +4248,7 @@ function App() {
                 </div>
 
                 <div className="flex gap-2">
-                  <a 
+                  <a
                     href={getWhatsAppLink(selectedDonor.phone)}
                     target="_blank"
                     rel="noreferrer"
@@ -4265,7 +4257,7 @@ function App() {
                     <PhoneCall size={14} />
                     <span>Call</span>
                   </a>
-                  <a 
+                  <a
                     href={getWhatsAppLink(selectedDonor.phone, `Hello ${selectedDonor.name}, thank you for supporting Hope3 NGO scholars.`)}
                     target="_blank"
                     rel="noreferrer"
@@ -4282,7 +4274,7 @@ function App() {
             <div className="p-6 space-y-6">
 
               {/* Highlight Contribution Box */}
-              <div className="glass-panel p-5 rounded-2xl bg-violet-600 border border-emerald-200/50 dark:border-emerald-800/40 flex justify-between items-center">
+              <div className="glass-panel p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
                 <div>
                   <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Total Financial Contribution</span>
                   <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{selectedDonor.formattedAmount}</span>
@@ -4329,11 +4321,11 @@ function App() {
         </div>
       )}
 
-      <EntityCreationModal 
-        type={creationModal.type} 
-        isOpen={creationModal.isOpen} 
-        onClose={() => setCreationModal({ type: '', isOpen: false })} 
-        onSubmit={handleCreateEntity} 
+      <EntityCreationModal
+        type={creationModal.type}
+        isOpen={creationModal.isOpen}
+        onClose={() => setCreationModal({ type: '', isOpen: false })}
+        onSubmit={handleCreateEntity}
       />
 
       {/* CREATE EXPENSE MODAL */}
@@ -4342,7 +4334,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-violet-600 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-slate-800 flex items-center justify-center font-bold">
                   <Plus size={16} />
                 </div>
                 <h4 className="font-extrabold text-base text-slate-900 dark:text-white">Add Expense Record</h4>
@@ -4355,22 +4347,22 @@ function App() {
             <form onSubmit={handleCreateExpenseSubmit} className="space-y-4 text-xs">
               <div>
                 <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">EXPENSE TITLE / DESCRIPTION</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Shuttle transport, Refreshments, Stationery" 
-                  value={newExpenseTitle} 
-                  onChange={(e) => setNewExpenseTitle(e.target.value)} 
-                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-medium focus:outline-none focus:border-teal-500" 
-                  required 
+                <input
+                  type="text"
+                  placeholder="e.g. Shuttle transport, Refreshments, Stationery"
+                  value={newExpenseTitle}
+                  onChange={(e) => setNewExpenseTitle(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-medium focus:outline-none focus:border-teal-500"
+                  required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">CATEGORY</label>
-                  <select 
-                    value={newExpenseCategory} 
-                    onChange={(e) => setNewExpenseCategory(e.target.value)} 
+                  <select
+                    value={newExpenseCategory}
+                    onChange={(e) => setNewExpenseCategory(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold focus:outline-none focus:border-teal-500"
                   >
                     <option value="snacks">Snacks / Food</option>
@@ -4384,22 +4376,22 @@ function App() {
 
                 <div>
                   <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">AMOUNT (₹)</label>
-                  <input 
-                    type="number" 
-                    placeholder="1000" 
-                    value={newExpenseAmount} 
-                    onChange={(e) => setNewExpenseAmount(e.target.value)} 
-                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold focus:outline-none focus:border-teal-500" 
-                    required 
+                  <input
+                    type="number"
+                    placeholder="1000"
+                    value={newExpenseAmount}
+                    onChange={(e) => setNewExpenseAmount(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold focus:outline-none focus:border-teal-500"
+                    required
                   />
                 </div>
               </div>
 
               <div>
                 <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">TARGET SCHOLAR GROUP</label>
-                <select 
-                  value={newExpenseTargetGroup} 
-                  onChange={(e) => setNewExpenseTargetGroup(e.target.value)} 
+                <select
+                  value={newExpenseTargetGroup}
+                  onChange={(e) => setNewExpenseTargetGroup(e.target.value)}
                   className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-medium focus:outline-none focus:border-teal-500"
                 >
                   <option value="ALL">All Batches (ALL)</option>
@@ -4411,8 +4403,8 @@ function App() {
 
               <div>
                 <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">Receipt Image (Optional)</label>
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
@@ -4425,36 +4417,36 @@ function App() {
                       reader.readAsDataURL(file);
                     }
                   }}
-                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-semibold focus:outline-none focus:border-teal-500 file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-teal-50 file:text-teal-700 dark:file:bg-teal-950/40 dark:file:text-teal-400 cursor-pointer" 
+                  className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-semibold focus:outline-none focus:border-teal-500 file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-teal-50 file:text-teal-700 dark:file:bg-teal-950/40 dark:file:text-teal-400 cursor-pointer"
                 />
               </div>
 
               <div className="flex justify-between items-center pt-2">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={newExpenseRefund} 
-                    onChange={(e) => setNewExpenseRefund(e.target.checked)} 
-                    className="w-4 h-4 rounded text-violet-600 focus:ring-teal-500"
+                  <input
+                    type="checkbox"
+                    checked={newExpenseRefund}
+                    onChange={(e) => setNewExpenseRefund(e.target.checked)}
+                    className="w-4 h-4 rounded text-slate-800 focus:ring-teal-500"
                   />
                   <span className="font-semibold text-slate-700 dark:text-slate-300">Refund Requested</span>
                 </label>
 
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={newExpenseFoundationPaid} 
-                    onChange={(e) => setNewExpenseFoundationPaid(e.target.checked)} 
-                    className="w-4 h-4 rounded text-violet-600 focus:ring-teal-500"
+                  <input
+                    type="checkbox"
+                    checked={newExpenseFoundationPaid}
+                    onChange={(e) => setNewExpenseFoundationPaid(e.target.checked)}
+                    className="w-4 h-4 rounded text-slate-800 focus:ring-teal-500"
                   />
                   <span className="font-semibold text-slate-700 dark:text-slate-300">Foundation Paid</span>
                 </label>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isSubmittingExpense}
-                className="w-full py-3 bg-violet-600 hover:bg-teal-700 disabled:bg-teal-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs disabled:cursor-not-allowed"
+                className="w-full py-3 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs disabled:cursor-not-allowed"
               >
                 {isSubmittingExpense ? (
                   <RefreshCw size={16} className="animate-spin" />
@@ -4540,11 +4532,10 @@ function App() {
                 </div>
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Status</span>
-                  <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${
-                    selectedExpense.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' :
+                  <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${selectedExpense.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' :
                     selectedExpense.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400' :
-                    'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
-                  }`}>
+                      'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400'
+                    }`}>
                     {selectedExpense.status}
                   </span>
                 </div>
@@ -4561,9 +4552,9 @@ function App() {
                 <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/60 pb-1">
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Receipt Attachment</span>
                   <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
-                    <img 
-                      src={selectedExpense.receipt_url} 
-                      alt="Expense Receipt" 
+                    <img
+                      src={selectedExpense.receipt_url}
+                      alt="Expense Receipt"
                       className="w-full max-h-48 object-contain hover:scale-[1.03] transition-transform cursor-zoom-in"
                       onClick={() => {
                         const w = window.open();
@@ -4580,22 +4571,20 @@ function App() {
               <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
                 <button
                   onClick={() => handleApproveExpense(selectedExpense.id, false)}
-                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                    selectedExpense.status === 'REJECTED'
-                      ? 'bg-rose-100 dark:bg-rose-950/30 text-rose-700 border-rose-200 dark:border-rose-900 cursor-not-allowed'
-                      : 'bg-white hover:bg-rose-50 text-rose-600 border-rose-200 dark:border-rose-800 dark:bg-slate-900 dark:hover:bg-rose-950/20'
-                  }`}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${selectedExpense.status === 'REJECTED'
+                    ? 'bg-rose-100 dark:bg-rose-950/30 text-rose-700 border-rose-200 dark:border-rose-900 cursor-not-allowed'
+                    : 'bg-white hover:bg-rose-50 text-rose-600 border-rose-200 dark:border-rose-800 dark:bg-slate-900 dark:hover:bg-rose-950/20'
+                    }`}
                   disabled={selectedExpense.status === 'REJECTED'}
                 >
                   Reject / Disapprove
                 </button>
                 <button
                   onClick={() => handleApproveExpense(selectedExpense.id, true)}
-                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                    selectedExpense.status === 'APPROVED'
-                      ? 'bg-emerald-150 dark:bg-emerald-950/30 text-emerald-700 border-emerald-250/30 cursor-not-allowed'
-                      : 'bg-emerald-600 hover:bg-emerald-700 text-slate-900 border-transparent shadow-lg shadow-emerald-600/25'
-                  }`}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${selectedExpense.status === 'APPROVED'
+                    ? 'bg-emerald-150 dark:bg-emerald-950/30 text-emerald-700 border-emerald-250/30 cursor-not-allowed'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-slate-900 border-transparent shadow-lg shadow-emerald-600/25'
+                    }`}
                   disabled={selectedExpense.status === 'APPROVED'}
                 >
                   Approve Expense
@@ -4612,7 +4601,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-violet-600 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-slate-800 flex items-center justify-center font-bold">
                   <MapPin size={18} />
                 </div>
                 <div>
@@ -4620,7 +4609,7 @@ function App() {
                   <p className="text-[10px] text-slate-400">Map custom polygon shapes on OpenStreetMap</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowAddLocationModal(false)}
                 className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
@@ -4628,7 +4617,7 @@ function App() {
               </button>
             </div>
 
-            <form 
+            <form
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!newZoneName) return;
@@ -4683,10 +4672,10 @@ function App() {
             >
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1">GEOFENCE ZONE NAME</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
-                  placeholder="e.g. Hostel Block B - Batch 2026 Fence" 
+                  placeholder="e.g. Hostel Block B - Batch 2026 Fence"
                   value={newZoneName}
                   onChange={(e) => setNewZoneName(e.target.value)}
                   className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500"
@@ -4719,7 +4708,7 @@ function App() {
                       key={sh.id}
                       type="button"
                       onClick={() => setNewZoneShape(sh.id as any)}
-                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-violet-600 bg-blue-50 dark:bg-blue-950/40 text-violet-600 dark:text-blue-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-violet-600 bg-blue-50 dark:bg-blue-950/40 text-slate-800 dark:text-blue-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
                     >
                       <span className="text-lg leading-none">{sh.icon}</span>
                       <span className="text-[10px]">{sh.id}</span>
@@ -4744,9 +4733,9 @@ function App() {
               </div>
 
               <div className="pt-2">
-                <button 
-                  type="submit" 
-                  className="w-full py-3 bg-violet-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                <button
+                  type="submit"
+                  className="w-full py-3 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <MapPin size={16} />
                   <span>Mark & Save Batch Geofence</span>
@@ -4763,7 +4752,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh]">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-violet-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-slate-800 dark:text-blue-400 flex items-center justify-center font-bold">
                   <Users size={16} />
                 </div>
                 <div>
@@ -4771,8 +4760,8 @@ function App() {
                   <p className="text-[10px] text-slate-400">Add/remove students from {editingGeofenceGroup.name}</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setEditingGeofenceGroup(null)} 
+              <button
+                onClick={() => setEditingGeofenceGroup(null)}
                 className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full"
               >
                 <X size={18} />
@@ -4783,7 +4772,7 @@ function App() {
               {/* Geofence Group Naming */}
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">Geofence Group Name</label>
-                <input 
+                <input
                   type="text"
                   required
                   value={editingGeofenceGroup.name}
@@ -4833,7 +4822,7 @@ function App() {
                       setEditingGeofenceGroup({ ...editingGeofenceGroup, studentIds: newStudentIds });
                       setCustomGeofences(prev => prev.map(gf => gf.id === editingGeofenceGroup.id ? { ...gf, studentIds: newStudentIds } : gf));
                     }}
-                    className="p-1 px-2.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 text-violet-600 dark:text-blue-400 rounded-xl text-[10px] font-bold transition-all border border-blue-200/40"
+                    className="p-1 px-2.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 text-slate-800 dark:text-blue-400 rounded-xl text-[10px] font-bold transition-all border border-blue-200/40"
                   >
                     {(() => {
                       const filteredStudents = students.filter(student => modalBatchFilter === 'ALL' || (student.batch || student.current_year || '2026') === modalBatchFilter);
@@ -4854,22 +4843,22 @@ function App() {
                 .map(student => {
                   const isAssigned = (editingGeofenceGroup.studentIds || []).includes(student.id);
                   return (
-                    <label 
+                    <label
                       key={student.id}
                       className="flex items-center justify-between p-3 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-950/40 cursor-pointer transition-all animate-fade-in"
                     >
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={student.avatar} 
-                          alt={student.name} 
-                          className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700" 
+                        <img
+                          src={student.avatar}
+                          alt={student.name}
+                          className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700"
                         />
                         <div>
                           <span className="font-bold text-xs text-slate-800 dark:text-slate-200 block">{student.name}</span>
                           <span className="text-[9px] text-slate-400">{student.grade} - {student.college}</span>
                         </div>
                       </div>
-                      <input 
+                      <input
                         type="checkbox"
                         checked={isAssigned}
                         onChange={(e) => {
@@ -4877,17 +4866,17 @@ function App() {
                           setCustomGeofences(prev => prev.map(gf => {
                             if (gf.id === editingGeofenceGroup.id) {
                               const currentIds = gf.studentIds || [];
-                              const updatedIds = checked 
+                              const updatedIds = checked
                                 ? [...currentIds, student.id]
                                 : currentIds.filter(id => id !== student.id);
-                              
+
                               setEditingGeofenceGroup({ ...editingGeofenceGroup, studentIds: updatedIds });
                               return { ...gf, studentIds: updatedIds };
                             }
                             return gf;
                           }));
                         }}
-                        className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                        className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
                       />
                     </label>
                   );
@@ -4895,7 +4884,7 @@ function App() {
             </div>
 
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
-              <button 
+              <button
                 onClick={async () => {
                   const payload = {
                     zone_name: editingGeofenceGroup.name,
@@ -4908,7 +4897,7 @@ function App() {
                     alert('Failed to save group assignment to server');
                   }
                 }}
-                className="w-full py-2.5 bg-violet-600 hover:bg-blue-700 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs"
+                className="w-full py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs"
               >
                 Save Group Assignment
               </button>
@@ -4923,7 +4912,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh] space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-violet-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-slate-800 dark:text-blue-400 flex items-center justify-center font-bold">
                   <Layers size={16} />
                 </div>
                 <div>
@@ -4931,8 +4920,8 @@ function App() {
                   <p className="text-[10px] text-slate-400">Combine multiple fences under a single name</p>
                 </div>
               </div>
-              <button 
-                onClick={() => setIsMergeModalOpen(false)} 
+              <button
+                onClick={() => setIsMergeModalOpen(false)}
                 className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full"
               >
                 <X size={18} />
@@ -4942,10 +4931,10 @@ function App() {
             <div className="space-y-3 text-xs flex-1 overflow-y-auto pr-1 scrollbar-none">
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">Unified Geofence Name</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
-                  placeholder="e.g. Combined Hostel & Office Perimeter" 
+                  placeholder="e.g. Combined Hostel & Office Perimeter"
                   value={mergeTargetName}
                   onChange={(e) => setMergeTargetName(e.target.value)}
                   className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-blue-500"
@@ -4965,14 +4954,14 @@ function App() {
 
                     return singleFences.map(gf => {
                       const isChecked = selectedFencesToMerge.includes(gf.id);
-                      
-                      const gfCoords = gf.polygons && gf.polygons[0] 
+
+                      const gfCoords = gf.polygons && gf.polygons[0]
                         ? (Array.isArray(gf.polygons[0]) ? gf.polygons[0] : (gf.polygons[0] as any).coords)
                         : [];
 
                       const containingGroups = customGeofences
                         .filter(g => (g.polygons || []).length > 1)
-                        .filter(g => 
+                        .filter(g =>
                           (g.polygons || []).some(p => {
                             const coords = Array.isArray(p) ? p : (p as any).coords;
                             return isCoordMatch(coords, gfCoords);
@@ -4981,7 +4970,7 @@ function App() {
                         .map(g => g.name);
 
                       return (
-                        <label 
+                        <label
                           key={gf.id}
                           className="flex items-center justify-between p-3 rounded-2xl border border-slate-100 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-950/40 cursor-pointer transition-all"
                         >
@@ -4996,18 +4985,18 @@ function App() {
                               )}
                             </div>
                           </div>
-                          <input 
+                          <input
                             type="checkbox"
                             checked={isChecked}
                             onChange={(e) => {
                               const checked = e.target.checked;
-                              setSelectedFencesToMerge(prev => 
-                                checked 
-                                  ? [...prev, gf.id] 
+                              setSelectedFencesToMerge(prev =>
+                                checked
+                                  ? [...prev, gf.id]
                                   : prev.filter(id => id !== gf.id)
                               );
                             }}
-                            className="w-4 h-4 rounded text-violet-600 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                            className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
                           />
                         </label>
                       );
@@ -5018,7 +5007,7 @@ function App() {
             </div>
 
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 shrink-0">
-              <button 
+              <button
                 onClick={async () => {
                   if (!mergeTargetName.trim() || selectedFencesToMerge.length < 2) return;
 
@@ -5046,20 +5035,20 @@ function App() {
                   });
 
                   const baseParent = fencesToMerge[0];
-                  
+
                   const apiPayload = {
                     zone_name: mergeTargetName.trim(),
                     center_lat: baseParent.lat,
                     center_lng: baseParent.lng,
                     radius_meters: 100,
-                    coordinates: mergedPolygons.map(p => JSON.stringify(p.coords)), 
+                    coordinates: mergedPolygons.map(p => JSON.stringify(p.coords)),
                     is_active: 1,
                     description: `Merged group: ${fencesToMerge.map(f => f.name).join(', ')}`,
                     studentIds: mergedStudentIds
                   };
 
                   const savedData = await apiService.createGeofence(apiPayload);
-                  
+
                   if (savedData) {
                     const newMergedGeofence = {
                       id: savedData.zone_id || savedData.id || `GF_MERGED_${Date.now()}`,
@@ -5089,7 +5078,7 @@ function App() {
                   }
                 }}
                 disabled={!mergeTargetName.trim() || selectedFencesToMerge.length < 2}
-                className="w-full py-2.5 bg-violet-600 hover:bg-blue-700 disabled:bg-blue-800/40 text-slate-900 font-extrabold rounded-2xl shadow-lg shadow-blue-600/25 transition-all text-xs disabled:cursor-not-allowed"
+                className="w-full py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs disabled:cursor-not-allowed"
               >
                 Merge Selected Fences
               </button>
@@ -5106,7 +5095,7 @@ function App() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsFullScreenMapOpen(false)}
-                className="px-3.5 py-2 bg-violet-600 hover:bg-blue-700 text-slate-900 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all border border-blue-400/30"
+                className="px-3.5 py-2 gradient-btn-tab hover:opacity-90 rounded-xl text-xs font-extrabold flex items-center gap-2 shadow-lg transition-all border border-transparent"
                 title="Back to Dashboard"
               >
                 <ArrowLeft size={16} />
@@ -5132,7 +5121,7 @@ function App() {
               <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5">
                 <Filter size={14} className="text-blue-400" />
                 <span className="text-xs font-bold text-slate-300">Filter Batch:</span>
-                <select 
+                <select
                   value={selectedBatchFilter}
                   onChange={(e) => setSelectedBatchFilter(e.target.value)}
                   className="bg-transparent font-bold text-xs text-slate-900 focus:outline-none cursor-pointer"
@@ -5193,7 +5182,7 @@ function App() {
                   if (map && L && L.Draw && L.Draw.Polygon) {
                     // Disable previous drawer if any
                     if ((window as any).activePolygonDrawer) {
-                      try { (window as any).activePolygonDrawer.disable(); } catch {}
+                      try { (window as any).activePolygonDrawer.disable(); } catch { }
                     }
                     const polygonDrawer = new L.Draw.Polygon(map, {
                       shapeOptions: {
@@ -5211,7 +5200,7 @@ function App() {
                     alert('Click points on the map to mark your geofence boundary!');
                   }
                 }}
-                className={`w-14 h-14 ${isDrawingActive ? 'bg-slate-300 opacity-60 pointer-events-none' : 'bg-violet-600 hover:bg-blue-500'} text-slate-900 rounded-full shadow-[0_10px_30px_rgba(37,99,235,0.6)] flex items-center justify-center border-2 border-white/40 transition-all hover:scale-110 active:scale-95 cursor-pointer`}
+                className={`w-14 h-14 ${isDrawingActive ? 'bg-slate-300 opacity-60 pointer-events-none' : 'gradient-btn-tab hover:scale-105 active:scale-95'} rounded-full shadow-lg flex items-center justify-center border-2 border-white/40 transition-all cursor-pointer`}
                 title="Click to draw geofence perimeter"
                 disabled={isDrawingActive}
               >
@@ -5228,7 +5217,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-blue-500/15 text-violet-600 flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-2xl bg-blue-500/15 text-slate-800 flex items-center justify-center font-bold">
                   <Pencil size={20} />
                 </div>
                 <div>
@@ -5238,7 +5227,7 @@ function App() {
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setPendingDrawnShape(null)}
                 className="p-1.5 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
@@ -5246,11 +5235,11 @@ function App() {
               </button>
             </div>
 
-            <form 
+            <form
               onSubmit={async (e) => {
                 e.preventDefault();
                 const nameToSave = newZoneName.trim() || pendingDrawnShape.defaultName;
-                
+
                 const apiPayload = {
                   zone_name: nameToSave,
                   center_lat: pendingDrawnShape.center.lat,
@@ -5261,9 +5250,9 @@ function App() {
                   description: 'Marked on Map',
                   studentIds: []
                 };
-                
+
                 const savedData = await apiService.createGeofence(apiPayload);
-                
+
                 if (savedData) {
                   const newShape = {
                     id: savedData.zone_id || savedData.id || `GF_DRAWN_${Date.now()}`,
@@ -5281,7 +5270,7 @@ function App() {
                     const updated = [...prev, newShape];
                     try {
                       localStorage.setItem('h3_geofences', JSON.stringify(updated));
-                    } catch {}
+                    } catch { }
                     return updated;
                   });
 
@@ -5313,10 +5302,10 @@ function App() {
             >
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">GEOFENCE NAME</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required
-                  placeholder="e.g. Koviloor Hostel Perimeter" 
+                  placeholder="e.g. Koviloor Hostel Perimeter"
                   value={newZoneName}
                   onChange={(e) => setNewZoneName(e.target.value)}
                   className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-blue-500"
@@ -5353,9 +5342,9 @@ function App() {
               </div>
 
               <div className="pt-2">
-                <button 
-                  type="submit" 
-                  className="w-full py-3.5 bg-violet-600 hover:bg-blue-500 text-slate-900 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
+                <button
+                  type="submit"
+                  className="w-full py-3.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <Check size={16} />
                   <span>Save Geofence Boundary</span>
@@ -5367,7 +5356,7 @@ function App() {
       )}
 
       {/* ENTITY CREATION MODAL (STUDENT, PARENT, VOLUNTEER, DONOR) */}
-      <EntityCreationModal 
+      <EntityCreationModal
         type={creationModal.type}
         isOpen={creationModal.isOpen}
         onClose={() => setCreationModal(prev => ({ ...prev, isOpen: false }))}
@@ -5381,7 +5370,7 @@ function App() {
             const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
             setCreationModal({ type, isOpen: true });
           }}
-          className="fixed bottom-8 right-8 z-40 w-12 h-12 bg-violet-600 hover:bg-blue-500 text-slate-900 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
+          className="fixed bottom-8 right-8 z-40 w-12 h-12 gradient-btn-tab hover:opacity-90 rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
           title={`Add New ${activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
         >
           <Plus size={22} />

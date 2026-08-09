@@ -11,7 +11,7 @@ interface EntityCreationModalProps {
 const CustomInput = ({ name, placeholder, type = "text", onChange, required }: any) => (
   <div className="space-y-1.5">
     <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">{placeholder}</label>
-    <input 
+    <input
       required={required}
       type={type}
       name={name}
@@ -26,7 +26,7 @@ const CustomSelect = ({ name, placeholder, onChange, options, required }: any) =
   <div className="space-y-1.5">
     <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">{placeholder}</label>
     <div className="relative">
-      <select 
+      <select
         required={required}
         name={name}
         onChange={onChange}
@@ -83,10 +83,10 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
             <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
             <CustomInput required name="rollNo" placeholder="Roll Number" onChange={handleChange} />
             <CustomInput required type="number" name="age" placeholder="Age" onChange={handleChange} />
-            <CustomSelect 
-              required 
-              name="batch" 
-              placeholder="Allocated Batch" 
+            <CustomSelect
+              required
+              name="batch"
+              placeholder="Allocated Batch"
               onChange={handleChange}
               options={["Batch 2026", "Batch 2025", "Batch 2024", "Batch 2023"]}
             />
@@ -170,16 +170,16 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-300">
-        
+
         {/* Top Gradient Bar */}
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500"></div>
+        <div className="absolute top-0 left-0 w-full h-1.5 gradient-btn-tab"></div>
 
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-5 border-b border-slate-100 dark:border-slate-800/60">
@@ -192,9 +192,9 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
               <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Enter details to create a new record.</p>
             </div>
           </div>
-          <button 
-            type="button" 
-            onClick={onClose} 
+          <button
+            type="button"
+            onClick={onClose}
             className="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"
           >
             <X size={20} strokeWidth={2.5} />
@@ -210,17 +210,17 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
 
         {/* Footer */}
         <div className="px-6 py-5 border-t border-slate-100 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/50 flex justify-end gap-3">
-          <button 
-            type="button" 
-            onClick={onClose} 
+          <button
+            type="button"
+            onClick={onClose}
             className="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             form="entity-form"
-            className="px-6 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25 transition-all active:scale-95 flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl text-sm font-bold gradient-btn-tab hover:opacity-90 shadow-lg transition-all active:scale-95 flex items-center gap-2"
           >
             <UserPlus size={16} strokeWidth={2.5} />
             Create {type}
