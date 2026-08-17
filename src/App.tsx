@@ -1795,8 +1795,8 @@ function App() {
                     { name: 'groceries', icon: <BookOpen size={14} />, color: '#3b82f6', bg: 'bg-blue-50 text-blue-600' },
                     { name: 'sports', icon: <Heart size={14} />, color: '#a855f7', bg: 'bg-purple-50 text-purple-600' },
                     { name: 'medical', icon: <Users size={14} />, color: '#f59e0b', bg: 'bg-amber-50 text-amber-600' },
-                    { name: 'travel', icon: <ShoppingCart size={14} />, color: '#ef4444', bg: 'bg-red-50 text-red-500' },
-                    { name: 'stationary', icon: <Check size={14} />, color: '#14b8a6', bg: 'bg-teal-50 text-teal-600' }
+                    { name: 'travel', icon: <Bus size={14} />, color: '#ef4444', bg: 'bg-red-50 text-red-500' },
+                    { name: 'stationary', icon: <Pencil size={14} />, color: '#14b8a6', bg: 'bg-teal-50 text-teal-600' }
                   ];
 
                   let calculatedData = distributionData.map(cat => ({
@@ -2096,68 +2096,110 @@ function App() {
                   </div>
 
                   {/* DATA TABLE */}
-                  {/* RESPONSIVE GRID CARDS */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
-                    {filteredStudents.map(student => (
-                      <div
-                        key={student.id}
-                        onClick={() => { setSelectedStudent(student); setProfileTab('Overview'); }}
-                        className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer flex flex-col gap-4 group"
-                      >
-                        <div className="flex items-start gap-3.5">
-                          {student.avatar ? (
-                            <img
-                              src={student.avatar}
-                              alt={student.name}
-                              className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:scale-[1.05] transition-transform"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = 'none';
-                              }}
-                            />
-                          ) : null}
-                          <div className="flex-1 min-w-0">
-                            <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm">{student.name}</h5>
-                            <span className="text-[10px] text-slate-400 block font-mono font-medium">{student.rollNo}</span>
-                            <span className="inline-flex mt-1 items-center px-2 py-[2px] rounded-md text-[9px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-slate-800 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/50">
-                              {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
-                            </span>
-                          </div>
-                        </div>
+                  <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
+                          <th className="p-4">Student</th>
+                          <th className="p-4">Roll ID</th>
+                          <th className="p-4">Batch</th>
+                          <th className="p-4">Course / College</th>
+                          <th className="p-4">Attendance</th>
+                          <th className="p-4">Location Status</th>
+                          <th className="p-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredStudents.map(student => (
+                          <tr 
+                            key={student.id} 
+                            onClick={() => { setSelectedStudent(student); setProfileTab('Overview'); }}
+                            className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
+                          >
+                            <td className="p-4 flex items-center gap-3">
+                              <img 
+                                src={student.avatar} 
+                                alt={student.name} 
+                                className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700" 
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
+                                }}
+                              />
+                              <div>
+                                <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
+                                <span className="text-[10px] text-slate-400">Age: {student.age} yrs</span>
+                              </div>
+                            </td>
+                            <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
+                            <td className="p-4">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                                {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <span className="block font-medium text-slate-700 dark:text-slate-350">{student.grade}</span>
+                              <span className="text-[10px] text-slate-400 block max-w-[180px] truncate">{student.college}</span>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <div className="w-16 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full rounded-full ${student.attendance >= 90 ? 'bg-green-500' : student.attendance >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                    style={{ width: `${student.attendance}%` }}
+                                  ></div>
+                                </div>
+                                <span className="font-bold">{student.attendance}%</span>
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px]
+                                ${student.location.status === 'In College' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
+                                  student.location.status === 'In Hostel' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
+                                  student.location.status === 'On Leave' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
+                                  'bg-red-500/10 text-red-600 dark:text-red-400'}`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full
+                                  ${student.location.status === 'In College' ? 'bg-blue-500' :
+                                    student.location.status === 'In Hostel' ? 'bg-purple-500' :
+                                    student.location.status === 'On Leave' ? 'bg-amber-500' :
+                                    'bg-red-500 animate-ping'}`}
+                                ></span>
+                                {student.location.status}
+                              </span>
+                            </td>
+                            <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center justify-end gap-2">
+                                {/* WHATSAPP PHONE CALL ICON BUTTON */}
+                                <a 
+                                  href={getWhatsAppLink(student.parentPhone)} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
+                                  className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                                >
+                                  <PhoneCall size={14} />
+                                </a>
 
-                        <div className="text-[11px] text-slate-600 dark:text-slate-400 space-y-0.5">
-                          <span className="block font-medium text-slate-800 dark:text-slate-200 truncate">{student.grade}</span>
-                          <span className="text-[9px] font-semibold text-slate-400 block truncate uppercase tracking-widest">{student.college}</span>
-                        </div>
-
-                        <div className="flex items-end justify-end mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                          <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                            <a
-                              href={getWhatsAppLink(student.parentPhone)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Call ${student.name} / Parent`}
-                              className="p-1.5 md:p-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-[10px] transition-all"
-                            >
-                              <PhoneCall size={14} />
-                            </a>
-                            <a
-                              href={getWhatsAppLink(student.parentPhone, `Hello, regarding student ${student.name} from Hope3 NGO.`)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Message ${student.name} / Parent`}
-                              className="p-1.5 md:p-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-[10px] transition-all"
-                            >
-                              <MessageSquare size={14} />
-                            </a>
-                          </div>
-                        </div>
-
-                      </div>
-                    ))}
+                                {/* WHATSAPP MESSAGE ICON BUTTON */}
+                                <a 
+                                  href={getWhatsAppLink(student.parentPhone, `Hello, regarding student ${student.name} from Hope3 NGO.`)} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
+                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                                >
+                                  <MessageSquare size={14} />
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               ) : (
-
+                
                 /* DETAILED STUDENT PROFILE */
                 <div className="space-y-6">
 
@@ -2892,78 +2934,91 @@ function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
-                {filteredParents.map(par => (
-                  <div
-                    key={par.id}
-                    className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all flex flex-col gap-4 group"
-                  >
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={formatAvatarUrl(par.profile_photo_link)}
-                        alt={par.name}
-                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800 bg-slate-100 group-hover:scale-105 transition-transform"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120';
-                        }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm">{par.name}</h5>
-                        <span className="text-[10px] text-slate-400 block font-mono truncate">{par.email || 'parent@hope3.org'}</span>
-                      </div>
-                    </div>
+              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
+                      <th className="p-4">Parent / Guardian Name</th>
+                      <th className="p-4">Relationship</th>
+                      <th className="p-4">Child Scholar</th>
+                      <th className="p-4">Occupation</th>
+                      <th className="p-4">Contact Phone</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredParents.map(par => (
+                      <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={formatAvatarUrl(par.profile_photo_link)} 
+                              alt={par.name}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120';
+                              }}
+                            />
+                            <div>
+                              <span className="font-bold text-slate-800 dark:text-white block">{par.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{par.email || 'parent@hope3.org'}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-200/40">
+                            {par.guardianName || par.relationship || par.relation || 'Guardian'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <button 
+                            onClick={() => {
+                              const std = students.find(s => s.id === par.childId || (s as any).student_id === par.childId || s.student_code === par.childId);
+                              if (std) { setSelectedStudent(std); setActiveTab('Students'); setProfileTab('Overview'); }
+                            }}
+                            className="font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            {par.childName}
+                          </button>
+                        </td>
+                        <td className="p-4 text-slate-600 dark:text-slate-400">{par.occupation}</td>
+                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{par.phone}</td>
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {/* WHATSAPP PHONE CALL ICON BUTTON */}
+                            <a 
+                              href={getWhatsAppLink(par.phone)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Call ${par.name} via WhatsApp (${par.phone})`}
+                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                            >
+                              <PhoneCall size={15} />
+                            </a>
 
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium pb-2 border-b border-slate-100 dark:border-slate-800/60">
-                      <span className="font-mono bg-slate-100 dark:bg-slate-800/50 px-2 py-0.5 rounded text-slate-800 dark:text-slate-300">{par.phone}</span>
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="text-slate-500 truncate">{par.occupation}</span>
-                        <span className="inline-flex items-center px-2 py-[3px] rounded-md text-[9px] font-extrabold uppercase bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200/40">
-                          {par.guardianName || par.relationship || par.relation || 'Guardian'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-auto pt-1">
-                      <button
-                        onClick={() => {
-                          const std = students.find(s => s.id === par.childId || (s as any).student_id === par.childId || s.student_code === par.childId);
-                          if (std) { setSelectedStudent(std); setActiveTab('Students'); setProfileTab('Overview'); }
-                        }}
-                        className="text-[11px] font-black text-violet-600 dark:text-violet-400 hover:opacity-80 max-w-[140px] truncate block text-left"
-                      >
-                        View Child: {par.childName}
-                      </button>
-
-                      <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <a
-                          href={getWhatsAppLink(par.phone)}
-                          target="_blank"
-                          rel="noreferrer"
-                          title={`Call via WhatsApp`}
-                          className="p-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-[10px] transition-all border border-emerald-200/30 dark:border-none"
-                        >
-                          <PhoneCall size={14} />
-                        </a>
-                        <a
-                          href={getWhatsAppLink(par.phone, `Hello ${par.name}, greetings from Hope3 NGO.`)}
-                          target="_blank"
-                          rel="noreferrer"
-                          title={`Message on WhatsApp`}
-                          className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-[10px] transition-all flex items-center justify-center border border-blue-200/30 dark:border-none"
-                        >
-                          <MessageSquare size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                            {/* WHATSAPP MESSAGE ICON BUTTON */}
+                            <a 
+                              href={getWhatsAppLink(par.phone, `Hello ${par.name}, greetings from Hope3 NGO.`)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Message ${par.name} on WhatsApp (${par.phone})`}
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                            >
+                              <MessageSquare size={15} />
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
 
           {/* MODULE: VOLUNTEERS (ADMINS) */}
           {(activeTab === 'Admins' || activeTab === 'Volunteers') && (
-            <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+            <div className="glass-panel rounded-2xl p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                   <h4 className="font-bold text-base">Active Admin Network</h4>
@@ -2976,73 +3031,92 @@ function App() {
                   placeholder="Filter by admin name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
-                {filteredVolunteers.map(vol => (
-                  <div
-                    key={vol.id}
-                    className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer flex flex-col gap-4 group"
-                    onClick={() => setSelectedVolunteer(vol)}
-                  >
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'}
-                        alt={vol.name}
-                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800 bg-slate-100 group-hover:scale-105 transition-transform"
-                        onError={(e) => {
-                          (e.target as HTMLElement).setAttribute('src', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120');
-                        }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">{vol.name}</h5>
-                        <span className="text-[10px] text-slate-400 block font-mono truncate">{vol.email}</span>
-                      </div>
-                    </div>
-
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium pb-2 border-b border-slate-100 dark:border-slate-800/60 flex flex-col gap-2">
-                      <span className="font-mono bg-slate-100 dark:bg-slate-800/50 px-2 py-0.5 rounded w-fit text-slate-800 dark:text-slate-300">{vol.phone}</span>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="inline-flex items-center px-2 py-[3px] rounded-md text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300">
-                          {vol.specialization || vol.program}
-                        </span>
-                        <span className="font-mono font-bold text-slate-800 dark:text-blue-400">
-                          {vol.hoursContributed} Hrs
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-bold text-[9px] ${vol.status === 'Active' ? 'bg-green-50 dark:bg-emerald-950/30 text-green-700 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'}`}>
-                        <span className={`w-1 h-1 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
-                        {vol.status}
-                      </span>
-
-                      <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <a
-                          href={getWhatsAppLink(vol.phone)}
-                          target="_blank"
-                          rel="noreferrer"
-                          title={`Call via WhatsApp`}
-                          className="p-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg transition-all border border-emerald-200/40 dark:border-none"
-                        >
-                          <PhoneCall size={14} />
-                        </a>
-                        <a
-                          href={getWhatsAppLink(vol.phone, `Hello ${vol.name}, greetings.`)}
-                          target="_blank"
-                          rel="noreferrer"
-                          title={`Message on WhatsApp`}
-                          className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-all flex items-center justify-center border border-blue-200/40 dark:border-none"
-                        >
-                          <MessageSquare size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
+                      <th className="p-4">Admin Name</th>
+                      <th className="p-4">Assigned Department</th>
+                      <th className="p-4">Total Service Hours</th>
+                      <th className="p-4">Phone Number</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredVolunteers.map(vol => (
+                      <tr 
+                        key={vol.id} 
+                        className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+                        onClick={() => setSelectedVolunteer(vol)}
+                      >
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'} 
+                              alt={vol.name}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
+                              onError={(e) => {
+                                (e.target as HTMLElement).setAttribute('src', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120');
+                              }}
+                            />
+                            <div>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{vol.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            {vol.specialization || vol.program}
+                          </span>
+                        </td>
+                        <td className="p-4 font-mono font-bold text-blue-600 dark:text-blue-400">{vol.hoursContributed} Hours</td>
+                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{vol.phone}</td>
+                        <td className="p-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px]
+                            ${vol.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700'}`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                            {vol.status}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              onClick={() => setSelectedVolunteer(vol)}
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                            >
+                              View Profile
+                            </button>
+                            <a 
+                              href={getWhatsAppLink(vol.phone)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
+                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                            >
+                              <PhoneCall size={14} />
+                            </a>
+                            <a 
+                              href={getWhatsAppLink(vol.phone, `Hello ${vol.name}, greetings from Hope3 NGO.`)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                            >
+                              <MessageSquare size={14} />
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
@@ -3066,70 +3140,88 @@ function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
-                {filteredDonors.map(donor => (
-                  <div
-                    key={donor.id}
-                    className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer flex flex-col gap-4 group"
-                    onClick={() => setSelectedDonor(donor)}
-                  >
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={formatAvatarUrl(donor.profile_photo_link)}
-                        alt={donor.name}
-                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800 bg-slate-100 group-hover:scale-105 transition-transform"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
-                        }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm">{donor.name}</h5>
-                        <span className="text-[10px] text-slate-400 block font-mono truncate">{donor.email}</span>
-                      </div>
-                    </div>
-
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium pb-2 border-b border-slate-100 dark:border-slate-800/60">
-                      <span className="font-mono bg-slate-100 dark:bg-slate-800/50 px-2 py-0.5 rounded">{donor.phone}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between pb-3">
-                      <span className="inline-flex items-center px-[8px] py-[3px] rounded-md text-[9px] font-extrabold uppercase tracking-widest bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
-                        {donor.donorType}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-bold text-[9px] bg-green-50 dark:bg-emerald-950/30 text-green-700 dark:text-emerald-400">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        {donor.status}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className="font-mono font-black text-emerald-600 dark:text-cyan-400 text-[15px]">
-                        {donor.formattedAmount}
-                      </span>
-
-                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                        <a
-                          href={getWhatsAppLink(donor.phone)}
-                          target="_blank"
-                          rel="noreferrer"
-                          title={`Call via WhatsApp`}
-                          className="p-1.5 md:p-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-[10px] transition-all"
-                        >
-                          <PhoneCall size={14} />
-                        </a>
-                        <a
-                          href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)}
-                          target="_blank"
-                          rel="noreferrer"
-                          title={`Message on WhatsApp`}
-                          className="p-1.5 md:p-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-[10px] transition-all flex items-center justify-center border border-transparent dark:border-none"
-                        >
-                          <MessageSquare size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
+                      <th className="p-4">Donor Name</th>
+                      <th className="p-4">Donor Category</th>
+                      <th className="p-4">Total Contribution</th>
+                      <th className="p-4">Phone Number</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDonors.map(donor => (
+                      <tr 
+                        key={donor.id} 
+                        className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+                        onClick={() => setSelectedDonor(donor)}
+                      >
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={formatAvatarUrl(donor.profile_photo_link)} 
+                              alt={donor.name}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                              }}
+                            />
+                            <div>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{donor.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200/50">
+                            {donor.donorType}
+                          </span>
+                        </td>
+                        <td className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                          {donor.formattedAmount}
+                        </td>
+                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{donor.phone}</td>
+                        <td className="p-4">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            {donor.status}
+                          </span>
+                        </td>
+                        <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-2">
+                            <button 
+                              onClick={() => setSelectedDonor(donor)}
+                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                            >
+                              View Profile
+                            </button>
+                            <a 
+                              href={getWhatsAppLink(donor.phone)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
+                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                            >
+                              <PhoneCall size={14} />
+                            </a>
+                            <a 
+                              href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
+                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                            >
+                              <MessageSquare size={14} />
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
