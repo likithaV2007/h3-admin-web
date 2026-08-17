@@ -52,7 +52,8 @@ import {
   Pencil,
   ChevronLeft,
   ChevronRight,
-  Layers
+  Layers,
+  ArrowUp
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { apiService, formatAvatarUrl } from './services/api';
@@ -530,6 +531,22 @@ function App() {
       loadDataFromApi();
     }
   }, [isAuthenticated]);
+
+  // Poll Dashboard Stats every 5 seconds for live updates
+  useEffect(() => {
+    if (!isAuthenticated || activeTab !== 'Dashboard') return;
+    
+    const intervalId = setInterval(async () => {
+      try {
+        const liveStats = await apiService.getAdminDashboard();
+        setDashboardStats(liveStats);
+      } catch (err) {
+        console.error("Failed to fetch live dashboard stats", err);
+      }
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [isAuthenticated, activeTab]);
 
   // Ray-Casting algorithm to check if GPS coordinate is within Geofence perimeter
   const isPointInPolygon = (point: [number, number], polygon: Array<[number, number]>) => {
@@ -1610,78 +1627,198 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 {/* Metric 1 */}
-                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                      Total Students
-                    </span>
-                    <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {dashboardStats?.total_students ?? students.length} Enrolled
-                    </h4>
-                    <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
-                      <span className="bg-violet-500/10 p-0.5 rounded font-bold">+12%</span> vs last semester
-                    </span>
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                  
+                  {/* Decorative Animated Wave */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
+                      </svg>
+                      {/* Secondary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
+                      </svg>
+                      {/* Tertiary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
+                      </svg>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                    <Users size={22} />
+
+                  
+                  <div className="flex items-start gap-4 z-10">
+                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                      <Users size={26} strokeWidth={2} />
+                    </div>
+                    <div className="pt-1">
+                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
+                        Total Enrolled
+                      </h4>
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
+                        {dashboardStats?.total_students ?? students.length}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-4 z-10">
+                    <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                      <ArrowUp size={12} strokeWidth={3} />
+                      12%
+                    </span>
+                    <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">
+                      vs last semester
+                    </span>
                   </div>
                 </div>
 
                 {/* Metric 2 */}
-                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                      {activeRole === 'Student' ? 'My Attendance' : 'Total Admins'}
-                    </span>
-                    <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Student' ? '94.5%' : `${dashboardStats?.total_admins ?? adminCount} Active`}
-                    </h4>
-                    <span className={`text-[10px] flex items-center gap-1 mt-2 font-medium text-violet-500 dark:text-violet-400`}>
-                      {activeRole === 'Student' ? (
-                        <><span className="bg-violet-500/10 p-0.5 rounded font-bold">Target 90%</span> met successfully</>
-                      ) : (
-                        'Managing system operations'
-                      )}
-                    </span>
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                  
+                  {/* Decorative Animated Wave */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
+                      </svg>
+                      {/* Secondary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
+                      </svg>
+                      {/* Tertiary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
+                      </svg>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                    {activeRole === 'Student' ? <Calendar size={22} /> : <ShieldCheck size={22} />}
+
+                  
+                  <div className="flex items-start gap-4 z-10">
+                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                      {activeRole === 'Student' ? <Calendar size={26} strokeWidth={2} /> : <ShieldCheck size={26} strokeWidth={2} />}
+                    </div>
+                    <div className="pt-1">
+                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
+                        {activeRole === 'Student' ? 'My Attendance' : 'Total Admins'}
+                      </h4>
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
+                        {activeRole === 'Student' ? '94.5%' : (dashboardStats?.total_admins ?? adminCount)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-4 z-10">
+                    {activeRole === 'Student' ? (
+                      <>
+                        <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                          <ArrowUp size={12} strokeWidth={3} />
+                          Target 90%
+                        </span>
+                        <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">met successfully</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                          Active
+                        </span>
+                        <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Managing operations</span>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {/* Metric 3 */}
-                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                      {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
-                    </span>
-                    <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Student' ? 'Hope3 Foundation' : `${dashboardStats?.total_donors ?? donors.length} Active`}
-                    </h4>
-                    <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
-                      {activeRole === 'Student' ? 'Full tuition & hostel covered' : 'Sponsoring education'}
-                    </span>
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                  
+                  {/* Decorative Animated Wave */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
+                      </svg>
+                      {/* Secondary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
+                      </svg>
+                      {/* Tertiary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
+                      </svg>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                    <Heart size={22} />
+
+                  
+                  <div className="flex items-start gap-4 z-10">
+                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                      <Heart size={26} strokeWidth={2} />
+                    </div>
+                    <div className="pt-1">
+                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
+                        {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
+                      </h4>
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
+                        {activeRole === 'Student' ? 'Hope3 Foundation' : (dashboardStats?.total_donors ?? donors.length)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-4 z-10">
+                    {activeRole === 'Student' ? (
+                      <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Full tuition & hostel covered</span>
+                    ) : (
+                      <>
+                        <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                          Active
+                        </span>
+                        <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Sponsoring education</span>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {/* Metric 4 */}
-                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between">
-                  <div>
-                    <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider">
-                      Out of Fence
-                    </span>
-                    <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {students.filter(s => s.location.status === 'Out of Bounds').length} Students
-                    </h4>
-                    <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                  
+                  {/* Decorative Animated Wave */}
+                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
+                      </svg>
+                      {/* Secondary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
+                      </svg>
+                      {/* Tertiary Wave */}
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  
+                  <div className="flex items-start gap-4 z-10">
+                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                      <MapPin size={26} strokeWidth={2} />
+                    </div>
+                    <div className="pt-1">
+                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
+                        Out of Fence
+                      </h4>
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
+                        {students.filter(s => s.location.status === 'Out of Bounds').length}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-4 z-10">
+                    <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">
                       Requires urgent review
                     </span>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
-                    <MapPin size={22} />
                   </div>
                 </div>
 
@@ -1705,19 +1842,21 @@ function App() {
                     let monthLabels: string[] = [];
                     let monthlyCosts: number[] = [];
 
+                    const currentMonth = new Date().getMonth();
+                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                    for (let i = 11; i >= 0; i--) {
+                      let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
+                      monthIndices.push(d.getMonth());
+                      monthLabels.push(monthNames[d.getMonth()]);
+                    }
+
                     if (dashboardStats?.monthly_expenses) {
-                      monthLabels = dashboardStats.monthly_expenses.map((m: any) => m.month);
-                      monthlyCosts = dashboardStats.monthly_expenses.map((m: any) => m.amount);
+                      monthlyCosts = monthLabels.map(label => {
+                        const found = dashboardStats.monthly_expenses.find((m: any) => m.month === label);
+                        return found ? found.amount : 0;
+                      });
                     } else {
-                      const currentMonth = new Date().getMonth();
-                      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-                      for (let i = 5; i >= 0; i--) {
-                        let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
-                        monthIndices.push(d.getMonth());
-                        monthLabels.push(monthNames[d.getMonth()]);
-                      }
-
                       monthlyCosts = monthIndices.map(monthIdx => {
                         return expenses.filter(e => {
                           if (!e.date) return false;
@@ -1743,56 +1882,72 @@ function App() {
                     const chartYStart = 170;
 
                     const costPoints = monthlyCosts.map((val, i) => {
-                      const x = 95 + (i * 80);
+                      const x = 30 + (i * 48); // 12 points spanning from 30 to 558
                       const y = chartYStart - (Math.min(val, maxChartValue) / maxChartValue) * chartHeight;
                       return { x, y };
                     });
 
-                    const costPolyline = costPoints.map(p => `${p.x},${p.y}`).join(' ');
-                    const costPolygon = `95,170 ${costPolyline} 495,170`;
+                    let costPath = '';
+                    if (costPoints.length > 0) {
+                      costPath = `M ${costPoints[0].x},${costPoints[0].y}`;
+                      for (let i = 0; i < costPoints.length - 1; i++) {
+                        const xMid = (costPoints[i].x + costPoints[i + 1].x) / 2;
+                        costPath += ` C ${xMid},${costPoints[i].y} ${xMid},${costPoints[i + 1].y} ${costPoints[i + 1].x},${costPoints[i + 1].y}`;
+                      }
+                    }
+
+                    const lastX = costPoints.length > 0 ? costPoints[costPoints.length - 1].x : 558;
+                    const firstX = costPoints.length > 0 ? costPoints[0].x : 30;
+                    const costPolygonPath = `${costPath} L ${lastX},170 L ${firstX},170 Z`;
 
                     return (
-                      <div className="relative pt-4 h-60 max-w-xl mx-auto">
-                        <svg className="w-full h-full" viewBox="0 0 600 220" preserveAspectRatio="none">
-                          {/* Grid lines */}
-                          <defs>
-                            <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
-                              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
-                            </linearGradient>
-                          </defs>
-                          <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                          <line x1="40" y1="70" x2="580" y2="70" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                          <line x1="40" y1="120" x2="580" y2="120" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                          <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                      <div className="relative pt-4 h-64 w-full mx-auto flex flex-col">
+                        <div className="relative flex-1 w-full">
+                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 180" preserveAspectRatio="none">
+                            {/* Grid lines */}
+                            <defs>
+                              <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                              </linearGradient>
+                            </defs>
+                            <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                            <line x1="40" y1="70" x2="580" y2="70" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                            <line x1="40" y1="120" x2="580" y2="120" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                            <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
 
-                          {/* Chart Areas */}
-                          <polygon points={costPolygon} fill="url(#costsGrad)" />
+                            {/* Chart Areas */}
+                            <path d={costPolygonPath} fill="url(#costsGrad)" />
 
-                          {/* Chart Lines */}
-                          <polyline points={costPolyline} fill="none" stroke="#8b5cf6" strokeWidth="3" className="drop-shadow-sm" />
+                            {/* Chart Lines */}
+                            <path d={costPath} fill="none" stroke="#8b5cf6" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
 
-                          {/* Data Points */}
-                          {costPoints.map((p, i) => (
-                            <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#8b5cf6" stroke="#fff" strokeWidth="2" />
-                          ))}
+                            {/* Data Points */}
+                            {costPoints.map((p, i) => (
+                              <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#8b5cf6" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                            ))}
 
-                          {/* X Axis line */}
-                          <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" />
+                            {/* X Axis line */}
+                            <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                          </svg>
 
-                          {/* X Labels */}
+                          {/* Y Labels as HTML (prevent stretch) */}
+                          <div className="absolute inset-y-0 left-0 w-10 flex flex-col justify-between py-[12px] text-xs font-bold text-slate-800 dark:text-slate-200 pointer-events-none">
+                            <span className="text-right pr-2">{formatK(maxChartValue)}</span>
+                            <span className="text-right pr-2">{formatK(yStep * 2)}</span>
+                            <span className="text-right pr-2">{formatK(yStep)}</span>
+                            <span className="text-right pr-2">0</span>
+                          </div>
+                        </div>
+
+                        {/* X Labels as HTML (prevent stretch) */}
+                        <div className="relative w-full h-8 flex items-center mt-2 px-10">
                           {monthLabels.map((label, idx) => (
-                            <text key={idx} x={95 + (idx * 80)} y="192" fill="#94a3b8" fontSize="10" fontWeight="bold" textAnchor="middle">
+                            <div key={idx} className="flex-1 text-center text-xs font-bold text-slate-800 dark:text-slate-200">
                               {label}
-                            </text>
+                            </div>
                           ))}
-
-                          {/* Y Labels */}
-                          <text x="30" y="24" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">{formatK(maxChartValue)}</text>
-                          <text x="30" y="74" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">{formatK(yStep * 2)}</text>
-                          <text x="30" y="124" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">{formatK(yStep)}</text>
-                          <text x="30" y="174" fill="#94a3b8" fontSize="9" fontWeight="bold" textAnchor="end">0</text>
-                        </svg>
+                        </div>
                       </div>
                     );
                   })()}
@@ -2302,7 +2457,7 @@ function App() {
                       <div className="space-y-6">
 
                         {/* 1. PERSONAL INFORMATION & ACADEMIC SUMMARY */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 gap-6">
 
                           {/* Card 1: Personal Profile */}
                           <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
@@ -3242,7 +3397,7 @@ function App() {
             <div className="space-y-6">
 
               {/* TOP HERO BANNER & STATS CARD (MATCHING MOBILE SCREENSHOT) */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6">
 
                 {/* Total Spend Card */}
                 <div className="lg:col-span-2 relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] p-8 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-h-[180px]">
@@ -3853,7 +4008,7 @@ function App() {
               </div>
 
               {/* LIVE MAP VISUALIZER & GEOFENCE RADAR */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 gap-6">
 
                 {/* MAP GRAPHIC CANVAS SIMULATOR */}
                 <div className="lg:col-span-2 glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 relative min-h-[380px] flex flex-col justify-between overflow-hidden">

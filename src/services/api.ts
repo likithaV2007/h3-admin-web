@@ -541,7 +541,7 @@ export const apiService = {
   },
 
   getAdminDashboard: async () => {
-    return apiFetch('/api/v1/admin/dashboard', null);
+    return apiFetch('/api/v1/admin/admin-dashboard', null);
   },
 
   // Check API Connection Status

@@ -170,6 +170,7 @@ export interface Expense {
   approved_by_name?: string | null;
   receipt_photo_link?: string | null;
   receipt_drive_link?: string | null;
+  uploaded_by?: string | null;
 }
 
 export const initialDonors: Donor[] = [
