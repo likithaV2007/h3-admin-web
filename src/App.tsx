@@ -1633,15 +1633,15 @@ function App() {
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248]/10 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#3a2248]/20 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248]/30 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
                       </svg>
                     </div>
@@ -1649,21 +1649,21 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
                       <Users size={26} strokeWidth={2} />
                     </div>
                     <div className="pt-1">
                       <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
                         Total Enrolled
                       </h4>
-                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#20002c] tracking-tight">
                         {dashboardStats?.total_students ?? students.length}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 mt-4 z-10">
-                    <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                    <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                       <ArrowUp size={12} strokeWidth={3} />
                       12%
                     </span>
@@ -1680,15 +1680,15 @@ function App() {
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248]/10 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#3a2248]/20 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248]/30 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
                       </svg>
                     </div>
@@ -1696,15 +1696,15 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
                       {activeRole === 'Student' ? <Calendar size={26} strokeWidth={2} /> : <ShieldCheck size={26} strokeWidth={2} />}
                     </div>
                     <div className="pt-1">
                       <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
-                        {activeRole === 'Student' ? 'My Attendance' : 'Total Admins'}
+                        {activeRole === 'Student' ? 'My Attendance' : 'Total Volunteers'}
                       </h4>
-                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
-                        {activeRole === 'Student' ? '94.5%' : (dashboardStats?.total_admins ?? adminCount)}
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#20002c] tracking-tight">
+                        {activeRole === 'Student' ? '94.5%' : (dashboardStats?.total_volunteers ?? volunteers.length)}
                       </div>
                     </div>
                   </div>
@@ -1712,7 +1712,7 @@ function App() {
                   <div className="flex items-center gap-3 mt-4 z-10">
                     {activeRole === 'Student' ? (
                       <>
-                        <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                           <ArrowUp size={12} strokeWidth={3} />
                           Target 90%
                         </span>
@@ -1720,7 +1720,7 @@ function App() {
                       </>
                     ) : (
                       <>
-                        <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                           Active
                         </span>
                         <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Managing operations</span>
@@ -1736,15 +1736,15 @@ function App() {
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248]/10 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#3a2248]/20 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248]/30 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
                       </svg>
                     </div>
@@ -1752,14 +1752,14 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
                       <Heart size={26} strokeWidth={2} />
                     </div>
                     <div className="pt-1">
                       <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
                         {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
                       </h4>
-                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#20002c] tracking-tight">
                         {activeRole === 'Student' ? 'Hope3 Foundation' : (dashboardStats?.total_donors ?? donors.length)}
                       </div>
                     </div>
@@ -1770,7 +1770,7 @@ function App() {
                       <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Full tuition & hostel covered</span>
                     ) : (
                       <>
-                        <span className="inline-flex items-center gap-1 bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 px-2.5 py-1 rounded-full text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                           Active
                         </span>
                         <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Sponsoring education</span>
@@ -1786,15 +1786,15 @@ function App() {
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem] mix-blend-multiply dark:mix-blend-screen opacity-40">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-violet-100 dark:text-violet-900 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248]/10 animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-violet-200 dark:text-violet-800 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#3a2248]/20 animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-violet-300 dark:text-violet-700 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248]/30 animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" opacity="0.5"/>
                       </svg>
                     </div>
@@ -1802,14 +1802,14 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
                       <MapPin size={26} strokeWidth={2} />
                     </div>
                     <div className="pt-1">
                       <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
                         Out of Fence
                       </h4>
-                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#1e293b] dark:text-white tracking-tight">
+                      <div className="text-[2.25rem] leading-none font-extrabold mt-1 text-[#20002c] tracking-tight">
                         {students.filter(s => s.location.status === 'Out of Bounds').length}
                       </div>
                     </div>
@@ -1901,7 +1901,7 @@ function App() {
                     const costPolygonPath = `${costPath} L ${lastX},170 L ${firstX},170 Z`;
 
                     return (
-                      <div className="relative pt-4 h-64 w-full mx-auto flex flex-col">
+                      <div className="relative pt-4 h-52 w-full mx-auto flex flex-col">
                         <div className="relative flex-1 w-full">
                           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 180" preserveAspectRatio="none">
                             {/* Grid lines */}
@@ -1920,11 +1920,11 @@ function App() {
                             <path d={costPolygonPath} fill="url(#costsGrad)" />
 
                             {/* Chart Lines */}
-                            <path d={costPath} fill="none" stroke="#8b5cf6" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
+                            <path d={costPath} fill="none" stroke="#20002c" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
 
                             {/* Data Points */}
                             {costPoints.map((p, i) => (
-                              <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#8b5cf6" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                              <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#20002c" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
                             ))}
 
                             {/* X Axis line */}
@@ -2061,7 +2061,8 @@ function App() {
               </div>
 
               {/* TWO COLUMN SUMMARY SECTIONS */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {activeRole !== 'Admin' && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 {/* VOLUNTEER VIEW: student requests approval & expense posting */}
                 {activeRole === 'Volunteer' && (
@@ -2222,6 +2223,7 @@ function App() {
 
 
               </div>
+              )}
             </div>
           )}
 
@@ -2303,7 +2305,7 @@ function App() {
                             </td>
                             <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
                             <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-[#250b32]/10 dark:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] border border-[#250b32]/20 dark:border-[#250b32]/80">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-[#3a2248]/10 dark:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] border border-[#3a2248]/20 dark:border-[#3a2248]/80">
                                 {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
                               </span>
                             </td>
@@ -2341,7 +2343,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                                  className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <PhoneCall size={14} />
                                 </a>
@@ -2352,7 +2354,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                                  className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -3157,7 +3159,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${par.name} via WhatsApp (${par.phone})`}
-                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={15} />
                             </a>
@@ -3168,7 +3170,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={15} />
                             </a>
@@ -3231,7 +3233,7 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#250b32] transition-colors">{vol.name}</span>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#3a2248] transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
                             </div>
                           </div>
@@ -3255,7 +3257,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedVolunteer(vol)}
-                              className="text-xs bg-[#250b32]/10 dark:bg-[#250b32]/50 hover:bg-[#250b32]/20 text-[#250b32] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#250b32]/20 dark:border-[#250b32]/60"
+                              className="text-xs bg-[#3a2248]/10 dark:bg-[#3a2248]/50 hover:bg-[#3a2248]/20 text-[#3a2248] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#3a2248]/20 dark:border-[#3a2248]/60"
                             >
                               View Profile
                             </button>
@@ -3264,7 +3266,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
-                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3273,7 +3275,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3336,17 +3338,17 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#250b32] transition-colors">{donor.name}</span>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#3a2248] transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
                             </div>
                           </div>
                         </td>
                         <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#250b32]/10 dark:bg-[#250b32]/40 text-[#250b32] dark:text-[#e7c7fa] border border-[#250b32]/20">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#3a2248]/10 dark:bg-[#3a2248]/40 text-[#3a2248] dark:text-[#e7c7fa] border border-[#3a2248]/20">
                             {donor.donorType}
                           </span>
                         </td>
-                        <td className="p-4 font-mono font-bold text-[#250b32] dark:text-[#e7c7fa] text-sm">
+                        <td className="p-4 font-mono font-bold text-[#3a2248] dark:text-[#e7c7fa] text-sm">
                           {donor.formattedAmount}
                         </td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{donor.phone}</td>
@@ -3360,7 +3362,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedDonor(donor)}
-                              className="text-xs bg-[#250b32]/10 dark:bg-[#250b32]/50 hover:bg-[#250b32]/20 text-[#250b32] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#250b32]/20 dark:border-[#250b32]/60"
+                              className="text-xs bg-[#3a2248]/10 dark:bg-[#3a2248]/50 hover:bg-[#3a2248]/20 text-[#3a2248] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#3a2248]/20 dark:border-[#3a2248]/60"
                             >
                               View Profile
                             </button>
@@ -3369,7 +3371,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
-                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3378,7 +3380,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3614,21 +3616,30 @@ function App() {
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-start gap-3.5">
-                                  {/* Icon Thumbnail */}
-                                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${catLower.includes('snack') || catLower.includes('food') ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
-                                    catLower.includes('sport') ? 'bg-orange-50 text-orange-500 border-orange-100' :
-                                      catLower.includes('travel') ? 'bg-blue-50 text-blue-500 border-blue-100' :
-                                        catLower.includes('groc') ? 'bg-amber-50 text-amber-500 border-amber-100' :
-                                          catLower.includes('med') ? 'bg-rose-50 text-rose-500 border-rose-100' :
-                                            'bg-violet-50 text-violet-500 border-violet-100'
-                                    }`}>
-                                    <CategoryIcon size={20} />
-                                  </div>
+                                  {/* Icon/Image Thumbnail */}
+                                  {item.receipt_photo_link ? (
+                                    <div className="w-11 h-11 rounded-2xl shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden bg-slate-50 dark:bg-slate-800">
+                                      <img src={item.receipt_photo_link} alt="Receipt" className="w-full h-full object-cover" />
+                                    </div>
+                                  ) : (
+                                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${catLower.includes('snack') || catLower.includes('food') ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
+                                      catLower.includes('sport') ? 'bg-orange-50 text-orange-500 border-orange-100' :
+                                        catLower.includes('travel') ? 'bg-blue-50 text-blue-500 border-blue-100' :
+                                          catLower.includes('groc') ? 'bg-amber-50 text-amber-500 border-amber-100' :
+                                            catLower.includes('med') ? 'bg-rose-50 text-rose-500 border-rose-100' :
+                                              'bg-[#3a2248]/10 text-[#3a2248] border-[#3a2248]/20'
+                                      }`}>
+                                      <CategoryIcon size={20} />
+                                    </div>
+                                  )}
 
                                   <div className="space-y-1.5 w-full">
-                                    <h5 className="font-bold text-[15px] text-slate-900 dark:text-white leading-snug group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
+                                    <h5 className="font-bold text-[15px] text-slate-900 dark:text-white leading-snug group-hover:text-[#3a2248] dark:group-hover:text-violet-400 transition-colors">
                                       {item.title}
                                     </h5>
+                                    {item.uploaded_by && (
+                                      <p className="text-[10px] text-slate-500 dark:text-slate-400">By {item.uploaded_by}</p>
+                                    )}
 
                                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
                                       <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-emerald-50 text-emerald-600 tracking-wider">

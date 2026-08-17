@@ -57,7 +57,10 @@ async function apiFetch<T>(path: string, fallback: T, retries = 1): Promise<T> {
     }
 
     const data = await response.json();
-    return Array.isArray(data) && data.length > 0 ? (data as T) : fallback;
+    if (Array.isArray(data)) {
+      return data.length > 0 ? (data as T) : fallback;
+    }
+    return data ? (data as T) : fallback;
   } catch (error) {
     if (retries > 0) {
       await new Promise(res => setTimeout(res, 1200));
