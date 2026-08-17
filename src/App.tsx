@@ -132,6 +132,8 @@ function App() {
   const [expenseSubTab, setExpenseSubTab] = useState<'records' | 'analytics'>('records');
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('ALL');
   const [expenseSearchQuery, setExpenseSearchQuery] = useState<string>('');
+
+
   const [isExpenseSearchExpanded, setIsExpenseSearchExpanded] = useState<boolean>(false);
   const [showExpenseModal, setShowExpenseModal] = useState<boolean>(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
@@ -151,6 +153,33 @@ function App() {
     status: 'LOADING',
     url: 'https://h3apps-api.hope3.org'
   });
+
+  // Finance Module: Fetch Real Expenses from API
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchExpenses = async () => {
+      try {
+        const response = await fetch(`${apiStatus.url}/api/v1/expenses/?skip=0&limit=100`, {
+          headers: {
+            'accept': 'application/json',
+            'Authorization': `Bearer ${sessionStorage.getItem('authToken') || localStorage.getItem('authToken')}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          const sorted = Array.isArray(data) ? data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
+          setExpenses(sorted.length > 0 ? sorted : []);
+        } else {
+          setExpenses([]);
+        }
+      } catch (err) {
+        console.error("Failed to load live expenses", err);
+        setExpenses([]);
+      }
+    };
+    fetchExpenses();
+  }, [isAuthenticated, apiStatus.url]);
+
   const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
   const [customTokenInput, setCustomTokenInput] = useState<string>(localStorage.getItem('authToken') || '');
   const [editingGeofenceGroup, setEditingGeofenceGroup] = useState<any | null>(null);
@@ -1339,7 +1368,7 @@ function App() {
         is_private: true,
         is_foundation_paid: newExpenseFoundationPaid,
         target_group: newExpenseTargetGroup,
-        receipt_url: newExpenseReceipt
+        receipt_photo_link: newExpenseReceipt
       };
 
       const result = await apiService.createExpense(payload);
@@ -1363,7 +1392,7 @@ function App() {
         status: 'PENDING',
         target_group: newExpenseTargetGroup,
         created_by_name: activeRole === 'Volunteer' ? 'Volunteer Staff' : 'System Admin',
-        receipt_url: newExpenseReceipt
+        receipt_photo_link: newExpenseReceipt
       };
 
       setExpenses(prev => [newEntry, ...prev]);
@@ -1444,28 +1473,43 @@ function App() {
   return (
     <div className={`min-h-screen transition-colors duration-300 flex ${darkMode ? 'dark bg-[#0b0f19] text-slate-100' : 'bg-[#f8fafc] text-slate-800'}`}>
 
-      {/* SIDEBAR NAVIGATION */}
-      <aside className={`glass-sidebar fixed lg:static top-0 bottom-0 left-0 z-40 transition-all duration-300 flex flex-col h-screen
-        ${sidebarOpen ? 'w-64' : 'w-0 lg:w-20 -translate-x-full lg:translate-x-0'} overflow-hidden shadow-xl lg:shadow-none`}>
+      {/* MOBILE BACKDROP OVERLAY */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* SIDEBAR NAVIGATION - MODERN PREMIUM REDESIGN */}
+      <aside className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]
+        ${sidebarOpen ? 'w-64 lg:w-[280px]' : 'w-0 lg:w-24 -translate-x-full lg:translate-x-0'} 
+        h-[100dvh] lg:h-[calc(100vh-2rem)] lg:my-4 lg:ml-4 lg:rounded-[2.5rem] overflow-hidden
+        bg-white/80 dark:bg-[#060913]/80 backdrop-blur-2xl border border-white/60 dark:border-white/5 
+        shadow-[0_8px_32px_rgba(0,0,0,0.06)] dark:shadow-[0_8px_32px_rgba(32,0,44,0.4)] ring-1 ring-black/5 dark:ring-white/5`}>
 
         {/* Brand/Logo Header */}
-        <div className="p-5 flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/50">
-          <div className="flex items-center gap-3">
-            <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-9 h-9 object-contain rounded-xl" />
+        <div className={`p-6 pt-8 flex items-center shrink-0 ${sidebarOpen ? 'justify-between' : 'justify-center'} pb-6`}>
+          <div className="flex items-center gap-3 w-full">
+            <div className="relative cursor-pointer shrink-0 mx-auto lg:mx-0">
+              <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className={`relative object-contain animate-[spin_8s_linear_infinite] transition-all duration-300 ${sidebarOpen ? 'w-11 h-11' : 'w-12 h-12 '}`} />
+            </div>
             {sidebarOpen && (
-              <div>
-                <h1 className="font-bold text-base leading-none text-slate-800 dark:text-blue-400">Hope3</h1>
-                <span className="text-[10px] text-slate-500 font-medium">ADMIN PORTAL</span>
+              <div className="animate-fade-in pl-1.5 overflow-hidden flex-1">
+                <h1 className="font-extrabold text-[1.4rem] leading-tight bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent truncate">Hope3</h1>
+                <span className="text-[9px] text-slate-500 dark:text-slate-400 font-black tracking-[0.2em] uppercase block -mt-0.5">Admin Portal</span>
               </div>
             )}
           </div>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
-            <X size={20} />
-          </button>
+          {sidebarOpen && (
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-2.5 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors shrink-0">
+              <X size={16} strokeWidth={3} />
+            </button>
+          )}
         </div>
 
         {/* Sidebar Navigation Items */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 py-2 space-y-2.5 overflow-y-auto scrollbar-none hide-scrollbar">
           {menuItems.map((item) => {
             const isVisible = isTabVisibleForRole(item.name);
             if (!isVisible) return null;
@@ -1477,103 +1521,78 @@ function App() {
                 key={item.name}
                 onClick={() => {
                   setActiveTab(item.name);
-                  setSelectedStudent(null); // Clear selected profile when switching modules
-
-                  if (window.innerWidth < 1024) setSidebarOpen(false); // Auto close sidebar on mobile
+                  setSelectedStudent(null);
+                  if (window.innerWidth < 1024) setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-sm transition-all duration-200
+                title={!sidebarOpen ? item.name : undefined}
+                className={`w-full flex items-center group relative rounded-2xl font-bold text-[13px] transition-all duration-300 overflow-hidden
+                  ${!sidebarOpen ? 'justify-center p-3.5 mx-auto w-12 h-12' : 'gap-3.5 p-3.5 px-4.5'}
                   ${isActive
-                    ? 'gradient-btn-tab text-white shadow-md shadow-[#20002c]/25'
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200'}`}
+                    ? 'gradient-btn-tab text-white shadow-lg shadow-[#20002c]/20 scale-100'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-50 hover:scale-[1.02]'}`}
               >
-                <Icon size={18} className={isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-800'} />
-                {sidebarOpen && <span>{item.name}</span>}
+                {!isActive && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none" />
+                )}
+                <Icon
+                  size={sidebarOpen ? 18 : 22}
+                  strokeWidth={isActive ? 2.5 : 2}
+                  className={`shrink-0 transition-all duration-300 ${isActive ? 'text-white' : 'group-hover:-translate-y-0.5'} ${!sidebarOpen && isActive && 'scale-110'}`}
+                />
+
+                {sidebarOpen && (
+                  <span className="tracking-wide relative z-10 truncate text-left flex-1" style={{ textShadow: isActive ? '0 1px 2px rgba(0,0,0,0.1)' : 'none' }}>
+                    {item.name}
+                  </span>
+                )}
+
+                {/* Active indicator dot for completely collapsed state */}
+                {!sidebarOpen && isActive && (
+                  <span className="absolute right-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]" />
+                )}
               </button>
             );
           })}
         </nav>
+
+        {/* User Profile Widget (Bottom of Sidebar) */}
+        <div className={`p-5 mb-2 mt-2 shrink-0 relative z-20 ${sidebarOpen ? '' : 'flex justify-center'}`}>
+          <div className={`flex items-center bg-slate-50 dark:bg-[#0c1222] rounded-[1.25rem] border border-slate-200/60 dark:border-slate-800/60 transition-all duration-300 cursor-pointer hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-md p-2.5 ${sidebarOpen ? 'gap-3' : 'justify-center w-14 h-14'}`}>
+            <div className="relative shrink-0">
+              <img src="https://ui-avatars.com/api/?name=Admin+User&background=20002c&color=fff&rounded=true&bold=true" alt="Admin" className={`${sidebarOpen ? 'w-10 h-10' : 'w-10 h-10'} rounded-full object-cover border-2 border-white dark:border-[#0c1222]`} />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#0c1222] rounded-full"></div>
+            </div>
+            {sidebarOpen && (
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-extrabold text-slate-900 dark:text-slate-100 truncate tracking-tight">Super Admin</p>
+                <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate mt-0.5">Workspace</p>
+              </div>
+            )}
+          </div>
+        </div>
       </aside>
 
 
       {/* MAIN CONTAINER */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen">
 
-        {/* HEADER BAR */}
-        <header className="sticky top-0 z-30 bg-white/70 dark:bg-[#080c14]/70 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+
+
+        {/* MOBILE ONLY NAVIGATION HEADER */}
+        <header className="lg:hidden sticky top-0 z-30 bg-white/70 dark:bg-[#060913]/70 backdrop-blur-3xl px-4 py-3 flex items-center justify-between border-b border-slate-200/50 dark:border-slate-800/80 shadow-sm">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-900 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="text-white p-2 rounded-xl gradient-btn-tab shadow-md active:scale-95 transition-transform"
             >
-              <Menu size={20} />
+              <Menu size={18} />
             </button>
-
-            {/* Title / Module Name */}
-            <div>
-              <h2 className="text-lg font-bold tracking-tight text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                {activeTab}
-                {selectedStudent && (
-                  <span className="text-xs font-medium text-slate-400 dark:text-slate-500 flex items-center gap-1">
-                    / Profile / {selectedStudent.name}
-                  </span>
-                )}
-              </h2>
-            </div>
+            <h2 className="text-sm font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
+              {activeTab}
+            </h2>
           </div>
-
-          <div className="flex items-center gap-3">
-
-            {/* LIGHT/DARK MODE TOGGLE */}
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title="Toggle Dark/Light Mode"
-            >
-              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-
-            {/* NOTIFICATIONS TRIGGER */}
-            <div className="relative">
-              <button
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
-              >
-                <Bell size={18} />
-                {notifications.filter(n => !n.read).length > 0 && (
-                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white dark:border-slate-900 rounded-full"></span>
-                )}
-              </button>
-
-              {/* Notification Dropdown */}
-              {showNotifications && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)}></div>
-                  <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in-50 slide-in-from-top-2">
-                    <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                      <span className="font-bold text-sm">Notifications</span>
-                      <button
-                        onClick={() => setNotifications(prev => prev.map(n => ({ ...n, read: true })))}
-                        className="text-[10px] text-slate-800 dark:text-blue-400 font-semibold hover:underline"
-                      >
-                        Mark all as read
-                      </button>
-                    </div>
-                    <div className="max-h-72 overflow-y-auto py-1">
-                      {notifications.map(noti => (
-                        <div
-                          key={noti.id}
-                          className={`px-4 py-3 border-b border-slate-100 dark:border-slate-800/40 text-xs flex flex-col gap-1 transition-colors
-                            ${noti.read ? 'opacity-70' : 'bg-blue-50/20 dark:bg-blue-950/10'}`}
-                        >
-                          <p className="font-medium text-slate-800 dark:text-slate-200">{noti.text}</p>
-                          <span className="text-[10px] text-slate-400">{noti.time}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+          <div className="relative cursor-pointer shrink-0 animate-[spin_8s_linear_infinite]">
+            <img src="/hope3_logo-removebg-preview.png" alt="Logo" className="w-7 h-7 object-contain" />
           </div>
         </header>
 
@@ -1584,18 +1603,7 @@ function App() {
           {activeTab === 'Dashboard' && !selectedStudent && (
             <div className="space-y-6">
 
-              {/* HEADING ACCENT */}
-              <div className="gradient-btn-tab rounded-3xl p-7 text-white shadow-[#20002c]/20 shadow-xl relative overflow-hidden">
-                <div className="absolute -right-10 -top-10 w-72 h-72 bg-white/25 rounded-full blur-2xl pointer-events-none"></div>
-                <div className="absolute right-32 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-                <h3 className="text-2xl font-extrabold mb-1.5 tracking-tight text-white drop-shadow-sm">Welcome back, {activeRole === 'Admin' ? 'Super Admin' : activeRole}!</h3>
-                <p className="text-blue-50 text-xs max-w-xl opacity-90">
-                  {activeRole === 'Admin' && 'Here is your operational snapshot of Hope3 NGO. Monitor real-time student check-ins, approve pending leaves, and track fundraising.'}
-                  {activeRole === 'Student' && 'Review your overall attendance records, submit new leaves, and view comments left by your mentor.'}
-                  {activeRole === 'Parent' && 'Monitor your child academic performance, check their hostel residency logs, and contact their mentor.'}
-                  {activeRole === 'Volunteer' && 'Contribute to tutorials, record your session hours, and support student development.'}
-                </p>
-              </div>
+
 
               {/* ANALYTICS METRIC CARDS */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1609,11 +1617,11 @@ function App() {
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
                       {students.length} Enrolled
                     </h4>
-                    <span className="text-[10px] text-green-500 flex items-center gap-1 mt-2 font-medium">
-                      <span className="bg-green-500/10 p-0.5 rounded">+12%</span> vs last semester
+                    <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
+                      <span className="bg-violet-500/10 p-0.5 rounded font-bold">+12%</span> vs last semester
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/50 text-slate-800 dark:text-blue-400 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                     <Users size={22} />
                   </div>
                 </div>
@@ -1627,15 +1635,15 @@ function App() {
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
                       {activeRole === 'Student' ? '94.5%' : `${volunteers.length} Active`}
                     </h4>
-                    <span className={`text-[10px] flex items-center gap-1 mt-2 font-medium ${activeRole === 'Student' ? 'text-green-500' : 'text-blue-500'}`}>
+                    <span className={`text-[10px] flex items-center gap-1 mt-2 font-medium text-violet-500 dark:text-violet-400`}>
                       {activeRole === 'Student' ? (
-                        <><span className="bg-green-500/10 p-0.5 rounded">Target 90%</span> met successfully</>
+                        <><span className="bg-violet-500/10 p-0.5 rounded font-bold">Target 90%</span> met successfully</>
                       ) : (
                         'Managing system operations'
                       )}
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                     {activeRole === 'Student' ? <Calendar size={22} /> : <ShieldCheck size={22} />}
                   </div>
                 </div>
@@ -1649,11 +1657,11 @@ function App() {
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
                       {activeRole === 'Student' ? 'Hope3 Foundation' : `${donors.length} Active`}
                     </h4>
-                    <span className="text-[10px] text-blue-500 flex items-center gap-1 mt-2 font-medium">
+                    <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
                       {activeRole === 'Student' ? 'Full tuition & hostel covered' : 'Sponsoring education'}
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-950/50 text-pink-600 dark:text-pink-400 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                     <Heart size={22} />
                   </div>
                 </div>
@@ -1667,11 +1675,11 @@ function App() {
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
                       {students.filter(s => s.location.status === 'Out of Bounds').length} Students
                     </h4>
-                    <span className="text-[10px] text-amber-500 flex items-center gap-1 mt-2 font-medium">
+                    <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
                       Requires urgent review
                     </span>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center">
                     <MapPin size={22} />
                   </div>
                 </div>
@@ -1682,7 +1690,7 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Visual Chart Card */}
-                <div className={`glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full ${activeRole === 'Admin' ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full lg:col-span-3">
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="font-bold text-sm">Monthly Expenses Chart</h4>
@@ -1741,8 +1749,8 @@ function App() {
                           {/* Grid lines */}
                           <defs>
                             <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.3" />
-                              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
+                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
                             </linearGradient>
                           </defs>
                           <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
@@ -1754,11 +1762,11 @@ function App() {
                           <polygon points={costPolygon} fill="url(#costsGrad)" />
 
                           {/* Chart Lines */}
-                          <polyline points={costPolyline} fill="none" stroke="#38bdf8" strokeWidth="3" className="drop-shadow-sm" />
+                          <polyline points={costPolyline} fill="none" stroke="#8b5cf6" strokeWidth="3" className="drop-shadow-sm" />
 
                           {/* Data Points */}
                           {costPoints.map((p, i) => (
-                            <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#38bdf8" stroke="#fff" strokeWidth="2" />
+                            <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#8b5cf6" stroke="#fff" strokeWidth="2" />
                           ))}
 
                           {/* X Axis line */}
@@ -1781,94 +1789,6 @@ function App() {
                     );
                   })()}
                 </div>
-
-                {/* Recent Activity Logs (Right side of the chart) */}
-                {activeRole === 'Admin' && (
-                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 lg:col-span-1 w-full flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center mb-4">
-                        <div>
-                          <h4 className="font-bold text-sm">Recent Activity Logs</h4>
-                          <p className="text-[11px] text-slate-400">Timeline events across the NGO networks</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-4 relative before:absolute before:left-3.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200 dark:before:bg-slate-800">
-                        {(() => {
-                          const combinedLogs = [...activityLogs.map(l => ({ ...l, timestamp: 0 }))];
-
-                          // Add recent expenses
-                          expenses.slice(0, 10).forEach(exp => {
-                            combinedLogs.push({
-                              id: `dyn-exp-${exp.id}`,
-                              user: exp.created_by_name || 'Admin',
-                              role: 'Admin',
-                              action: `Added expense: ${exp.title} (₹${exp.amount.toLocaleString('en-IN')})`,
-                              time: exp.date ? new Date(exp.date).toLocaleDateString() : 'Recently',
-                              category: 'general',
-                              timestamp: exp.date ? new Date(exp.date).getTime() : 0
-                            });
-                          });
-
-                          // Add leave requests and notes
-                          students.forEach(s => {
-                            s.leaveRequests?.forEach(lr => {
-                              combinedLogs.push({
-                                id: `dyn-lr-${lr.id}`,
-                                user: lr.studentName,
-                                role: 'Student',
-                                action: `Requested ${lr.type} (${lr.status})`,
-                                time: lr.requestedAt ? new Date(lr.requestedAt).toLocaleDateString() : 'Recently',
-                                category: 'leave',
-                                timestamp: lr.requestedAt ? new Date(lr.requestedAt).getTime() : 0
-                              });
-                            });
-
-                            s.notes?.forEach((n: any) => {
-                              const noteText = typeof n === 'string' ? n : (n.note || '');
-                              const author = typeof n === 'string' ? 'Admin' : (n.author || 'Admin');
-                              const date = typeof n === 'string' ? null : n.date;
-
-                              if (!noteText) return; // Skip empty notes
-
-                              combinedLogs.push({
-                                id: `dyn-note-${s.id}-${typeof n !== 'string' ? n.id : Math.random()}`,
-                                user: author,
-                                role: 'Admin',
-                                action: `Added note for ${s.name}: ${noteText.substring(0, 40)}...`,
-                                time: date ? new Date(date).toLocaleDateString() : 'Recently',
-                                category: 'academic',
-                                timestamp: date ? new Date(date).getTime() : 0
-                              });
-                            });
-                          });
-
-                          // Sort by timestamp descending
-                          combinedLogs.sort((a, b) => b.timestamp - a.timestamp);
-
-                          return combinedLogs.slice(0, 4).map(log => (
-                            <div key={log.id} className="flex gap-4 relative">
-                              <div className={`w-7.5 h-7.5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 z-10
-                                ${log.category === 'leave' ? 'bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400' :
-                                  log.category === 'general' ? 'bg-pink-100 text-pink-600 dark:bg-pink-950 dark:text-pink-400' :
-                                    log.category === 'academic' ? 'bg-blue-100 text-slate-800 dark:bg-blue-950 dark:text-blue-400' :
-                                      'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}`}
-                              >
-                                {log.role.substring(0, 1)}
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-xs text-slate-700 dark:text-slate-300">
-                                  <span className="font-bold text-slate-900 dark:text-white">{log.user}</span> ({log.role}): {log.action}
-                                </p>
-                                <span className="text-[9px] text-slate-400 block mt-0.5">{log.time}</span>
-                              </div>
-                            </div>
-                          ));
-                        })()}
-                      </div>
-                    </div>
-                  </div>
-                )}
 
               </div>
 
@@ -2058,11 +1978,11 @@ function App() {
                         <select
                           value={studentBatchFilter}
                           onChange={(e) => setStudentBatchFilter(e.target.value)}
-                          className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer"
+                          className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer"
                         >
-                          <option value="ALL">All Batches</option>
+                          <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">All Batches (Overall)</option>
                           {availableBatches.map(b => (
-                            <option key={b} value={b}>Batch {b}</option>
+                            <option key={b} value={b} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">Batch {b} Scholars</option>
                           ))}
                         </select>
                       </div>
@@ -2079,106 +1999,89 @@ function App() {
                   </div>
 
                   {/* DATA TABLE */}
-                  <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                          <th className="p-4">Student</th>
-                          <th className="p-4">Roll ID</th>
-                          <th className="p-4">Batch</th>
-                          <th className="p-4">Course / College</th>
-                          <th className="p-4">Attendance</th>
-                          <th className="p-4">Location Status</th>
-                          <th className="p-4 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredStudents.map(student => (
-                          <tr
-                            key={student.id}
-                            onClick={() => { setSelectedStudent(student); setProfileTab('Overview'); }}
-                            className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
-                          >
-                            <td className="p-4 flex items-center gap-3">
-                              <img
-                                src={student.avatar}
-                                alt={student.name}
-                                className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
-                                }}
-                              />
-                              <div>
-                                <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
-                                <span className="text-[10px] text-slate-400">Age: {student.age} yrs</span>
-                              </div>
-                            </td>
-                            <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
-                            <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-slate-800 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-                                {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
-                              </span>
-                            </td>
-                            <td className="p-4">
-                              <span className="block font-medium text-white">{student.grade}</span>
-                              <span className="text-[10px] text-slate-400 block max-w-[180px] truncate">{student.college}</span>
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center gap-2">
-                                <div className="w-16 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                  <div
-                                    className={`h-full rounded-full ${student.attendance >= 90 ? 'bg-green-500' : student.attendance >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                    style={{ width: `${student.attendance}%` }}
-                                  ></div>
-                                </div>
-                                <span className="font-bold">{student.attendance}%</span>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px]
-                                ${student.location.status === 'In College' ? 'bg-blue-500/10 text-slate-800 dark:text-blue-400' :
-                                  student.location.status === 'In Hostel' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
-                                    student.location.status === 'On Leave' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
-                                      'bg-red-500/10 text-red-600 dark:text-red-400'}`}
-                              >
-                                <span className={`w-1.5 h-1.5 rounded-full
-                                  ${student.location.status === 'In College' ? 'bg-blue-500' :
-                                    student.location.status === 'In Hostel' ? 'bg-purple-500' :
-                                      student.location.status === 'On Leave' ? 'bg-amber-500' :
-                                        'bg-red-500 animate-ping'}`}
-                                ></span>
-                                {student.location.status}
-                              </span>
-                            </td>
-                            <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                              <div className="flex items-center justify-end gap-2">
-                                {/* WHATSAPP PHONE CALL ICON BUTTON */}
-                                <a
-                                  href={getWhatsAppLink(student.parentPhone)}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
-                                >
-                                  <PhoneCall size={14} />
-                                </a>
+                  {/* RESPONSIVE GRID CARDS */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+                    {filteredStudents.map(student => (
+                      <div
+                        key={student.id}
+                        onClick={() => { setSelectedStudent(student); setProfileTab('Overview'); }}
+                        className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer flex flex-col gap-4 group"
+                      >
+                        <div className="flex items-start gap-3.5">
+                          <img
+                            src={student.avatar}
+                            alt={student.name}
+                            className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:scale-[1.05] transition-transform"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm">{student.name}</h5>
+                            <span className="text-[10px] text-slate-400 block font-mono font-medium">{student.rollNo}</span>
+                            <span className="inline-flex mt-1 items-center px-2 py-[2px] rounded-md text-[9px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-slate-800 dark:text-blue-400 border border-blue-200/50 dark:border-blue-900/50">
+                              {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
+                            </span>
+                          </div>
+                        </div>
 
-                                {/* WHATSAPP MESSAGE ICON BUTTON */}
-                                <a
-                                  href={getWhatsAppLink(student.parentPhone, `Hello, regarding student ${student.name} from Hope3 NGO.`)}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
-                                >
-                                  <MessageSquare size={14} />
-                                </a>
+                        <div className="text-[11px] text-slate-600 dark:text-slate-400 space-y-0.5">
+                          <span className="block font-medium text-slate-800 dark:text-slate-200 truncate">{student.grade}</span>
+                          <span className="text-[9px] font-semibold text-slate-400 block truncate uppercase tracking-widest">{student.college}</span>
+                        </div>
+
+                        <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/80">
+                          <div className="flex flex-col gap-2 w-full max-w-[120px]">
+                            <div className="flex items-center justify-between w-full">
+                              <div className="w-12 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${student.attendance >= 90 ? 'bg-emerald-500' : student.attendance >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                  style={{ width: `${student.attendance}%` }}
+                                ></div>
                               </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                              <span className="font-extrabold text-[10px] text-slate-700 dark:text-slate-300">{student.attendance}%</span>
+                            </div>
+
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[8px] uppercase tracking-widest w-fit
+                                ${student.location.status === 'In College' ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400' :
+                                student.location.status === 'In Hostel' ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400' :
+                                  student.location.status === 'On Leave' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' :
+                                    'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400'}`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full
+                                  ${student.location.status === 'In College' ? 'bg-blue-500' :
+                                  student.location.status === 'In Hostel' ? 'bg-purple-500' :
+                                    student.location.status === 'On Leave' ? 'bg-amber-500' :
+                                      'bg-red-500 !animate-ping'}`}
+                              ></span>
+                              {student.location.status}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                            <a
+                              href={getWhatsAppLink(student.parentPhone)}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={`Call ${student.name} / Parent`}
+                              className="p-1.5 md:p-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-[10px] transition-all"
+                            >
+                              <PhoneCall size={14} />
+                            </a>
+                            <a
+                              href={getWhatsAppLink(student.parentPhone, `Hello, regarding student ${student.name} from Hope3 NGO.`)}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={`Message ${student.name} / Parent`}
+                              className="p-1.5 md:p-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-[10px] transition-all"
+                            >
+                              <MessageSquare size={14} />
+                            </a>
+                          </div>
+                        </div>
+
+                      </div>
+                    ))}
                   </div>
                 </div>
               ) : (
@@ -2699,7 +2602,7 @@ function App() {
                                       {req.status}
                                     </span>
                                   </div>
-                                  <p className="text-xs font-bold text-white">{req.type} ({req.days} Days)</p>
+                                  <p className="text-xs font-bold text-slate-800 dark:text-white">{req.type} ({req.days} Days)</p>
                                   <p className="text-xs text-slate-500">{req.reason}</p>
                                   <span className="text-[10px] text-slate-400 block">Dates: {req.fromDate} to {req.toDate} | Submitted: {req.requestedAt}</span>
                                 </div>
@@ -2857,11 +2760,11 @@ function App() {
                               <select
                                 value={newNoteType}
                                 onChange={(e) => setNewNoteType(e.target.value)}
-                                className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 mt-1"
+                                className="w-full text-xs p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-white mt-1 focus:outline-none"
                               >
-                                <option value="academic">Academic Counseling</option>
-                                <option value="personal">Personal / Family</option>
-                                <option value="health">Medical & Wellbeing</option>
+                                <option value="academic" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">Academic Counseling</option>
+                                <option value="personal" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">Personal / Family</option>
+                                <option value="health" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">Medical & Wellbeing</option>
                               </select>
                             </div>
 
@@ -2917,84 +2820,71 @@ function App() {
                 />
               </div>
 
-              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                      <th className="p-4">Parent / Guardian Name</th>
-                      <th className="p-4">Relationship</th>
-                      <th className="p-4">Child Scholar</th>
-                      <th className="p-4">Occupation</th>
-                      <th className="p-4">Contact Phone</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredParents.map(par => (
-                      <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={formatAvatarUrl(par.profile_photo_link)}
-                              alt={par.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120';
-                              }}
-                            />
-                            <div>
-                              <span className="font-bold text-white block">{par.name}</span>
-                              <span className="text-[10px] text-slate-400 font-mono">{par.email || 'parent@hope3.org'}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 dark:bg-blue-950/30 text-slate-800 dark:text-blue-400 border border-blue-200/40">
-                            {par.guardianName || par.relationship || par.relation || 'Guardian'}
-                          </span>
-                        </td>
-                        <td className="p-4">
-                          <button
-                            onClick={() => {
-                              const std = students.find(s => s.id === par.childId || (s as any).student_id === par.childId || s.student_code === par.childId);
-                              if (std) { setSelectedStudent(std); setActiveTab('Students'); setProfileTab('Overview'); }
-                            }}
-                            className="font-bold text-slate-800 dark:text-blue-400 hover:underline"
-                          >
-                            {par.childName}
-                          </button>
-                        </td>
-                        <td className="p-4 text-slate-600 dark:text-slate-400">{par.occupation}</td>
-                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{par.phone}</td>
-                        <td className="p-4 text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            {/* WHATSAPP PHONE CALL ICON BUTTON */}
-                            <a
-                              href={getWhatsAppLink(par.phone)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Call ${par.name} via WhatsApp (${par.phone})`}
-                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
-                            >
-                              <PhoneCall size={15} />
-                            </a>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
+                {filteredParents.map(par => (
+                  <div
+                    key={par.id}
+                    className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all flex flex-col gap-4 group"
+                  >
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={formatAvatarUrl(par.profile_photo_link)}
+                        alt={par.name}
+                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800 bg-slate-100 group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120';
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm">{par.name}</h5>
+                        <span className="text-[10px] text-slate-400 block font-mono truncate">{par.email || 'parent@hope3.org'}</span>
+                      </div>
+                    </div>
 
-                            {/* WHATSAPP MESSAGE ICON BUTTON */}
-                            <a
-                              href={getWhatsAppLink(par.phone, `Hello ${par.name}, greetings from Hope3 NGO.`)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
-                            >
-                              <MessageSquare size={15} />
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium pb-2 border-b border-slate-100 dark:border-slate-800/60">
+                      <span className="font-mono bg-slate-100 dark:bg-slate-800/50 px-2 py-0.5 rounded text-slate-800 dark:text-slate-300">{par.phone}</span>
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-slate-500 truncate">{par.occupation}</span>
+                        <span className="inline-flex items-center px-2 py-[3px] rounded-md text-[9px] font-extrabold uppercase bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200/40">
+                          {par.guardianName || par.relationship || par.relation || 'Guardian'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto pt-1">
+                      <button
+                        onClick={() => {
+                          const std = students.find(s => s.id === par.childId || (s as any).student_id === par.childId || s.student_code === par.childId);
+                          if (std) { setSelectedStudent(std); setActiveTab('Students'); setProfileTab('Overview'); }
+                        }}
+                        className="text-[11px] font-black text-violet-600 dark:text-violet-400 hover:opacity-80 max-w-[140px] truncate block text-left"
+                      >
+                        View Child: {par.childName}
+                      </button>
+
+                      <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <a
+                          href={getWhatsAppLink(par.phone)}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Call via WhatsApp`}
+                          className="p-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-[10px] transition-all border border-emerald-200/30 dark:border-none"
+                        >
+                          <PhoneCall size={14} />
+                        </a>
+                        <a
+                          href={getWhatsAppLink(par.phone, `Hello ${par.name}, greetings from Hope3 NGO.`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Message on WhatsApp`}
+                          className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-[10px] transition-all flex items-center justify-center border border-blue-200/30 dark:border-none"
+                        >
+                          <MessageSquare size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -3018,88 +2908,69 @@ function App() {
                 />
               </div>
 
-              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                      <th className="p-4">Admin Name</th>
-                      <th className="p-4">Assigned Department</th>
-                      <th className="p-4">Total Service Hours</th>
-                      <th className="p-4">Phone Number</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredVolunteers.map(vol => (
-                      <tr
-                        key={vol.id}
-                        className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
-                        onClick={() => setSelectedVolunteer(vol)}
-                      >
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'}
-                              alt={vol.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
-                              onError={(e) => {
-                                (e.target as HTMLElement).setAttribute('src', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120');
-                              }}
-                            />
-                            <div>
-                              <span className="font-bold text-white block hover:text-slate-800 transition-colors">{vol.name}</span>
-                              <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                            {vol.specialization || vol.program}
-                          </span>
-                        </td>
-                        <td className="p-4 font-mono font-bold text-slate-800 dark:text-blue-400">{vol.hoursContributed} Hours</td>
-                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{vol.phone}</td>
-                        <td className="p-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px]
-                            ${vol.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700'}`}
-                          >
-                            <span className={`w-1.5 h-1.5 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
-                            {vol.status}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => setSelectedVolunteer(vol)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-slate-800 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
-                            >
-                              View Profile
-                            </button>
-                            <a
-                              href={getWhatsAppLink(vol.phone)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
-                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
-                            >
-                              <PhoneCall size={14} />
-                            </a>
-                            <a
-                              href={getWhatsAppLink(vol.phone, `Hello ${vol.name}, greetings from Hope3 NGO.`)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
-                            >
-                              <MessageSquare size={14} />
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
+                {filteredVolunteers.map(vol => (
+                  <div
+                    key={vol.id}
+                    className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer flex flex-col gap-4 group"
+                    onClick={() => setSelectedVolunteer(vol)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'}
+                        alt={vol.name}
+                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800 bg-slate-100 group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          (e.target as HTMLElement).setAttribute('src', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120');
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">{vol.name}</h5>
+                        <span className="text-[10px] text-slate-400 block font-mono truncate">{vol.email}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium pb-2 border-b border-slate-100 dark:border-slate-800/60 flex flex-col gap-2">
+                      <span className="font-mono bg-slate-100 dark:bg-slate-800/50 px-2 py-0.5 rounded w-fit text-slate-800 dark:text-slate-300">{vol.phone}</span>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="inline-flex items-center px-2 py-[3px] rounded-md text-[9px] font-extrabold uppercase bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300">
+                          {vol.specialization || vol.program}
+                        </span>
+                        <span className="font-mono font-bold text-slate-800 dark:text-blue-400">
+                          {vol.hoursContributed} Hrs
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-bold text-[9px] ${vol.status === 'Active' ? 'bg-green-50 dark:bg-emerald-950/30 text-green-700 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'}`}>
+                        <span className={`w-1 h-1 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                        {vol.status}
+                      </span>
+
+                      <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <a
+                          href={getWhatsAppLink(vol.phone)}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Call via WhatsApp`}
+                          className="p-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-lg transition-all border border-emerald-200/40 dark:border-none"
+                        >
+                          <PhoneCall size={14} />
+                        </a>
+                        <a
+                          href={getWhatsAppLink(vol.phone, `Hello ${vol.name}, greetings.`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Message on WhatsApp`}
+                          className="p-1.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-lg transition-all flex items-center justify-center border border-blue-200/40 dark:border-none"
+                        >
+                          <MessageSquare size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -3123,88 +2994,70 @@ function App() {
                 />
               </div>
 
-              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-bold">
-                      <th className="p-4">Donor Name</th>
-                      <th className="p-4">Donor Category</th>
-                      <th className="p-4">Total Contribution</th>
-                      <th className="p-4">Phone Number</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDonors.map(donor => (
-                      <tr
-                        key={donor.id}
-                        className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
-                        onClick={() => setSelectedDonor(donor)}
-                      >
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={formatAvatarUrl(donor.profile_photo_link)}
-                              alt={donor.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
-                              }}
-                            />
-                            <div>
-                              <span className="font-bold text-white block hover:text-slate-800 transition-colors">{donor.name}</span>
-                              <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200/50">
-                            {donor.donorType}
-                          </span>
-                        </td>
-                        <td className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
-                          {donor.formattedAmount}
-                        </td>
-                        <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{donor.phone}</td>
-                        <td className="p-4">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                            {donor.status}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={() => setSelectedDonor(donor)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-slate-800 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
-                            >
-                              View Profile
-                            </button>
-                            <a
-                              href={getWhatsAppLink(donor.phone)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
-                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
-                            >
-                              <PhoneCall size={14} />
-                            </a>
-                            <a
-                              href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-slate-800 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-violet-500/25 transition-all flex items-center justify-center"
-                            >
-                              <MessageSquare size={14} />
-                            </a>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
+                {filteredDonors.map(donor => (
+                  <div
+                    key={donor.id}
+                    className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer flex flex-col gap-4 group"
+                    onClick={() => setSelectedDonor(donor)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={formatAvatarUrl(donor.profile_photo_link)}
+                        alt={donor.name}
+                        className="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-800 bg-slate-100 group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm">{donor.name}</h5>
+                        <span className="text-[10px] text-slate-400 block font-mono truncate">{donor.email}</span>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-slate-600 dark:text-slate-400 font-medium pb-2 border-b border-slate-100 dark:border-slate-800/60">
+                      <span className="font-mono bg-slate-100 dark:bg-slate-800/50 px-2 py-0.5 rounded">{donor.phone}</span>
+                    </div>
+
+                    <div className="flex items-center justify-between pb-3">
+                      <span className="inline-flex items-center px-[8px] py-[3px] rounded-md text-[9px] font-extrabold uppercase tracking-widest bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400">
+                        {donor.donorType}
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-bold text-[9px] bg-green-50 dark:bg-emerald-950/30 text-green-700 dark:text-emerald-400">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        {donor.status}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="font-mono font-black text-emerald-600 dark:text-cyan-400 text-[15px]">
+                        {donor.formattedAmount}
+                      </span>
+
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <a
+                          href={getWhatsAppLink(donor.phone)}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Call via WhatsApp`}
+                          className="p-1.5 md:p-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-[10px] transition-all"
+                        >
+                          <PhoneCall size={14} />
+                        </a>
+                        <a
+                          href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Message on WhatsApp`}
+                          className="p-1.5 md:p-2 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-[10px] transition-all flex items-center justify-center border border-transparent dark:border-none"
+                        >
+                          <MessageSquare size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -3229,13 +3082,13 @@ function App() {
                   </div>
 
                   <div className="space-y-1 relative z-10">
-                    <span className="text-white text-[12px] font-bold uppercase tracking-widest inline-block mb-1">
+                    <span className="text-slate-500 dark:text-slate-400 text-[12px] font-bold uppercase tracking-widest inline-block mb-1">
                       TOTAL SPEND
                     </span>
 
                     <div className="flex items-baseline gap-2 pt-1">
-                      <span className="text-3xl font-semibold text-white/90">₹</span>
-                      <h3 className="text-[2.75rem] leading-none font-extrabold tracking-tight font-sans text-white">
+                      <span className="text-3xl font-semibold text-slate-700 dark:text-slate-200">₹</span>
+                      <h3 className="text-[2.75rem] leading-none font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
                         {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
                       </h3>
                     </div>
@@ -3243,9 +3096,9 @@ function App() {
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-10 relative z-10">
                     <div className="flex gap-4 text-[13px] font-medium items-center">
-                      <span className="text-white/80">Pending Approvals: <strong className="text-white font-semibold">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
-                      <span className="text-white/40">|</span>
-                      <span className="text-white/80">Refund Requests: <strong className="text-white font-semibold">{expenses.filter(e => e.refund_requested).length}</strong></span>
+                      <span className="text-slate-600 dark:text-slate-300">Pending Approvals: <strong className="text-slate-900 dark:text-white font-semibold">{expenses.filter(e => e.status === 'PENDING').length}</strong></span>
+                      <span className="text-slate-300 dark:text-slate-600">|</span>
+                      <span className="text-slate-600 dark:text-slate-300">Refund Requests: <strong className="text-slate-900 dark:text-white font-semibold">{expenses.filter(e => e.refund_requested).length}</strong></span>
                     </div>
 
                     <button
@@ -3261,18 +3114,18 @@ function App() {
                 {/* Financial Overview Summary Card */}
                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-slate-800 dark:text-slate-100 flex flex-col justify-between">
                   <div>
-                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-white/80 mb-2">Financial Overview</h4>
-                    <h3 className="text-[1.1rem] font-bold text-white">Volunteer Spend Tracker</h3>
+                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">Financial Overview</h4>
+                    <h3 className="text-[1.1rem] font-bold text-slate-800 dark:text-slate-100">Volunteer Spend Tracker</h3>
                   </div>
 
                   <div className="space-y-3 mt-6">
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 border border-white/20">
-                      <span className="text-xs text-white/90 font-medium">Top Category:</span>
-                      <span className="text-[10px] font-bold text-white bg-white/20 px-2.5 py-1 rounded-md uppercase tracking-wide">Snacks & Food</span>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
+                      <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Top Category:</span>
+                      <span className="text-[10px] font-bold text-slate-700 dark:text-slate-200 bg-slate-200 dark:bg-slate-700 px-2.5 py-1 rounded-md uppercase tracking-wide">Snacks & Food</span>
                     </div>
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/10 border border-white/20">
-                      <span className="text-xs text-white/90 font-medium">Audit Compliance:</span>
-                      <span className="text-[10px] font-bold text-emerald-300 bg-emerald-400/20 px-2.5 py-1 rounded-md uppercase tracking-wide">100% Verified</span>
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700">
+                      <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Audit Compliance:</span>
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-400/20 px-2.5 py-1 rounded-md uppercase tracking-wide">100% Verified</span>
                     </div>
                   </div>
                 </div>
@@ -3442,18 +3295,34 @@ function App() {
                                     <CategoryIcon size={20} />
                                   </div>
 
-                                  <div className="space-y-1">
-                                    <h5 className="font-bold text-[15px] text-white leading-snug group-hover:text-slate-800 transition-colors">
+                                  <div className="space-y-1.5 w-full">
+                                    <h5 className="font-bold text-[15px] text-slate-900 dark:text-white leading-snug group-hover:text-violet-600 dark:group-hover:text-violet-400 transition-colors">
                                       {item.title}
                                     </h5>
 
-                                    <div className="flex items-center gap-3 pt-0.5">
+                                    <div className="flex flex-wrap items-center gap-2 pt-0.5">
                                       <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-emerald-50 text-emerald-600 tracking-wider">
                                         {item.category}
                                       </span>
-                                      <span className="text-[11px] text-white/70 font-medium">
-                                        {formattedDate}
+                                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
+                                        🗓 {formattedDate}
                                       </span>
+
+                                      {/* Extra badges to make card richer */}
+                                      {item.refund_requested && (
+                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 tracking-wider flex items-center gap-1">
+                                          <RefreshCw size={10} /> Refund
+                                        </span>
+                                      )}
+                                      {item.is_foundation_paid ? (
+                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 tracking-wider flex items-center gap-1">
+                                          🏦 H3 Paid
+                                        </span>
+                                      ) : (
+                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400 tracking-wider flex items-center gap-1">
+                                          👤 Self Paid
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -3467,43 +3336,66 @@ function App() {
                               </div>
 
                               {/* Footer: Creator & Amount */}
-                              <div className="flex items-end justify-between pt-4 border-t border-dashed border-white/20 mt-1">
-                                <div className="flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-white/70 font-medium">
-                                  <div className="flex items-center gap-1.5">
-                                    <User size={13} className="text-white/70 shrink-0" />
-                                    <span>By: <strong className="text-white">{item.created_by_name || 'System Admin'}</strong></span>
-                                    <span className="text-white/40">|</span>
-                                    <span>For: <strong className="text-white font-bold">{item.target_group || 'ALL'}</strong></span>
+                              <div className="flex flex-col pt-4 border-t border-dashed border-slate-200 dark:border-slate-700 mt-1 gap-4">
+                                <div className="flex items-end justify-between">
+                                  <div className="flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                                    <div className="flex items-center gap-1.5">
+                                      <User size={13} className="text-slate-400 dark:text-slate-500 shrink-0" />
+                                      <span>By: <strong className="text-slate-700 dark:text-slate-300">{item.created_by_name || 'System Admin'}</strong></span>
+                                      <span className="text-slate-300 dark:text-slate-600">|</span>
+                                      <span>For: <strong className="text-slate-700 dark:text-slate-200 font-bold">{item.target_group || 'ALL'}</strong></span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 pl-[19px]">
+                                      <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">Approved By:</span>
+                                      <span className={`text-[10px] font-bold ${item.status === 'APPROVED'
+                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        : item.status === 'REJECTED'
+                                          ? 'text-rose-600 dark:text-rose-400'
+                                          : 'text-orange-500 dark:text-amber-500 bg-orange-50 dark:bg-orange-950/30 px-1.5 rounded'
+                                        }`}>
+                                        {item.status === 'APPROVED' ? (item.approved_by_name || 'System Admin') : item.status === 'REJECTED' ? 'Rejected' : 'Pending'}
+                                      </span>
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-1.5 pl-[19px]">
-                                    <span className="text-[10px] text-white/60 uppercase tracking-widest">Approved By:</span>
-                                    <span className={`text-[10px] font-bold ${item.status === 'APPROVED'
-                                      ? 'text-emerald-600 dark:text-emerald-450'
-                                      : item.status === 'REJECTED'
-                                        ? 'text-rose-600 dark:text-rose-450'
-                                        : 'text-orange-500 dark:text-amber-450 bg-orange-50 px-1.5 rounded'
-                                      }`}>
-                                      {item.status === 'APPROVED' ? (item.approved_by_name || 'System Admin') : item.status === 'REJECTED' ? 'Rejected' : 'Pending'}
+
+                                  <div className="flex items-center gap-4">
+                                    <span className="text-lg font-black text-emerald-600 dark:text-cyan-400 font-mono">
+                                      ₹ {item.amount.toLocaleString('en-IN')}
                                     </span>
+
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteExpense(item.id);
+                                      }}
+                                      title="Delete expense entry"
+                                      className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
+                                    >
+                                      <Trash2 size={15} strokeWidth={2} />
+                                    </button>
                                   </div>
                                 </div>
 
-                                <div className="flex items-center gap-4">
-                                  <span className="text-lg font-black text-emerald-600 dark:text-cyan-400 font-mono">
-                                    ₹ {item.amount.toLocaleString('en-IN')}
-                                  </span>
-
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteExpense(item.id);
-                                    }}
-                                    title="Delete expense entry"
-                                    className="p-1.5 text-white/50 hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
-                                  >
-                                    <Trash2 size={15} strokeWidth={2} />
-                                  </button>
-                                </div>
+                                {/* Uploaded Receipt Display */}
+                                {(item.receipt_photo_link || item.receipt_drive_link) && (
+                                  <div className="w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-2">
+                                    <div className="flex items-center justify-between mb-2 px-1">
+                                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Attached Receipt</span>
+                                      {item.receipt_drive_link && !item.receipt_photo_link && (
+                                        <span className="text-[9px] font-bold text-blue-500">Google Drive Link</span>
+                                      )}
+                                    </div>
+                                    {item.receipt_photo_link ? (
+                                      <a href={item.receipt_photo_link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                        <img src={item.receipt_photo_link} alt="Receipt thumbnail" className="w-full h-auto max-h-48 object-cover rounded-lg bg-white dark:bg-slate-950" />
+                                      </a>
+                                    ) : (
+                                      <a href={item.receipt_drive_link!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block w-full py-3 text-center border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Open Drive Document</span>
+                                      </a>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
@@ -4419,6 +4311,16 @@ function App() {
                   }}
                   className="w-full p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-semibold focus:outline-none focus:border-teal-500 file:mr-4 file:py-1 file:px-3 file:rounded-xl file:border-0 file:text-[10px] file:font-bold file:bg-teal-50 file:text-teal-700 dark:file:bg-teal-950/40 dark:file:text-teal-400 cursor-pointer"
                 />
+
+                {/* PREVIEW NEWLY UPLOADED RECEIPT */}
+                {newExpenseReceipt && (
+                  <div className="mt-3 relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 p-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2 px-1">Selected Receipt Preview</span>
+                    <div className="flex justify-center">
+                      <img src={newExpenseReceipt} alt="New Receipt Preview" className="max-h-32 object-contain rounded-lg" />
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-between items-center pt-2">
@@ -4548,19 +4450,25 @@ function App() {
                 </div>
               )}
 
-              {selectedExpense.receipt_url && (
+              {(selectedExpense.receipt_photo_link || selectedExpense.receipt_drive_link) && (
                 <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/60 pb-1">
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Receipt Attachment</span>
-                  <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
-                    <img
-                      src={selectedExpense.receipt_url}
-                      alt="Expense Receipt"
-                      className="w-full max-h-48 object-contain hover:scale-[1.03] transition-transform cursor-zoom-in"
-                      onClick={() => {
-                        const w = window.open();
-                        if (w) w.document.write(`<img src="${selectedExpense.receipt_url}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
-                      }}
-                    />
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-2">
+                    {selectedExpense.receipt_photo_link ? (
+                      <img
+                        src={selectedExpense.receipt_photo_link}
+                        alt="Expense Receipt"
+                        className="w-full max-h-48 object-contain hover:scale-[1.03] transition-transform cursor-zoom-in rounded-xl"
+                        onClick={() => {
+                          const w = window.open();
+                          if (w) w.document.write(`<img src="${selectedExpense.receipt_photo_link}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
+                        }}
+                      />
+                    ) : (
+                      <a href={selectedExpense.receipt_drive_link!} target="_blank" rel="noopener noreferrer" className="block w-full py-4 text-center border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">View Document in Google Drive</span>
+                      </a>
+                    )}
                   </div>
                 </div>
               )}

@@ -168,7 +168,8 @@ export interface Expense {
   created_by?: string;
   created_by_name?: string;
   approved_by_name?: string | null;
-  receipt_url?: string | null;
+  receipt_photo_link?: string | null;
+  receipt_drive_link?: string | null;
 }
 
 export const initialDonors: Donor[] = [
