@@ -110,7 +110,7 @@ export const apiService = {
   // Fetch Students
   getStudents: async (): Promise<Student[]> => {
     const data = await apiFetch<any[]>('/api/v1/students/', []);
-    if (!data || data.length === 0) return initialStudents;
+    if (!data || data.length === 0) return [];
     
     // Map backend response fields to Student type
     return data.map((item, idx) => ({
@@ -153,7 +153,7 @@ export const apiService = {
       apiFetch<any[]>('/api/v1/users/', [])
     ]);
 
-    if (!volsData || volsData.length === 0) return initialVolunteers;
+    if (!volsData || volsData.length === 0) return [];
     
     // Create lookup map of users by user_id
     const userMap: Record<string, any> = {};
@@ -213,7 +213,7 @@ export const apiService = {
   // Fetch Parents
   getParents: async (studentsList?: Student[]): Promise<Parent[]> => {
     const data = await apiFetch<any[]>('/api/v1/parents/', []);
-    if (!data || data.length === 0) return initialParents;
+    if (!data || data.length === 0) return [];
     
     return data.map((item, idx) => {
       // Find matching student by student_id
@@ -272,7 +272,7 @@ export const apiService = {
       apiFetch<any[]>('/api/v1/users/', [])
     ]);
 
-    if (!donorsData || donorsData.length === 0) return initialDonors;
+    if (!donorsData || donorsData.length === 0) return [];
 
     const userMap: Record<string, any> = {};
     if (Array.isArray(usersData)) {

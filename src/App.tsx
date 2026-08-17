@@ -122,12 +122,12 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
 
   // Data State
-  const [students, setStudents] = useState<Student[]>(initialStudents);
-  const [volunteers, setVolunteers] = useState<Volunteer[]>(initialVolunteers);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [parents, setParents] = useState<Parent[]>([]);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(initialActivityLogs);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [adminCount, setAdminCount] = useState<number>(3);
   const [expenseSubTab, setExpenseSubTab] = useState<'records' | 'analytics'>('records');
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('ALL');
@@ -994,9 +994,7 @@ function App() {
   const [newStudentRequestDetails, setNewStudentRequestDetails] = useState('');
   const [newStudentRequestAmount, setNewStudentRequestAmount] = useState('');
 
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(() => {
-    return initialStudents.flatMap(s => s.leaveRequests);
-  });
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
 
 
   // Selected Student Profile State
@@ -1690,7 +1688,7 @@ function App() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 {/* Visual Chart Card */}
-                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full lg:col-span-3">
+                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full lg:col-span-2">
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="font-bold text-sm">Monthly Expenses Chart</h4>
@@ -1790,6 +1788,105 @@ function App() {
                   })()}
                 </div>
 
+                {/* Expense Distribution Donut Chart */}
+                {(() => {
+                  const distributionData = [
+                    { name: 'snacks', icon: <Coffee size={14} />, color: '#276738', bg: 'bg-emerald-50 text-emerald-700' },
+                    { name: 'groceries', icon: <BookOpen size={14} />, color: '#3b82f6', bg: 'bg-blue-50 text-blue-600' },
+                    { name: 'sports', icon: <Heart size={14} />, color: '#a855f7', bg: 'bg-purple-50 text-purple-600' },
+                    { name: 'medical', icon: <Users size={14} />, color: '#f59e0b', bg: 'bg-amber-50 text-amber-600' },
+                    { name: 'travel', icon: <ShoppingCart size={14} />, color: '#ef4444', bg: 'bg-red-50 text-red-500' },
+                    { name: 'stationary', icon: <Check size={14} />, color: '#14b8a6', bg: 'bg-teal-50 text-teal-600' }
+                  ];
+
+                  let calculatedData = distributionData.map(cat => ({
+                    ...cat,
+                    amount: expenses.filter(e => e.category && e.category.toLowerCase() === cat.name).reduce((sum, e) => sum + e.amount, 0)
+                  }));
+                  const totalExpenses = calculatedData.reduce((sum, cat) => sum + cat.amount, 0);
+
+                  if (totalExpenses === 0) {
+                    calculatedData = [
+                      { ...distributionData[0], amount: 71, pct: 39 },
+                      { ...distributionData[1], amount: 53, pct: 29 },
+                      { ...distributionData[2], amount: 22, pct: 12 },
+                      { ...distributionData[3], amount: 18, pct: 10 },
+                      { ...distributionData[4], amount: 12, pct: 7 },
+                      { ...distributionData[5], amount: 5, pct: 3 }
+                    ];
+                  } else {
+                    calculatedData = calculatedData.map(cat => ({
+                      ...cat,
+                      pct: Math.round((cat.amount / totalExpenses) * 100)
+                    })).sort((a, b) => b.pct - a.pct);
+                  }
+
+                  let currentPct = 0;
+                  const gradientStops = calculatedData.map(cat => {
+                    const start = currentPct;
+                    currentPct += cat.pct;
+                    return `${cat.color} ${start}% ${currentPct}%`;
+                  }).join(', ');
+
+                  return (
+                    <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full lg:col-span-1 flex flex-col">
+                      <div>
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                          Expense Distribution
+                        </h4>
+                      </div>
+
+                      <div className="flex-1 flex flex-col items-center justify-center pt-2">
+                        <div className="relative w-48 h-48 mb-6">
+                          <div
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              borderRadius: '50%',
+                              background: `conic-gradient(${gradientStops})`
+                            }}
+                            className="relative flex items-center justify-center"
+                          >
+                            <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex items-center justify-center shadow-inner relative">
+                              <div className="w-8 h-8 rounded-full bg-[#276738] flex items-center justify-center text-white">
+                                <Wallet size={16} />
+                              </div>
+                            </div>
+                            
+                            {totalExpenses === 0 && (
+                              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
+                                <text x="25" y="45" fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle">29%</text>
+                                <text x="50" y="20" fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle">12%</text>
+                                <text x="70" y="30" fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle">10%</text>
+                                <text x="80" y="55" fill="white" fontSize="4" fontWeight="bold" textAnchor="middle">7%</text>
+                                <text x="75" y="68" fill="white" fontSize="3" fontWeight="bold" textAnchor="middle">3%</text>
+                                <text x="50" y="85" fill="white" fontSize="5" fontWeight="bold" textAnchor="middle">39%</text>
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="w-full bg-white dark:bg-slate-950 rounded-2xl p-4 shadow-sm space-y-3 mt-auto border border-slate-100 dark:border-slate-800">
+                          {calculatedData.map((cat, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                                <div className={`w-6 h-6 rounded-md flex items-center justify-center ${cat.bg}`}>
+                                  {cat.icon}
+                                </div>
+                                <span className="text-xs font-bold capitalize text-slate-700 dark:text-slate-300">{cat.name}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">₹{cat.amount}</span>
+                                <span className="text-xs font-bold" style={{ color: cat.color }}>{cat.pct}%</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* TWO COLUMN SUMMARY SECTIONS */}
@@ -2008,14 +2105,16 @@ function App() {
                         className="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-5 hover:shadow-md hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer flex flex-col gap-4 group"
                       >
                         <div className="flex items-start gap-3.5">
-                          <img
-                            src={student.avatar}
-                            alt={student.name}
-                            className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:scale-[1.05] transition-transform"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
-                            }}
-                          />
+                          {student.avatar ? (
+                            <img
+                              src={student.avatar}
+                              alt={student.name}
+                              className="w-12 h-12 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:scale-[1.05] transition-transform"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          ) : null}
                           <div className="flex-1 min-w-0">
                             <h5 className="font-bold text-[13px] text-slate-900 dark:text-white truncate lg:text-sm">{student.name}</h5>
                             <span className="text-[10px] text-slate-400 block font-mono font-medium">{student.rollNo}</span>
@@ -2030,34 +2129,7 @@ function App() {
                           <span className="text-[9px] font-semibold text-slate-400 block truncate uppercase tracking-widest">{student.college}</span>
                         </div>
 
-                        <div className="flex items-end justify-between mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                          <div className="flex flex-col gap-2 w-full max-w-[120px]">
-                            <div className="flex items-center justify-between w-full">
-                              <div className="w-12 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full ${student.attendance >= 90 ? 'bg-emerald-500' : student.attendance >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                  style={{ width: `${student.attendance}%` }}
-                                ></div>
-                              </div>
-                              <span className="font-extrabold text-[10px] text-slate-700 dark:text-slate-300">{student.attendance}%</span>
-                            </div>
-
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[8px] uppercase tracking-widest w-fit
-                                ${student.location.status === 'In College' ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400' :
-                                student.location.status === 'In Hostel' ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400' :
-                                  student.location.status === 'On Leave' ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400' :
-                                    'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400'}`}
-                            >
-                              <span className={`w-1.5 h-1.5 rounded-full
-                                  ${student.location.status === 'In College' ? 'bg-blue-500' :
-                                  student.location.status === 'In Hostel' ? 'bg-purple-500' :
-                                    student.location.status === 'On Leave' ? 'bg-amber-500' :
-                                      'bg-red-500 !animate-ping'}`}
-                              ></span>
-                              {student.location.status}
-                            </span>
-                          </div>
-
+                        <div className="flex items-end justify-end mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/80">
                           <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                             <a
                               href={getWhatsAppLink(student.parentPhone)}
