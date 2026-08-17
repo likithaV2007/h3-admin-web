@@ -2104,7 +2104,7 @@ function App() {
                           <th className="p-4">Roll ID</th>
                           <th className="p-4">Batch</th>
                           <th className="p-4">Course / College</th>
-                          <th className="p-4">Attendance</th>
+                          <th className="p-4">Status</th>
                           <th className="p-4">Location Status</th>
                           <th className="p-4 text-right">Actions</th>
                         </tr>
@@ -2132,7 +2132,7 @@ function App() {
                             </td>
                             <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
                             <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-[#250b32]/10 dark:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] border border-[#250b32]/20 dark:border-[#250b32]/80">
                                 {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
                               </span>
                             </td>
@@ -2141,15 +2141,10 @@ function App() {
                               <span className="text-[10px] text-slate-400 block max-w-[180px] truncate">{student.college}</span>
                             </td>
                             <td className="p-4">
-                              <div className="flex items-center gap-2">
-                                <div className="w-16 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                                  <div 
-                                    className={`h-full rounded-full ${student.attendance >= 90 ? 'bg-green-500' : student.attendance >= 75 ? 'bg-amber-500' : 'bg-red-500'}`}
-                                    style={{ width: `${student.attendance}%` }}
-                                  ></div>
-                                </div>
-                                <span className="font-bold">{student.attendance}%</span>
-                              </div>
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] ${(student.status || 'Active') === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${(student.status || 'Active') === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                                {student.status || 'Active'}
+                              </span>
                             </td>
                             <td className="p-4">
                               <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px]
@@ -2175,7 +2170,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                                  className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <PhoneCall size={14} />
                                 </a>
@@ -2186,7 +2181,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                                  className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -2991,7 +2986,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${par.name} via WhatsApp (${par.phone})`}
-                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={15} />
                             </a>
@@ -3002,7 +2997,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={15} />
                             </a>
@@ -3065,7 +3060,7 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{vol.name}</span>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#250b32] transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
                             </div>
                           </div>
@@ -3089,7 +3084,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedVolunteer(vol)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                              className="text-xs bg-[#250b32]/10 dark:bg-[#250b32]/50 hover:bg-[#250b32]/20 text-[#250b32] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#250b32]/20 dark:border-[#250b32]/60"
                             >
                               View Profile
                             </button>
@@ -3098,7 +3093,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
-                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3107,7 +3102,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3170,17 +3165,17 @@ function App() {
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-blue-600 transition-colors">{donor.name}</span>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#250b32] transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
                             </div>
                           </div>
                         </td>
                         <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200/50">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#250b32]/10 dark:bg-[#250b32]/40 text-[#250b32] dark:text-[#e7c7fa] border border-[#250b32]/20">
                             {donor.donorType}
                           </span>
                         </td>
-                        <td className="p-4 font-mono font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                        <td className="p-4 font-mono font-bold text-[#250b32] dark:text-[#e7c7fa] text-sm">
                           {donor.formattedAmount}
                         </td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{donor.phone}</td>
@@ -3194,7 +3189,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedDonor(donor)}
-                              className="text-xs bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 text-blue-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-xl transition-colors border border-blue-200/50 dark:border-blue-800/40"
+                              className="text-xs bg-[#250b32]/10 dark:bg-[#250b32]/50 hover:bg-[#250b32]/20 text-[#250b32] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#250b32]/20 dark:border-[#250b32]/60"
                             >
                               View Profile
                             </button>
@@ -3203,7 +3198,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
-                              className="p-2 bg-emerald-500/20 hover:bg-emerald-500/35 text-emerald-600 dark:text-emerald-400 rounded-xl backdrop-blur-md border border-emerald-400/40 dark:border-emerald-500/30 shadow-sm hover:shadow-emerald-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3212,7 +3207,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-blue-500/20 hover:bg-blue-500/35 text-blue-600 dark:text-blue-400 rounded-xl backdrop-blur-md border border-blue-400/40 dark:border-blue-500/30 shadow-sm hover:shadow-blue-500/20 transition-all flex items-center justify-center"
+                              className="p-2 bg-[#250b32]/10 hover:bg-[#250b32]/20 dark:bg-[#250b32]/40 dark:hover:bg-[#250b32]/60 text-[#250b32] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#250b32]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
