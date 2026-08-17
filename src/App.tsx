@@ -129,6 +129,7 @@ function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [adminCount, setAdminCount] = useState<number>(3);
+  const [dashboardStats, setDashboardStats] = useState<any>(null);
   const [expenseSubTab, setExpenseSubTab] = useState<'records' | 'analytics'>('records');
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('ALL');
   const [expenseSearchQuery, setExpenseSearchQuery] = useState<string>('');
@@ -381,17 +382,19 @@ function App() {
 
       const fetchedStudents = await apiService.getStudents();
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
         apiService.getExpenses(),
         apiService.getGeofences(),
         apiService.getTrackingSessions(),
-        apiService.getAdminsCount()
+        apiService.getAdminsCount(),
+        apiService.getAdminDashboard()
       ]);
 
       setAdminCount(fetchedAdminCount);
+      setDashboardStats(fetchedDashboardStats);
 
       let studentsWithLiveLocations = fetchedStudents || [];
       if (fetchedStudents && fetchedStudents.length > 0) {
@@ -1613,7 +1616,7 @@ function App() {
                       Total Students
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {students.length} Enrolled
+                      {dashboardStats?.total_students ?? students.length} Enrolled
                     </h4>
                     <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
                       <span className="bg-violet-500/10 p-0.5 rounded font-bold">+12%</span> vs last semester
@@ -1631,7 +1634,7 @@ function App() {
                       {activeRole === 'Student' ? 'My Attendance' : 'Total Admins'}
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Student' ? '94.5%' : `${volunteers.length} Active`}
+                      {activeRole === 'Student' ? '94.5%' : `${dashboardStats?.total_admins ?? adminCount} Active`}
                     </h4>
                     <span className={`text-[10px] flex items-center gap-1 mt-2 font-medium text-violet-500 dark:text-violet-400`}>
                       {activeRole === 'Student' ? (
@@ -1653,7 +1656,7 @@ function App() {
                       {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
                     </span>
                     <h4 className="text-2xl font-extrabold mt-1 text-slate-800 dark:text-slate-100">
-                      {activeRole === 'Student' ? 'Hope3 Foundation' : `${donors.length} Active`}
+                      {activeRole === 'Student' ? 'Hope3 Foundation' : `${dashboardStats?.total_donors ?? donors.length} Active`}
                     </h4>
                     <span className="text-[10px] text-violet-500 dark:text-violet-400 flex items-center gap-1 mt-2 font-medium">
                       {activeRole === 'Student' ? 'Full tuition & hostel covered' : 'Sponsoring education'}
@@ -1698,24 +1701,31 @@ function App() {
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
                     // Dynamically get the last 6 months up to current month
-                    const currentMonth = new Date().getMonth();
-                    const monthIndices: number[] = [];
-                    const monthLabels: string[] = [];
-                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    let monthIndices: number[] = [];
+                    let monthLabels: string[] = [];
+                    let monthlyCosts: number[] = [];
 
-                    for (let i = 5; i >= 0; i--) {
-                      let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
-                      monthIndices.push(d.getMonth());
-                      monthLabels.push(monthNames[d.getMonth()]);
+                    if (dashboardStats?.monthly_expenses) {
+                      monthLabels = dashboardStats.monthly_expenses.map((m: any) => m.month);
+                      monthlyCosts = dashboardStats.monthly_expenses.map((m: any) => m.amount);
+                    } else {
+                      const currentMonth = new Date().getMonth();
+                      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                      for (let i = 5; i >= 0; i--) {
+                        let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
+                        monthIndices.push(d.getMonth());
+                        monthLabels.push(monthNames[d.getMonth()]);
+                      }
+
+                      monthlyCosts = monthIndices.map(monthIdx => {
+                        return expenses.filter(e => {
+                          if (!e.date) return false;
+                          const d = new Date(e.date);
+                          return d.getMonth() === monthIdx;
+                        }).reduce((sum, e) => sum + e.amount, 0);
+                      });
                     }
-
-                    const monthlyCosts = monthIndices.map(monthIdx => {
-                      return expenses.filter(e => {
-                        if (!e.date) return false;
-                        const d = new Date(e.date);
-                        return d.getMonth() === monthIdx;
-                      }).reduce((sum, e) => sum + e.amount, 0);
-                    });
 
                     // Dynamically compute max from costs, round up to nearest nice step
                     const dataMax = Math.max(...monthlyCosts, 1000);
@@ -1799,10 +1809,16 @@ function App() {
                     { name: 'stationary', icon: <Pencil size={14} />, color: '#14b8a6', bg: 'bg-teal-50 text-teal-600' }
                   ];
 
-                  let calculatedData = distributionData.map(cat => ({
-                    ...cat,
-                    amount: expenses.filter(e => e.category && e.category.toLowerCase() === cat.name).reduce((sum, e) => sum + e.amount, 0)
-                  }));
+                  let calculatedData = distributionData.map(cat => {
+                    if (dashboardStats?.expense_distribution) {
+                      const stat = dashboardStats.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
+                      return { ...cat, amount: stat ? stat.amount : 0 };
+                    }
+                    return {
+                      ...cat,
+                      amount: expenses.filter(e => e.category && e.category.toLowerCase() === cat.name).reduce((sum, e) => sum + e.amount, 0)
+                    };
+                  });
                   const totalExpenses = calculatedData.reduce((sum, cat) => sum + cat.amount, 0);
 
                   if (totalExpenses === 0) {

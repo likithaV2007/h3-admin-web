@@ -540,6 +540,10 @@ export const apiService = {
     return apiFetch('/api/v1/stats/admin-dashboard', null);
   },
 
+  getAdminDashboard: async () => {
+    return apiFetch('/api/v1/admin/dashboard', null);
+  },
+
   // Check API Connection Status
   checkApiHealth: async (): Promise<{ status: 'CONNECTED' | 'UNAUTHORIZED' | 'ERROR'; statusCode: number; url: string }> => {
     try {
