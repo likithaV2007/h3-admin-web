@@ -236,19 +236,18 @@ body,
   height: 100%;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3E%3Cpath d='M800,56.9c-155.6,0-203.9-46.1-400-46.1S155.6,56.9,0,56.9V88.7h800V56.9z' fill='%238b5cf6' opacity='0.25'/%3E%3C/svg%3E") repeat-x;
   background-size: 50% 100%;
-  animation: wave-animation 10s linear infinite;
   transform-origin: bottom center;
 }
 
 .card-wave:nth-of-type(2) {
   bottom: -5px;
-  animation: wave-animation 14s linear infinite reverse;
+  transform: translateX(-15%);
   opacity: 0.15;
 }
 
 .card-wave:nth-of-type(3) {
   bottom: -10px;
-  animation: wave-animation 18s linear infinite;
+  transform: translateX(-30%);
   opacity: 0.1;
 }
 

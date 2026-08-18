@@ -1629,19 +1629,19 @@ function App() {
                 {/* Metric 1 */}
                 <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
                   
-                  {/* Decorative Animated Wave */}
+                  {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248] animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
                       </svg>
                     </div>
@@ -1676,19 +1676,19 @@ function App() {
                 {/* Metric 2 */}
                 <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
                   
-                  {/* Decorative Animated Wave */}
+                  {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248] animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
                       </svg>
                     </div>
@@ -1732,19 +1732,19 @@ function App() {
                 {/* Metric 3 */}
                 <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
                   
-                  {/* Decorative Animated Wave */}
+                  {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248] animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
                       </svg>
                     </div>
@@ -1782,19 +1782,19 @@ function App() {
                 {/* Metric 4 */}
                 <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
                   
-                  {/* Decorative Animated Wave */}
+                  {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right transition-transform duration-1000 ease-in-out">
+                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#3a2248] animate-[pulse_6s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] animate-[pulse_8s_ease-in-out_infinite_alternate]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] animate-[pulse_7s_ease-in-out_infinite]" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
                       </svg>
                     </div>
