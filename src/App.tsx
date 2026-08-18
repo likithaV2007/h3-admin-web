@@ -1627,22 +1627,18 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 {/* Metric 1 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
-                      {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
                   </div>
@@ -1674,22 +1670,18 @@ function App() {
                 </div>
 
                 {/* Metric 2 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
-                      {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
                   </div>
@@ -1730,22 +1722,18 @@ function App() {
                 </div>
 
                 {/* Metric 3 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
-                      {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
                   </div>
@@ -1780,22 +1768,18 @@ function App() {
                 </div>
 
                 {/* Metric 4 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-48">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
                     <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#cbb4d4] opacity-30" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
                       {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#cbb4d4] opacity-50" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
-                      {/* Tertiary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[90%] h-[90%] text-[#3a2248] opacity-10" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 120,320 280,280 400,180 L 400,400 Z" />
+                      {/* Base Wave */}
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
                   </div>
@@ -1827,13 +1811,12 @@ function App() {
               {/* DOUBLE CHART & MAP SECTION */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Visual Chart Card */}
-                <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full lg:col-span-2">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="font-bold text-sm">Monthly Expenses Chart</h4>
-                    </div>
-                  </div>
+                {/* Visual Chart Column */}
+                <div className="flex flex-col gap-3 w-full lg:col-span-2">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                    Monthly Expenses Chart
+                  </h4>
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full">
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
@@ -1866,20 +1849,16 @@ function App() {
                       });
                     }
 
-                    // Dynamically compute max from costs, round up to nearest nice step
-                    const dataMax = Math.max(...monthlyCosts, 1000);
-                    const step = Math.pow(10, Math.floor(Math.log10(dataMax)));
-                    const maxChartValue = Math.ceil(dataMax / step) * step;
-                    const yStep = maxChartValue / 3;
+                    const maxChartValue = 100000;
+                    const yStep = 25000;
 
                     const formatK = (val: number) => {
-                      if (val >= 100000) return `₹${(val / 100000).toFixed(0)}L`;
                       if (val >= 1000) return `₹${(val / 1000).toFixed(0)}k`;
-                      return `₹${val}`;
+                      return `₹${val.toFixed(0)}`;
                     };
 
-                    const chartHeight = 150;
-                    const chartYStart = 170;
+                    const chartHeight = 380;
+                    const chartYStart = 430;
 
                     const costPoints = monthlyCosts.map((val, i) => {
                       const x = 30 + (i * 48); // 12 points spanning from 30 to 558
@@ -1898,12 +1877,12 @@ function App() {
 
                     const lastX = costPoints.length > 0 ? costPoints[costPoints.length - 1].x : 558;
                     const firstX = costPoints.length > 0 ? costPoints[0].x : 30;
-                    const costPolygonPath = `${costPath} L ${lastX},170 L ${firstX},170 Z`;
+                    const costPolygonPath = `${costPath} L ${lastX},430 L ${firstX},430 Z`;
 
                     return (
-                      <div className="relative pt-4 h-52 w-full mx-auto flex flex-col">
+                      <div className="relative pt-4 h-[450px] w-full mx-auto flex flex-col">
                         <div className="relative flex-1 w-full">
-                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 180" preserveAspectRatio="none">
+                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 450" preserveAspectRatio="none">
                             {/* Grid lines */}
                             <defs>
                               <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1911,10 +1890,10 @@ function App() {
                                 <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
                               </linearGradient>
                             </defs>
-                            <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                            <line x1="40" y1="70" x2="580" y2="70" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                            <line x1="40" y1="120" x2="580" y2="120" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
-                            <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                            {[0, 38, 76, 114, 152, 190, 228, 266, 304, 342].map(offset => (
+                              <line key={`grid-${offset}`} x1="40" y1={50 + offset} x2="580" y2={50 + offset} stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                            ))}
+                            <line x1="40" y1="430" x2="580" y2="430" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
 
                             {/* Chart Areas */}
                             <path d={costPolygonPath} fill="url(#costsGrad)" />
@@ -1928,15 +1907,14 @@ function App() {
                             ))}
 
                             {/* X Axis line */}
-                            <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                            <line x1="40" y1="430" x2="580" y2="430" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
                           </svg>
 
                           {/* Y Labels as HTML (prevent stretch) */}
-                          <div className="absolute inset-y-0 left-0 w-10 flex flex-col justify-between py-[12px] text-xs font-bold text-slate-800 dark:text-slate-200 pointer-events-none">
-                            <span className="text-right pr-2">{formatK(maxChartValue)}</span>
-                            <span className="text-right pr-2">{formatK(yStep * 2)}</span>
-                            <span className="text-right pr-2">{formatK(yStep)}</span>
-                            <span className="text-right pr-2">0</span>
+                          <div className="absolute inset-y-0 left-0 w-10 flex flex-col justify-between py-[12px] text-[10px] font-bold text-slate-800 dark:text-slate-200 pointer-events-none">
+                            {[100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0].map(val => (
+                              <span key={val} className="text-right pr-2">{val === 0 ? '0' : `₹${val}k`}</span>
+                            ))}
                           </div>
                         </div>
 
@@ -1952,53 +1930,53 @@ function App() {
                     );
                   })()}
                 </div>
+              </div>
 
-                {/* Expense Distribution Donut Chart */}
-                {(() => {
-                  const distributionData = [
-                    { name: 'snacks', icon: <Coffee size={14} />, color: '#3a2248', bg: 'bg-[#3a2248]/10 text-[#3a2248]' },
-                    { name: 'groceries', icon: <BookOpen size={14} />, color: '#573f64', bg: 'bg-[#573f64]/10 text-[#573f64]' },
-                    { name: 'sports', icon: <Heart size={14} />, color: '#745c80', bg: 'bg-[#745c80]/10 text-[#745c80]' },
-                    { name: 'medical', icon: <Users size={14} />, color: '#91799c', bg: 'bg-[#91799c]/10 text-[#91799c]' },
-                    { name: 'travel', icon: <Bus size={14} />, color: '#ae96b8', bg: 'bg-[#ae96b8]/10 text-[#ae96b8]' },
-                    { name: 'stationary', icon: <Pencil size={14} />, color: '#cbb4d4', bg: 'bg-[#cbb4d4]/20 text-[#cbb4d4]' }
-                  ];
-
-                  let calculatedData = distributionData.map(cat => {
-                    if (dashboardStats?.expense_distribution) {
-                      const stat = dashboardStats.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
-                      return { ...cat, amount: stat ? stat.amount : 0 };
-                    }
-                    return {
-                      ...cat,
-                      amount: expenses.filter(e => e.category && e.category.toLowerCase() === cat.name).reduce((sum, e) => sum + e.amount, 0)
-                    };
-                  });
-                  const totalExpenses = calculatedData.reduce((sum, cat) => sum + cat.amount, 0);
-
-                  if (totalExpenses === 0) {
-                    calculatedData = [
-                      { ...distributionData[0], amount: 71, pct: 39 },
-                      { ...distributionData[1], amount: 53, pct: 29 },
-                      { ...distributionData[2], amount: 22, pct: 12 },
-                      { ...distributionData[3], amount: 18, pct: 10 },
-                      { ...distributionData[4], amount: 12, pct: 7 },
-                      { ...distributionData[5], amount: 5, pct: 3 }
+              {/* Expense Distribution Donut Chart */}
+                <div className="flex flex-col gap-3 w-full lg:col-span-1">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                    Expense Distribution
+                  </h4>
+                  {(() => {
+                    const distributionData = [
+                      { name: 'snacks', icon: <Coffee size={14} />, color: '#3a2248', bg: 'bg-[#3a2248]/10 text-[#3a2248]' },
+                      { name: 'groceries', icon: <BookOpen size={14} />, color: '#573f64', bg: 'bg-[#573f64]/10 text-[#573f64]' },
+                      { name: 'sports', icon: <Heart size={14} />, color: '#745c80', bg: 'bg-[#745c80]/10 text-[#745c80]' },
+                      { name: 'medical', icon: <Users size={14} />, color: '#91799c', bg: 'bg-[#91799c]/10 text-[#91799c]' },
+                      { name: 'travel', icon: <Bus size={14} />, color: '#ae96b8', bg: 'bg-[#ae96b8]/10 text-[#ae96b8]' },
+                      { name: 'stationary', icon: <Pencil size={14} />, color: '#cbb4d4', bg: 'bg-[#cbb4d4]/20 text-[#cbb4d4]' }
                     ];
-                  } else {
-                    calculatedData = calculatedData.map(cat => ({
-                      ...cat,
-                      pct: Math.round((cat.amount / totalExpenses) * 100)
-                    })).sort((a, b) => b.pct - a.pct);
-                  }
 
-                  return (
-                    <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full lg:col-span-1 flex flex-col">
-                      <div>
-                        <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
-                          Expense Distribution
-                        </h4>
-                      </div>
+                    let calculatedData = distributionData.map(cat => {
+                      if (dashboardStats?.expense_distribution) {
+                        const stat = dashboardStats.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
+                        return { ...cat, amount: stat ? stat.amount : 0 };
+                      }
+                      return {
+                        ...cat,
+                        amount: expenses.filter(e => e.category && e.category.toLowerCase() === cat.name).reduce((sum, e) => sum + e.amount, 0)
+                      };
+                    });
+                    const totalExpenses = calculatedData.reduce((sum, cat) => sum + cat.amount, 0);
+
+                    if (totalExpenses === 0) {
+                      calculatedData = [
+                        { ...distributionData[0], amount: 71, pct: 39 },
+                        { ...distributionData[1], amount: 53, pct: 29 },
+                        { ...distributionData[2], amount: 22, pct: 12 },
+                        { ...distributionData[3], amount: 18, pct: 10 },
+                        { ...distributionData[4], amount: 12, pct: 7 },
+                        { ...distributionData[5], amount: 5, pct: 3 }
+                      ];
+                    } else {
+                      calculatedData = calculatedData.map(cat => ({
+                        ...cat,
+                        pct: Math.round((cat.amount / totalExpenses) * 100)
+                      })).sort((a, b) => b.pct - a.pct);
+                    }
+
+                    return (
+                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col">
 
                       <div className="flex-1 flex flex-col items-center justify-center pt-2">
                         <div className="relative w-48 h-48 mb-6">
@@ -2091,8 +2069,9 @@ function App() {
                   );
                 })()}
               </div>
+            </div>
 
-              {/* TWO COLUMN SUMMARY SECTIONS */}
+            {/* TWO COLUMN SUMMARY SECTIONS */}
               {activeRole !== 'Admin' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
