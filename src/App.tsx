@@ -1992,13 +1992,6 @@ function App() {
                     })).sort((a, b) => b.pct - a.pct);
                   }
 
-                  let currentPct = 0;
-                  const gradientStops = calculatedData.map(cat => {
-                    const start = currentPct;
-                    currentPct += cat.pct;
-                    return `${cat.color} ${start}% ${currentPct}%`;
-                  }).join(', ');
-
                   return (
                     <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full lg:col-span-1 flex flex-col">
                       <div>
@@ -2009,31 +2002,70 @@ function App() {
 
                       <div className="flex-1 flex flex-col items-center justify-center pt-2">
                         <div className="relative w-48 h-48 mb-6">
-                          <div
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              borderRadius: '50%',
-                              background: `conic-gradient(${gradientStops})`
-                            }}
-                            className="relative flex items-center justify-center"
-                          >
-                            <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex items-center justify-center shadow-inner relative">
-                              <div className="w-8 h-8 rounded-full bg-[#276738] flex items-center justify-center text-white">
-                                <Wallet size={16} />
-                              </div>
-                            </div>
+                          {/* SVG Donut Chart */}
+                          <svg viewBox="-50 -50 100 100" className="absolute inset-0 w-full h-full overflow-visible drop-shadow-sm">
+                            <g transform="rotate(-90)">
+                              {(() => {
+                                let currentPct = 0;
+                                return calculatedData.map((cat, i) => {
+                                  if (cat.pct <= 0) return null;
+                                  const strokeDasharray = `${cat.pct} ${100 - cat.pct}`;
+                                  const strokeDashoffset = -currentPct;
+                                  currentPct += cat.pct;
+                                  
+                                  return (
+                                    <circle
+                                      key={i}
+                                      cx="0"
+                                      cy="0"
+                                      r="40"
+                                      fill="transparent"
+                                      stroke={cat.color}
+                                      strokeWidth="20"
+                                      pathLength="100"
+                                      strokeDasharray={strokeDasharray}
+                                      strokeDashoffset={strokeDashoffset}
+                                      className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                                    >
+                                      <title>{cat.name}: ₹{cat.amount} ({cat.pct}%)</title>
+                                    </circle>
+                                  );
+                                });
+                              })()}
+                            </g>
                             
-                            {totalExpenses === 0 && (
-                              <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
-                                <text x="25" y="45" fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle">29%</text>
-                                <text x="50" y="20" fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle">12%</text>
-                                <text x="70" y="30" fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle">10%</text>
-                                <text x="80" y="55" fill="white" fontSize="4" fontWeight="bold" textAnchor="middle">7%</text>
-                                <text x="75" y="68" fill="white" fontSize="3" fontWeight="bold" textAnchor="middle">3%</text>
-                                <text x="50" y="85" fill="white" fontSize="5" fontWeight="bold" textAnchor="middle">39%</text>
-                              </svg>
-                            )}
+                            {/* Percentage Labels */}
+                            {(() => {
+                              let currentAngle = 0;
+                              return calculatedData.map((cat, i) => {
+                                if (cat.pct <= 0) return null;
+                                const sliceAngle = (cat.pct / 100) * 360;
+                                const midAngle = currentAngle + sliceAngle / 2;
+                                const rad = midAngle * (Math.PI / 180);
+                                const radius = 40; // middle of the stroke
+                                const x = Math.sin(rad) * radius;
+                                const y = -Math.cos(rad) * radius;
+                                currentAngle += sliceAngle;
+                                
+                                if (cat.pct < 5) return null;
+
+                                return (
+                                  <text key={`label-${i}`} x={x} y={y} fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle" dominantBaseline="central" style={{ textShadow: '0px 1px 3px rgba(0,0,0,0.8)' }} className="pointer-events-none">
+                                    {cat.pct}%
+                                  </text>
+                                );
+                              });
+                            })()}
+                          </svg>
+
+                          {/* Center Donut Hole Text */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
+                              <span className="text-lg font-extrabold text-slate-800 dark:text-slate-100 leading-none">
+                                ₹{totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}
+                              </span>
+                            </div>
                           </div>
                         </div>
 
