@@ -106,6 +106,19 @@ export function getWhatsAppLink(phone?: string, text?: string): string {
 
 import { Login } from './components/Login';
 
+
+// Helper to extract a displayable image URL from drive links if a photo link is missing
+const getDriveImageUrl = (photoLink?: string | null, driveLink?: string | null) => {
+  if (photoLink) return photoLink;
+  if (driveLink) {
+    const match = driveLink.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+      return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+    }
+  }
+  return null;
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     sessionStorage.getItem('isAuthenticated') === 'true'
@@ -939,7 +952,7 @@ function App() {
   const handleCreateEntity = (type: string, data: any) => {
     switch (type) {
       case 'Student':
-        setStudents([{ id: `STU00${students.length + 1}`, ...data, attendance: 100, avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120', location: { status: 'In Hostel', lastUpdated: 'Just now', coordinates: '0,0', hostelDistance: '0', collegeDistance: '0' }, leaveRequests: [], academicProgress: [], subjects: [], notes: [], parentName: '', parentPhone: '', hostelRoom: '' }, ...students]);
+        setStudents([{ id: `STU00${students.length + 1}`, ...data, attendance: 100, avatar: 'https://ui-avatars.com/api/?name=Student&background=3a2248&color=fff', location: { status: 'In Hostel', lastUpdated: 'Just now', coordinates: '0,0', hostelDistance: '0', collegeDistance: '0' }, leaveRequests: [], academicProgress: [], subjects: [], notes: [], parentName: '', parentPhone: '', hostelRoom: '' }, ...students]);
         break;
       case 'Parent':
         setParents([{ id: `PAR00${parents.length + 1}`, ...data }, ...parents]);
@@ -1293,7 +1306,7 @@ function App() {
         college: data.college || 'State Engineering College',
         hostelRoom: 'Block B - Room 104',
         attendance: 100,
-        avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120',
+        avatar: 'https://ui-avatars.com/api/?name=Student&background=3a2248&color=fff',
         location: {
           status: 'In Hostel',
           lastUpdated: 'Just now',
@@ -1627,7 +1640,7 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
                 {/* Metric 1 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -1637,7 +1650,7 @@ function App() {
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
@@ -1645,7 +1658,7 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#cbb4d4] text-white flex items-center justify-center shadow-inner shrink-0">
                       <Users size={26} strokeWidth={2} />
                     </div>
                     <div className="pt-1">
@@ -1659,7 +1672,7 @@ function App() {
                   </div>
 
                   <div className="flex items-center gap-3 mt-4 z-10">
-                    <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
+                    <span className="inline-flex items-center gap-1 bg-[#cbb4d4]/15 dark:bg-[#cbb4d4]/30 text-[#cbb4d4] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                       <ArrowUp size={12} strokeWidth={3} />
                       12%
                     </span>
@@ -1670,7 +1683,7 @@ function App() {
                 </div>
 
                 {/* Metric 2 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -1680,7 +1693,7 @@ function App() {
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
@@ -1688,7 +1701,7 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#cbb4d4] text-white flex items-center justify-center shadow-inner shrink-0">
                       {activeRole === 'Student' ? <Calendar size={26} strokeWidth={2} /> : <ShieldCheck size={26} strokeWidth={2} />}
                     </div>
                     <div className="pt-1">
@@ -1704,7 +1717,7 @@ function App() {
                   <div className="flex items-center gap-3 mt-4 z-10">
                     {activeRole === 'Student' ? (
                       <>
-                        <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 bg-[#cbb4d4]/15 dark:bg-[#cbb4d4]/30 text-[#cbb4d4] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                           <ArrowUp size={12} strokeWidth={3} />
                           Target 90%
                         </span>
@@ -1712,7 +1725,7 @@ function App() {
                       </>
                     ) : (
                       <>
-                        <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 bg-[#cbb4d4]/15 dark:bg-[#cbb4d4]/30 text-[#cbb4d4] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                           Active
                         </span>
                         <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Managing operations</span>
@@ -1722,7 +1735,7 @@ function App() {
                 </div>
 
                 {/* Metric 3 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -1732,7 +1745,7 @@ function App() {
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
@@ -1740,7 +1753,7 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#cbb4d4] text-white flex items-center justify-center shadow-inner shrink-0">
                       <Heart size={26} strokeWidth={2} />
                     </div>
                     <div className="pt-1">
@@ -1758,7 +1771,7 @@ function App() {
                       <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Full tuition & hostel covered</span>
                     ) : (
                       <>
-                        <span className="inline-flex items-center gap-1 bg-[#3a2248]/15 dark:bg-[#3a2248]/30 text-[#3a2248] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
+                        <span className="inline-flex items-center gap-1 bg-[#cbb4d4]/15 dark:bg-[#cbb4d4]/30 text-[#cbb4d4] dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold">
                           Active
                         </span>
                         <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Sponsoring education</span>
@@ -1768,7 +1781,7 @@ function App() {
                 </div>
 
                 {/* Metric 4 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-56">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -1778,7 +1791,7 @@ function App() {
                         <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
                       </svg>
                       {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                         <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
                       </svg>
                     </div>
@@ -1786,7 +1799,7 @@ function App() {
 
                   
                   <div className="flex items-start gap-4 z-10">
-                    <div className="w-14 h-14 rounded-full bg-[#3a2248] text-white flex items-center justify-center shadow-inner shrink-0">
+                    <div className="w-14 h-14 rounded-full bg-[#cbb4d4] text-white flex items-center justify-center shadow-inner shrink-0">
                       <MapPin size={26} strokeWidth={2} />
                     </div>
                     <div className="pt-1">
@@ -1809,7 +1822,7 @@ function App() {
               </div>
 
               {/* DOUBLE CHART & MAP SECTION */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2">
@@ -1857,8 +1870,8 @@ function App() {
                       return `₹${val.toFixed(0)}`;
                     };
 
-                    const chartHeight = 380;
-                    const chartYStart = 430;
+                    const chartHeight = 500;
+                    const chartYStart = 550;
 
                     const costPoints = monthlyCosts.map((val, i) => {
                       const x = 30 + (i * 48); // 12 points spanning from 30 to 558
@@ -1877,12 +1890,12 @@ function App() {
 
                     const lastX = costPoints.length > 0 ? costPoints[costPoints.length - 1].x : 558;
                     const firstX = costPoints.length > 0 ? costPoints[0].x : 30;
-                    const costPolygonPath = `${costPath} L ${lastX},430 L ${firstX},430 Z`;
+                    const costPolygonPath = `${costPath} L ${lastX},550 L ${firstX},550 Z`;
 
                     return (
-                      <div className="relative pt-4 h-[450px] w-full mx-auto flex flex-col">
+                      <div className="relative pt-4 h-[52vh] min-h-[300px] w-full mx-auto flex flex-col">
                         <div className="relative flex-1 w-full">
-                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 450" preserveAspectRatio="none">
+                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 580" preserveAspectRatio="none">
                             {/* Grid lines */}
                             <defs>
                               <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
@@ -1890,10 +1903,10 @@ function App() {
                                 <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
                               </linearGradient>
                             </defs>
-                            {[0, 38, 76, 114, 152, 190, 228, 266, 304, 342].map(offset => (
+                            {[0, 50, 100, 150, 200, 250, 300, 350, 400, 450].map(offset => (
                               <line key={`grid-${offset}`} x1="40" y1={50 + offset} x2="580" y2={50 + offset} stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
                             ))}
-                            <line x1="40" y1="430" x2="580" y2="430" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                            <line x1="40" y1="550" x2="580" y2="550" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
 
                             {/* Chart Areas */}
                             <path d={costPolygonPath} fill="url(#costsGrad)" />
@@ -1907,7 +1920,7 @@ function App() {
                             ))}
 
                             {/* X Axis line */}
-                            <line x1="40" y1="430" x2="580" y2="430" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                            <line x1="40" y1="550" x2="580" y2="550" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
                           </svg>
 
                           {/* Y Labels as HTML (prevent stretch) */}
@@ -1939,7 +1952,7 @@ function App() {
                   </h4>
                   {(() => {
                     const distributionData = [
-                      { name: 'snacks', icon: <Coffee size={14} />, color: '#3a2248', bg: 'bg-[#3a2248]/10 text-[#3a2248]' },
+                      { name: 'snacks', icon: <Coffee size={14} />, color: '#cbb4d4', bg: 'bg-[#cbb4d4]/10 text-[#cbb4d4]' },
                       { name: 'groceries', icon: <BookOpen size={14} />, color: '#573f64', bg: 'bg-[#573f64]/10 text-[#573f64]' },
                       { name: 'sports', icon: <Heart size={14} />, color: '#745c80', bg: 'bg-[#745c80]/10 text-[#745c80]' },
                       { name: 'medical', icon: <Users size={14} />, color: '#91799c', bg: 'bg-[#91799c]/10 text-[#91799c]' },
@@ -1979,7 +1992,7 @@ function App() {
                       <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col">
 
                       <div className="flex-1 flex flex-col items-center justify-center pt-2">
-                        <div className="relative w-48 h-48 mb-6">
+                        <div className="relative w-[26vh] h-[26vh] min-w-[180px] min-h-[180px] mb-6">
                           {/* SVG Donut Chart */}
                           <svg viewBox="-50 -50 100 100" className="absolute inset-0 w-full h-full overflow-visible drop-shadow-sm">
                             <g transform="rotate(-90)">
@@ -2306,7 +2319,7 @@ function App() {
                                 alt={student.name} 
                                 className="w-9 h-9 rounded-full object-cover border border-slate-200 dark:border-slate-700" 
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
+                                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=3a2248&color=fff`;
                                 }}
                               />
                               <div>
@@ -2316,7 +2329,7 @@ function App() {
                             </td>
                             <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
                             <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-[#3a2248]/10 dark:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] border border-[#3a2248]/20 dark:border-[#3a2248]/80">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-[#cbb4d4]/10 dark:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] border border-[#cbb4d4]/20 dark:border-[#cbb4d4]/80">
                                 {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
                               </span>
                             </td>
@@ -2354,7 +2367,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                                  className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <PhoneCall size={14} />
                                 </a>
@@ -2365,7 +2378,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                                  className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -2398,7 +2411,7 @@ function App() {
                         alt={selectedStudent.name}
                         className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120';
+                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=3a2248&color=fff`;
                         }}
                       />
                       <div>
@@ -3135,7 +3148,7 @@ function App() {
                               alt={par.name}
                               className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=120';
+                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(par.name)}&background=3a2248&color=fff`;
                               }}
                             />
                             <div>
@@ -3170,7 +3183,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${par.name} via WhatsApp (${par.phone})`}
-                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={15} />
                             </a>
@@ -3181,7 +3194,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={15} />
                             </a>
@@ -3236,15 +3249,15 @@ function App() {
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                             <img 
-                              src={vol.profile_photo_link || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120'} 
+                              src={vol.profile_photo_link || `https://ui-avatars.com/api/?name=${encodeURIComponent(vol.name)}&background=3a2248&color=fff`} 
                               alt={vol.name}
                               className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
                               onError={(e) => {
-                                (e.target as HTMLElement).setAttribute('src', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120');
+                                (e.target as HTMLElement).setAttribute('src', `https://ui-avatars.com/api/?name=${encodeURIComponent(vol.name)}&background=3a2248&color=fff`);
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#3a2248] transition-colors">{vol.name}</span>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#cbb4d4] transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
                             </div>
                           </div>
@@ -3268,7 +3281,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedVolunteer(vol)}
-                              className="text-xs bg-[#3a2248]/10 dark:bg-[#3a2248]/50 hover:bg-[#3a2248]/20 text-[#3a2248] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#3a2248]/20 dark:border-[#3a2248]/60"
+                              className="text-xs bg-[#cbb4d4]/10 dark:bg-[#cbb4d4]/50 hover:bg-[#cbb4d4]/20 text-[#cbb4d4] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#cbb4d4]/20 dark:border-[#cbb4d4]/60"
                             >
                               View Profile
                             </button>
@@ -3277,7 +3290,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
-                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3286,7 +3299,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3345,21 +3358,21 @@ function App() {
                               alt={donor.name}
                               className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(donor.name)}&background=3a2248&color=fff`;
                               }}
                             />
                             <div>
-                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#3a2248] transition-colors">{donor.name}</span>
+                              <span className="font-bold text-slate-800 dark:text-white block hover:text-[#cbb4d4] transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
                             </div>
                           </div>
                         </td>
                         <td className="p-4 font-semibold text-slate-700 dark:text-slate-300">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#3a2248]/10 dark:bg-[#3a2248]/40 text-[#3a2248] dark:text-[#e7c7fa] border border-[#3a2248]/20">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#cbb4d4]/10 dark:bg-[#cbb4d4]/40 text-[#cbb4d4] dark:text-[#e7c7fa] border border-[#cbb4d4]/20">
                             {donor.donorType}
                           </span>
                         </td>
-                        <td className="p-4 font-mono font-bold text-[#3a2248] dark:text-[#e7c7fa] text-sm">
+                        <td className="p-4 font-mono font-bold text-[#cbb4d4] dark:text-[#e7c7fa] text-sm">
                           {donor.formattedAmount}
                         </td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{donor.phone}</td>
@@ -3373,7 +3386,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedDonor(donor)}
-                              className="text-xs bg-[#3a2248]/10 dark:bg-[#3a2248]/50 hover:bg-[#3a2248]/20 text-[#3a2248] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#3a2248]/20 dark:border-[#3a2248]/60"
+                              className="text-xs bg-[#cbb4d4]/10 dark:bg-[#cbb4d4]/50 hover:bg-[#cbb4d4]/20 text-[#cbb4d4] dark:text-[#e7c7fa] font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#cbb4d4]/20 dark:border-[#cbb4d4]/60"
                             >
                               View Profile
                             </button>
@@ -3382,7 +3395,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
-                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3391,7 +3404,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-[#3a2248]/10 hover:bg-[#3a2248]/20 dark:bg-[#3a2248]/40 dark:hover:bg-[#3a2248]/60 text-[#3a2248] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#3a2248]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3638,14 +3651,14 @@ function App() {
                                         catLower.includes('travel') ? 'bg-blue-50 text-blue-500 border-blue-100' :
                                           catLower.includes('groc') ? 'bg-amber-50 text-amber-500 border-amber-100' :
                                             catLower.includes('med') ? 'bg-rose-50 text-rose-500 border-rose-100' :
-                                              'bg-[#3a2248]/10 text-[#3a2248] border-[#3a2248]/20'
+                                              'bg-[#cbb4d4]/10 text-[#cbb4d4] border-[#cbb4d4]/20'
                                       }`}>
                                       <CategoryIcon size={20} />
                                     </div>
                                   )}
 
                                   <div className="space-y-1.5 w-full">
-                                    <h5 className="font-bold text-[15px] text-slate-900 dark:text-white leading-snug group-hover:text-[#3a2248] dark:group-hover:text-violet-400 transition-colors">
+                                    <h5 className="font-bold text-[15px] text-slate-900 dark:text-white leading-snug group-hover:text-[#cbb4d4] dark:group-hover:text-violet-400 transition-colors">
                                       {item.title}
                                     </h5>
                                     {item.uploaded_by && (
@@ -4360,7 +4373,7 @@ function App() {
                       alt={selectedVolunteer.name}
                       className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedVolunteer.name)}&background=3a2248&color=fff`;
                       }}
                     />
                     <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></span>
@@ -4477,7 +4490,7 @@ function App() {
                       alt={selectedDonor.name}
                       className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
+                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedDonor.name)}&background=3a2248&color=fff`;
                       }}
                     />
                     <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-300 border-2 border-white rounded-full"></span>
