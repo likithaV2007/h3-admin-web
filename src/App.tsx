@@ -1858,6 +1858,267 @@ function App() {
 
 
 
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+
+                {/* Visual Chart Column */}
+                <div className="flex flex-col gap-3 w-full lg:col-span-2">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                    Monthly Expenses Chart
+                  </h4>
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full">
+
+                  {/* CUSTOM BAR/LINE CHART USING SVG */}
+                  {(() => {
+                    // Dynamically get the last 6 months up to current month
+                    let monthIndices: number[] = [];
+                    let monthLabels: string[] = [];
+                    let monthlyCosts: number[] = [];
+
+                    const currentMonth = new Date().getMonth();
+                    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+                    for (let i = 11; i >= 0; i--) {
+                      let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
+                      monthIndices.push(d.getMonth());
+                      monthLabels.push(monthNames[d.getMonth()]);
+                    }
+
+                    if (dashboardStats?.monthly_expenses) {
+                      monthlyCosts = monthLabels.map(label => {
+                        const found = dashboardStats.monthly_expenses.find((m: any) => m.month === label);
+                        return found ? found.amount : 0;
+                      });
+                    } else {
+                      monthlyCosts = monthIndices.map(monthIdx => {
+                        return expenses.filter(e => {
+                          if (!e.date) return false;
+                          const d = new Date(e.date);
+                          return d.getMonth() === monthIdx;
+                        }).reduce((sum, e) => sum + e.amount, 0);
+                      });
+                    }
+
+                    const maxChartValue = 100000;
+                    const yStep = 25000;
+
+                    const formatK = (val: number) => {
+                      if (val >= 1000) return `₹${(val / 1000).toFixed(0)}k`;
+                      return `₹${val.toFixed(0)}`;
+                    };
+
+                    const chartHeight = 500;
+                    const chartYStart = 550;
+
+                    const costPoints = monthlyCosts.map((val, i) => {
+                      const x = 30 + (i * 48); // 12 points spanning from 30 to 558
+                      const y = chartYStart - (Math.min(val, maxChartValue) / maxChartValue) * chartHeight;
+                      return { x, y };
+                    });
+
+                    let costPath = '';
+                    if (costPoints.length > 0) {
+                      costPath = `M ${costPoints[0].x},${costPoints[0].y}`;
+                      for (let i = 0; i < costPoints.length - 1; i++) {
+                        const xMid = (costPoints[i].x + costPoints[i + 1].x) / 2;
+                        costPath += ` C ${xMid},${costPoints[i].y} ${xMid},${costPoints[i + 1].y} ${costPoints[i + 1].x},${costPoints[i + 1].y}`;
+                      }
+                    }
+
+                    const lastX = costPoints.length > 0 ? costPoints[costPoints.length - 1].x : 558;
+                    const firstX = costPoints.length > 0 ? costPoints[0].x : 30;
+                    const costPolygonPath = `${costPath} L ${lastX},550 L ${firstX},550 Z`;
+
+                    return (
+                      <div className="relative pt-4 h-[52vh] min-h-[300px] w-full mx-auto flex flex-col">
+                        <div className="relative flex-1 w-full">
+                          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 580" preserveAspectRatio="none">
+                            {/* Grid lines */}
+                            <defs>
+                              <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                              </linearGradient>
+                            </defs>
+                            {[0, 50, 100, 150, 200, 250, 300, 350, 400, 450].map(offset => (
+                              <line key={`grid-${offset}`} x1="40" y1={50 + offset} x2="580" y2={50 + offset} stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+                            ))}
+                            <line x1="40" y1="550" x2="580" y2="550" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
+
+                            {/* Chart Areas */}
+                            <path d={costPolygonPath} fill="url(#costsGrad)" />
+
+                            {/* Chart Lines */}
+                            <path d={costPath} fill="none" stroke="#20002c" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
+
+                            {/* Data Points */}
+                            {costPoints.map((p, i) => (
+                              <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#20002c" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                            ))}
+
+                            {/* X Axis line */}
+                            <line x1="40" y1="550" x2="580" y2="550" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+                          </svg>
+
+                          {/* Y Labels as HTML (prevent stretch) */}
+                          <div className="absolute inset-y-0 left-0 w-10 flex flex-col justify-between py-[12px] text-[10px] font-bold text-slate-800 dark:text-slate-200 pointer-events-none">
+                            {[100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 0].map(val => (
+                              <span key={val} className="text-right pr-2">{val === 0 ? '0' : `₹${val}k`}</span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* X Labels as HTML (prevent stretch) */}
+                        <div className="relative w-full h-8 flex items-center mt-2 px-10">
+                          {monthLabels.map((label, idx) => (
+                            <div key={idx} className="flex-1 text-center text-xs font-bold text-slate-800 dark:text-slate-200">
+                              {label}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Expense Distribution Donut Chart */}
+                <div className="flex flex-col gap-3 w-full lg:col-span-1">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                    Expense Distribution
+                  </h4>
+                  {(() => {
+                    const distributionData = [
+                      { name: 'snacks', icon: <Coffee size={14} />, color: '#cbb4d4', bg: 'bg-[#cbb4d4]/10 text-[#cbb4d4]' },
+                      { name: 'groceries', icon: <BookOpen size={14} />, color: '#573f64', bg: 'bg-[#573f64]/10 text-[#573f64]' },
+                      { name: 'sports', icon: <Heart size={14} />, color: '#745c80', bg: 'bg-[#745c80]/10 text-[#745c80]' },
+                      { name: 'medical', icon: <Users size={14} />, color: '#91799c', bg: 'bg-[#91799c]/10 text-[#91799c]' },
+                      { name: 'travel', icon: <Bus size={14} />, color: '#ae96b8', bg: 'bg-[#ae96b8]/10 text-[#ae96b8]' },
+                      { name: 'stationary', icon: <Pencil size={14} />, color: '#cbb4d4', bg: 'bg-[#cbb4d4]/20 text-[#cbb4d4]' }
+                    ];
+
+                    let calculatedData: any[] = distributionData.map(cat => {
+                      if (dashboardStats?.expense_distribution) {
+                        const stat = dashboardStats.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
+                        return { ...cat, amount: stat ? stat.amount : 0 };
+                      }
+                      return {
+                        ...cat,
+                        amount: expenses.filter(e => e.category && e.category.toLowerCase() === cat.name).reduce((sum, e) => sum + e.amount, 0)
+                      };
+                    });
+                    const totalExpenses = calculatedData.reduce((sum, cat) => sum + cat.amount, 0);
+
+                    if (totalExpenses === 0) {
+                      calculatedData = [
+                        { ...distributionData[0], amount: 71, pct: 39 },
+                        { ...distributionData[1], amount: 53, pct: 29 },
+                        { ...distributionData[2], amount: 22, pct: 12 },
+                        { ...distributionData[3], amount: 18, pct: 10 },
+                        { ...distributionData[4], amount: 12, pct: 7 },
+                        { ...distributionData[5], amount: 5, pct: 3 }
+                      ];
+                    } else {
+                      calculatedData = calculatedData.map(cat => ({
+                        ...cat,
+                        pct: Math.round((cat.amount / totalExpenses) * 100)
+                      })).sort((a, b) => b.pct - a.pct);
+                    }
+
+                    return (
+                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col">
+
+                      <div className="flex-1 flex flex-col items-center justify-center pt-2">
+                        <div className="relative w-[26vh] h-[26vh] min-w-[180px] min-h-[180px] mb-6">
+                          {/* SVG Donut Chart */}
+                          <svg viewBox="-50 -50 100 100" className="absolute inset-0 w-full h-full overflow-visible drop-shadow-sm">
+                            <g transform="rotate(-90)">
+                              {(() => {
+                                let currentPct = 0;
+                                return calculatedData.map((cat, i) => {
+                                  if (cat.pct <= 0) return null;
+                                  const strokeDasharray = `${cat.pct} ${100 - cat.pct}`;
+                                  const strokeDashoffset = -currentPct;
+                                  currentPct += cat.pct;
+                                  
+                                  return (
+                                    <circle
+                                      key={i}
+                                      cx="0"
+                                      cy="0"
+                                      r="40"
+                                      fill="transparent"
+                                      stroke={cat.color}
+                                      strokeWidth="20"
+                                      pathLength="100"
+                                      strokeDasharray={strokeDasharray}
+                                      strokeDashoffset={strokeDashoffset}
+                                      className="transition-all duration-300 hover:opacity-80 cursor-pointer"
+                                    >
+                                      <title>{cat.name}: ₹{cat.amount} ({cat.pct}%)</title>
+                                    </circle>
+                                  );
+                                });
+                              })()}
+                            </g>
+                            
+                            {/* Percentage Labels */}
+                            {(() => {
+                              let currentAngle = 0;
+                              return calculatedData.map((cat, i) => {
+                                if (cat.pct <= 0) return null;
+                                const sliceAngle = (cat.pct / 100) * 360;
+                                const midAngle = currentAngle + sliceAngle / 2;
+                                const rad = midAngle * (Math.PI / 180);
+                                const radius = 40; // middle of the stroke
+                                const x = Math.sin(rad) * radius;
+                                const y = -Math.cos(rad) * radius;
+                                currentAngle += sliceAngle;
+                                
+                                if (cat.pct < 5) return null;
+
+                                return (
+                                  <text key={`label-${i}`} x={x} y={y} fill="white" fontSize="4.5" fontWeight="bold" textAnchor="middle" dominantBaseline="central" style={{ textShadow: '0px 1px 3px rgba(0,0,0,0.8)' }} className="pointer-events-none">
+                                    {cat.pct}%
+                                  </text>
+                                );
+                              });
+                            })()}
+                          </svg>
+
+                          {/* Center Donut Hole Text */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
+                              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
+                              <span className="text-lg font-extrabold text-slate-800 dark:text-slate-100 leading-none">
+                                ₹{totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="w-full bg-white dark:bg-slate-950 rounded-2xl p-4 shadow-sm space-y-3 mt-auto border border-slate-100 dark:border-slate-800">
+                          {calculatedData.map((cat, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }}></div>
+                                <div className={`w-6 h-6 rounded-md flex items-center justify-center ${cat.bg}`}>
+                                  {cat.icon}
+                                </div>
+                                <span className="text-xs font-bold capitalize text-slate-700 dark:text-slate-300">{cat.name}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">₹{cat.amount}</span>
+                                <span className="text-xs font-bold" style={{ color: cat.color }}>{cat.pct}%</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
             {/* TWO COLUMN SUMMARY SECTIONS */}
               {activeRole !== 'Admin' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
