@@ -10,7 +10,8 @@ import {
   type Parent, 
   type Donor,
   type Expense,
-  type ActivityLog 
+  type ActivityLog,
+  type Activity
 } from '../mockData';
 
 const BASE_URL = (import.meta.env.VITE_API_URL || 'https://h3apps-api.hope3.org').replace(/\/+$/, '');
@@ -338,7 +339,10 @@ export const apiService = {
       target_group: item.target_group || 'ALL',
       created_by_name: item.created_by_name || 'System Admin',
       approved_by_name: item.approved_by_name || item.approved_by || null,
-      receipt_url: item.receipt_url || item.receipt || item.image_url || null
+      receipt_url: item.receipt_url || item.receipt || item.image_url || null,
+      receipt_photo_link: item.receipt_photo_link || null,
+      receipt_drive_link: item.receipt_drive_link || null,
+      uploaded_by: item.uploaded_by || null
     }));
   },
 
@@ -566,6 +570,63 @@ export const apiService = {
       }
     } catch (e) {
       return { status: 'ERROR', statusCode: 0, url: BASE_URL };
+    }
+  },
+
+  // Fetch Activities
+  getActivities: async (): Promise<Activity[]> => {
+    try {
+      const data = await apiFetch<any[]>('/api/v1/activities/?skip=0&limit=100', []);
+      return data.map(item => ({
+        ...item,
+        activity_id: item.activity_id || Math.random().toString(),
+        title: item.title || 'Untitled Activity',
+        description: item.description || '',
+        activity_date: item.activity_date || item.created_at || new Date().toISOString(),
+        audience: item.audience || 'Everyone',
+        images: item.images || []
+      }));
+    } catch (error) {
+      console.error('Failed to fetch activities:', error);
+      return [];
+    }
+  },
+
+  // Create Activity
+  createActivity: async (activityData: Partial<Activity>): Promise<Activity | null> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      
+      // Fallback for missing properties as per schema
+      const payload = {
+        student_id: "00000000-0000-0000-0000-000000000000",
+        created_by: "00000000-0000-0000-0000-000000000000",
+        is_published: 0,
+        is_deleted: 0,
+        activity_date: new Date().toISOString(),
+        images: [],
+        ...activityData
+      };
+
+      const res = await fetch(`${BASE_URL}/api/v1/activities/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        console.error('API request POST /api/v1/activities/ failed with status', res.status);
+        return null;
+      }
+      
+      const data = await res.json();
+      return data as Activity;
+    } catch (error) {
+      console.error('Failed to create activity:', error);
+      return null;
     }
   }
 };

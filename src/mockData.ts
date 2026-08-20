@@ -220,6 +220,22 @@ export interface ActivityLog {
   category: 'leave' | 'academic' | 'attendance' | 'general';
 }
 
+export interface Activity {
+  activity_id: string;
+  student_id: string | null;
+  activity_type: string;
+  title: string;
+  activity_date: string;
+  created_by: string;
+  is_published: number;
+  is_deleted: number;
+  description: string;
+  audience: string | null;
+  images: { caption: string; image_url: string; sort_order: number }[] | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export const initialStudents: Student[] = [
   {
     id: 'STU001',

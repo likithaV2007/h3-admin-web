@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, UserPlus, BookOpen, Heart, Briefcase, GraduationCap, Users } from 'lucide-react';
+import { X, UserPlus, BookOpen, Heart, Briefcase, GraduationCap, Users, CalendarDays } from 'lucide-react';
 
 interface EntityCreationModalProps {
   type: string;
@@ -61,6 +61,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
 
   const getTypeIcon = () => {
     switch (type) {
+      case 'activity': return <CalendarDays className="text-emerald-500" size={24} />;
       case 'Student': return <BookOpen className="text-blue-500" size={24} />;
       case 'Parent': return <Users className="text-indigo-500" size={24} />;
       case 'Donor': return <Heart className="text-rose-500" size={24} />;
@@ -74,6 +75,35 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
 
   const renderFields = () => {
     switch (type) {
+      case 'activity':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <CustomInput required name="title" placeholder="Activity Title" onChange={handleChange} />
+            </div>
+            <CustomSelect
+              required
+              name="activity_type"
+              placeholder="Activity Type"
+              onChange={handleChange}
+              options={["General", "Academic", "Event", "Workshop", "Other"]}
+            />
+            <CustomInput required name="audience" placeholder="Audience (e.g., Everyone)" onChange={handleChange} />
+            <div className="md:col-span-2">
+              <CustomInput name="image_url" placeholder="Google Drive Image URL" onChange={handleChange} />
+            </div>
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Description</label>
+              <textarea
+                required
+                name="description"
+                onChange={handleChange as any}
+                placeholder="Enter activity description"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm min-h-[100px]"
+              />
+            </div>
+          </div>
+        );
       case 'Student':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
