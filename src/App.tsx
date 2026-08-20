@@ -95,7 +95,7 @@ export interface StudentRequest {
   date: string;
 }
 
-export function getWhatsAppLink(phone?: string, text?: string): string {
+function getWhatsAppLink(phone?: string, text?: string): string {
   if (!phone) return '#';
   const clean = phone.replace(/[^0-9]/g, '');
   if (!clean || clean === '0000000000') return '#';
@@ -109,14 +109,20 @@ import { Login } from './components/Login';
 
 // Helper to extract a displayable image URL from drive links if a photo link is missing
 const getDriveImageUrl = (photoLink?: string | null, driveLink?: string | null) => {
-  if (photoLink) return photoLink;
-  if (driveLink) {
-    const match = driveLink.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  const linkToUse = photoLink || driveLink;
+  if (!linkToUse || typeof linkToUse !== 'string') return null;
+  
+  const clean = linkToUse.trim();
+  if (clean === 'null' || clean === 'undefined' || clean === 'string' || clean === '') return null;
+
+  if (clean.includes('drive.google.com') || clean.includes('googleusercontent.com')) {
+    const match = clean.match(/\/d\/([a-zA-Z0-9_-]+)/) || clean.match(/id=([a-zA-Z0-9_-]+)/);
     if (match && match[1]) {
       return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
     }
   }
-  return null;
+  
+  return clean || null;
 };
 
 function App() {
@@ -174,11 +180,14 @@ function App() {
     if (!isAuthenticated) return;
     const fetchExpenses = async () => {
       try {
-        const response = await fetch(`${apiStatus.url}/api/v1/expenses/?skip=0&limit=100`, {
+        const response = await fetch(`${apiStatus.url}/api/v1/expenses/?skip=0&limit=100&_t=${Date.now()}`, {
           headers: {
             'accept': 'application/json',
-            'Authorization': `Bearer ${sessionStorage.getItem('authToken') || localStorage.getItem('authToken')}`
-          }
+            'Authorization': `Bearer ${sessionStorage.getItem('authToken') || localStorage.getItem('authToken')}`,
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          cache: 'no-store'
         });
         if (response.ok) {
           const data = await response.json();
@@ -3641,18 +3650,12 @@ function App() {
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex items-start gap-3.5">
                                   {/* Icon/Image Thumbnail */}
-                                  {item.receipt_photo_link ? (
-                                    <div className="w-11 h-11 rounded-2xl shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden bg-slate-50 dark:bg-slate-800">
-                                      <img src={item.receipt_photo_link} alt="Receipt" className="w-full h-full object-cover" />
+                                  {(item.receipt_photo_link || item.receipt_drive_link) ? (
+                                    <div className="w-11 h-11 rounded-2xl shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                                      <img src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) || "https://placehold.co/44"} alt="Receipt" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-[8px] font-bold text-slate-400 p-1 text-center leading-tight">Private Image</span>'; }} />
                                     </div>
                                   ) : (
-                                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${catLower.includes('snack') || catLower.includes('food') ? 'bg-emerald-50 text-emerald-500 border-emerald-100' :
-                                      catLower.includes('sport') ? 'bg-orange-50 text-orange-500 border-orange-100' :
-                                        catLower.includes('travel') ? 'bg-blue-50 text-blue-500 border-blue-100' :
-                                          catLower.includes('groc') ? 'bg-amber-50 text-amber-500 border-amber-100' :
-                                            catLower.includes('med') ? 'bg-rose-50 text-rose-500 border-rose-100' :
-                                              'bg-[#cbb4d4]/10 text-[#cbb4d4] border-[#cbb4d4]/20'
-                                      }`}>
+                                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm bg-[#cbb4d4]/10 text-[#cbb4d4] border-[#cbb4d4]/20`}>
                                       <CategoryIcon size={20} />
                                     </div>
                                   )}
@@ -3662,7 +3665,7 @@ function App() {
                                       {item.title}
                                     </h5>
                                     {item.uploaded_by && (
-                                      <p className="text-[10px] text-slate-500 dark:text-slate-400">By {item.uploaded_by}</p>
+                                      <p className="text-[10px] text-slate-500 dark:text-slate-400" style={{wordBreak: "break-all", whiteSpace: "normal"}}>By {item.uploaded_by} | P: {String(item.receipt_photo_link).substring(0, 30)}... | D: {String(item.receipt_drive_link).substring(0, 10)}</p>
                                     )}
 
                                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
@@ -3746,17 +3749,14 @@ function App() {
                                   <div className="w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-2">
                                     <div className="flex items-center justify-between mb-2 px-1">
                                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Attached Receipt</span>
-                                      {item.receipt_drive_link && !item.receipt_photo_link && (
-                                        <span className="text-[9px] font-bold text-blue-500">Google Drive Link</span>
-                                      )}
                                     </div>
-                                    {item.receipt_photo_link ? (
-                                      <a href={item.receipt_photo_link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                        <img src={item.receipt_photo_link} alt="Receipt thumbnail" className="w-full h-auto max-h-48 object-cover rounded-lg bg-white dark:bg-slate-950" />
+                                    {getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) ? (
+                                      <a href={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                        <img src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} alt="Receipt thumbnail" className="w-full h-auto max-h-48 object-cover rounded-lg bg-white dark:bg-slate-950" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<div class="py-4 text-center border-2 border-dashed border-red-200 rounded-lg text-xs font-bold text-red-500">Image is Private or Blocked. Click to open in Drive.</div>'; }} />
                                       </a>
                                     ) : (
                                       <a href={item.receipt_drive_link!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block w-full py-3 text-center border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Open Drive Document</span>
+                                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Open Document</span>
                                       </a>
                                     )}
                                   </div>
@@ -4819,14 +4819,15 @@ function App() {
                 <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/60 pb-1">
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Receipt Attachment</span>
                   <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-2">
-                    {selectedExpense.receipt_photo_link ? (
+                    {getDriveImageUrl(selectedExpense.receipt_photo_link, selectedExpense.receipt_drive_link) ? (
                       <img
-                        src={selectedExpense.receipt_photo_link}
+                        src={getDriveImageUrl(selectedExpense.receipt_photo_link, selectedExpense.receipt_drive_link) || "https://placehold.co/400"}
                         alt="Expense Receipt"
                         className="w-full max-h-48 object-contain hover:scale-[1.03] transition-transform cursor-zoom-in rounded-xl"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<a href="' + (selectedExpense.receipt_drive_link || selectedExpense.receipt_photo_link) + '" target="_blank" class="block w-full py-4 text-center border-2 border-dashed border-red-200 rounded-lg text-xs font-bold text-red-500 hover:bg-red-50">Private Google Drive Image. Click to view externally.</a>'; }}
                         onClick={() => {
                           const w = window.open();
-                          if (w) w.document.write(`<img src="${selectedExpense.receipt_photo_link}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
+                          if (w) w.document.write(`<img src="${getDriveImageUrl(selectedExpense.receipt_photo_link, selectedExpense.receipt_drive_link)}" style="max-width:100%; max-height:100vh; display:block; margin:auto;" />`);
                         }}
                       />
                     ) : (
