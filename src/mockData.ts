@@ -9,6 +9,7 @@ export interface LeaveRequest {
   reason: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   requestedAt: string;
+  [key: string]: any;
 }
 
 export interface Student {
@@ -22,7 +23,7 @@ export interface Student {
   attendance: number;
   avatar: string;
   location: {
-    status: 'In Hostel' | 'In College' | 'Out of Bounds' | 'On Leave';
+    status: string;
     lastUpdated: string;
     coordinates: string;
     hostelDistance: string;
@@ -95,7 +96,10 @@ export interface Student {
   designation?: string;
   are_you_on_track?: number;
   willing_to_do_volunteering?: number;
+  college_fees?: string;
+  fees_status?: string;
   other_notes?: string;
+  [key: string]: any;
 }
 
 export interface Volunteer {
@@ -116,6 +120,7 @@ export interface Volunteer {
   status: 'Active' | 'On Leave' | 'Inactive';
   assignedStudents?: string[];
   role?: string;
+  [key: string]: any;
 }
 
 export interface Parent {
@@ -135,6 +140,7 @@ export interface Parent {
   user_id?: string;
   student_id?: string;
   is_primary?: number;
+  [key: string]: any;
 }
 
 export interface Donor {
@@ -150,7 +156,8 @@ export interface Donor {
   formattedAmount: string;
   status: 'Active Sponsor' | 'Past Benefactor';
   profile_photo_link?: string;
-  joined_date?: string;
+  joined_date: string;
+  [key: string]: any;
 }
 
 export interface Expense {
@@ -171,6 +178,7 @@ export interface Expense {
   receipt_photo_link?: string | null;
   receipt_drive_link?: string | null;
   uploaded_by?: string | null;
+  [key: string]: any;
 }
 
 export const initialDonors: Donor[] = [
@@ -218,6 +226,7 @@ export interface ActivityLog {
   action: string;
   time: string;
   category: 'leave' | 'academic' | 'attendance' | 'general';
+  [key: string]: any;
 }
 
 export interface Activity {

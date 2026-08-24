@@ -362,8 +362,8 @@ function App() {
             .filter(d => !existingIds.includes(d.id))
             .map(d => ({
               ...d,
-              polygons: d.polygons || (d.coords ? [{ name: d.name, coords: d.coords }] : []),
-              studentIds: d.studentIds || []
+              polygons: (d as any).polygons || (d.coords ? [{ name: d.name, coords: d.coords }] : []),
+              studentIds: (d as any).studentIds || []
             }));
 
           const combined = [...parsed, ...missingDefaults];
@@ -408,7 +408,7 @@ function App() {
 
       const fetchedStudents = await apiService.getStudents();
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities, fetchedClasses, fetchedStudentRequests, fetchedLeaveRequests] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
@@ -417,7 +417,10 @@ function App() {
         apiService.getTrackingSessions(),
         apiService.getAdminsCount(),
         apiService.getAdminDashboard(),
-        apiService.getActivities()
+        apiService.getActivities(),
+        apiService.getClasses(),
+        apiService.getStudentRequests(),
+        apiService.getLeaveRequests()
       ]);
 
       setAdminCount(fetchedAdminCount);
@@ -437,8 +440,8 @@ function App() {
           });
 
           studentsWithLiveLocations = fetchedStudents.map(student => {
-            const dbId = student.student_id || student.id;
-            const session = latestSessionMap.get(dbId);
+            const dbId = student.id || student.student_code;
+            const session = latestSessionMap.get(dbId as string);
             if (session) {
               const lat = parseFloat(session.lat);
               const lng = parseFloat(session.lng);
@@ -487,6 +490,10 @@ function App() {
       if (fetchedParents && fetchedParents.length > 0) setParents(fetchedParents);
       if (fetchedDonors && fetchedDonors.length > 0) setDonors(fetchedDonors);
       if (fetchedExpenses && fetchedExpenses.length > 0) setExpenses(fetchedExpenses);
+      
+      setClasses(fetchedClasses || []);
+      setStudentRequests(fetchedStudentRequests || []);
+      setLeaveRequests(fetchedLeaveRequests || []);
 
       if (fetchedGeofences && fetchedGeofences.length > 0) {
         const mappedGeofences: any[] = [];
@@ -963,20 +970,7 @@ function App() {
 
   const [creationModal, setCreationModal] = useState<{ type: string; isOpen: boolean }>({ type: '', isOpen: false });
 
-  const handleCreateEntity = (type: string, data: any) => {
-    switch (type) {
-      case 'Student':
-        setStudents([{ id: `STU00${students.length + 1}`, ...data, attendance: 100, avatar: 'https://ui-avatars.com/api/?name=Student&background=3a2248&color=fff', location: { status: 'In Hostel', lastUpdated: 'Just now', coordinates: '0,0', hostelDistance: '0', collegeDistance: '0' }, leaveRequests: [], academicProgress: [], subjects: [], notes: [], parentName: '', parentPhone: '', hostelRoom: '' }, ...students]);
-        break;
-      case 'Parent':
-        setParents([{ id: `PAR00${parents.length + 1}`, ...data }, ...parents]);
-        break;
-      case 'Volunteer':
-        setVolunteers([{ id: `VOL00${volunteers.length + 1}`, ...data, hoursContributed: 0, status: 'Active' }, ...volunteers]);
-        break;
-    }
-  };
-
+  // Removed legacy handleCreateEntity mock handler
   // New Data State for Mind Map Features
   const [classes, setClasses] = useState<SchoolClass[]>([]);
 
@@ -1263,36 +1257,28 @@ function App() {
         school_name: data.college || 'Government College',
         location_status: 'In Hostel'
       };
-
-      const apiResult = await apiService.createStudent(payload);
-
-      const newStudent: Student = {
-        id: apiResult?.student_code || apiResult?.id || `STU${Date.now()}`,
-        name: data.name,
-        rollNo: data.rollNo || `STU00${students.length + 1}`,
-        age: parseInt(data.age) || 19,
-        batch: data.batch || '2026',
-        grade: data.grade || 'B.Tech - 2nd Year',
-        college: data.college || 'State Engineering College',
-        hostelRoom: 'Block B - Room 104',
-        attendance: 100,
-        avatar: 'https://ui-avatars.com/api/?name=Student&background=3a2248&color=fff',
-        location: {
-          status: 'In Hostel',
-          lastUpdated: 'Just now',
-          coordinates: '12.9716° N, 77.5946° E',
-          hostelDistance: '0.0 km',
-          collegeDistance: '1.2 km'
-        },
-        leaveRequests: [],
-        academicProgress: [],
-        subjects: [],
-        notes: [],
-        parentName: 'Parent Contact',
-        parentPhone: '+91 98765 43210'
+      await apiService.createStudent(payload);
+      await loadDataFromApi();
+    } else if (type === 'Parent') {
+      const payload = {
+        parent_name: data.name,
+        relation: data.relationship,
+        phone: data.phone,
+        occupation: data.occupation,
+        student_id: data.childId
       };
-
-      setStudents(prev => [newStudent, ...prev]);
+      await apiService.createParent(payload);
+      await loadDataFromApi();
+    } else if (type === 'Volunteer') {
+      const payload = {
+        full_name: data.name,
+        email: data.email,
+        phone: data.phone,
+        specialization: data.specialization,
+        availability: data.availability
+      };
+      await apiService.createVolunteer(payload);
+      await loadDataFromApi();
     } else if (type === 'activity') {
       const payload: Partial<Activity> = {
         title: data.title,
@@ -1517,7 +1503,7 @@ function App() {
             </div>
             {sidebarOpen && (
               <div className="animate-fade-in pl-1.5 overflow-hidden flex-1">
-                <h1 className="font-extrabold text-[1.4rem] leading-tight bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent truncate">Hope3</h1>
+                <h1 className="font-extrabold text-[1.4rem] leading-tight bg-gradient-to-r from-[#20002c] to-[#cbb4d4] bg-clip-text text-transparent truncate">Hope3</h1>
                 <span className="text-[9px] text-slate-500 dark:text-slate-400 font-black tracking-[0.2em] uppercase block -mt-0.5">Admin Portal</span>
               </div>
             )}
@@ -2319,9 +2305,9 @@ function App() {
                               <span className="text-[10px] text-slate-400 block max-w-[180px] truncate">{student.college}</span>
                             </td>
                             <td className="p-4">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] ${(student.status || 'Active') === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${(student.status || 'Active') === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
-                                {student.status || 'Active'}
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] ${((student as any).status || 'Active') === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${((student as any).status || 'Active') === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                                {(student as any).status || 'Active'}
                               </span>
                             </td>
                             <td className="p-4">
@@ -2392,7 +2378,7 @@ function App() {
                         alt={selectedStudent.name}
                         className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=3a2248&color=fff`;
+                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedStudent.name)}&background=3a2248&color=fff`;
                         }}
                       />
                       <div>
@@ -2545,7 +2531,7 @@ function App() {
                               </div>
                               <div>
                                 <span className="text-slate-400 block font-semibold text-[10px] uppercase">Hostel Room</span>
-                                <span className="font-bold text-slate-800 dark:text-slate-200">{selectedStudent.hostel_room || selectedStudent.hostelRoom || 'N/A'}</span>
+                                <span className="font-bold text-slate-800 dark:text-slate-200">{(selectedStudent as any).hostel_room || selectedStudent.hostelRoom || 'N/A'}</span>
                               </div>
                               <div className="sm:col-span-2 lg:col-span-3">
                                 <span className="text-slate-400 block font-semibold text-[10px] uppercase">College Address</span>
@@ -4494,27 +4480,27 @@ function App() {
           {activeTab === 'Profile' && (
             <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               
-              <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-8 shadow-xl shadow-emerald-500/5 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-800"></div>
+              <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-8 shadow-xl shadow-fuchsia-500/5 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-r from-[#20002c] to-[#cbb4d4]"></div>
                 
                 <div className="relative z-10 flex flex-col items-center mt-16">
                   <div className="w-36 h-36 rounded-full bg-white dark:bg-slate-900 p-2 shadow-2xl border-4 border-white dark:border-slate-900 mb-6 relative group">
                     <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-full h-full object-contain rounded-full bg-slate-50 dark:bg-slate-800/50 p-2" />
-                    <button className="absolute bottom-2 right-2 w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-emerald-600 hover:scale-110 transition-all opacity-0 group-hover:opacity-100">
+                    <button className="absolute bottom-2 right-2 w-10 h-10 bg-[#20002c] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#cbb4d4] hover:text-[#20002c] hover:scale-110 transition-all opacity-0 group-hover:opacity-100">
                       <Pencil size={16} />
                     </button>
                   </div>
                   <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Hope3 Foundation</h2>
                   <div className="flex items-center gap-2 mt-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Admin Portal Active</p>
+                    <div className="w-2 h-2 rounded-full bg-[#cbb4d4] animate-pulse"></div>
+                    <p className="text-xs font-bold text-[#20002c] dark:text-[#cbb4d4] uppercase tracking-widest">Admin Portal Active</p>
                   </div>
                 </div>
 
                 <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl p-8 border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="absolute top-0 left-0 w-1 h-full bg-[#cbb4d4] opacity-50 group-hover:opacity-100 transition-opacity"></div>
                   <h4 className="font-bold text-lg text-slate-800 dark:text-white mb-6 flex items-center gap-3">
-                    <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
+                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-[#20002c] dark:text-[#cbb4d4]">
                       <Building size={20} />
                     </div>
                     Organization Details
@@ -4522,15 +4508,15 @@ function App() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Registered Name</label>
-                      <input type="text" defaultValue="Hope3 Foundation" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-sm" />
+                      <input type="text" defaultValue="Hope3 Foundation" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/40 focus:border-[#cbb4d4] transition-all shadow-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Tax Exemption ID (80G)</label>
-                      <input type="text" defaultValue="H3-80G-2024-8899" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-mono text-emerald-600 dark:text-emerald-400 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-sm" />
+                      <input type="text" defaultValue="H3-80G-2024-8899" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-mono text-[#20002c] dark:text-[#cbb4d4] font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/40 focus:border-[#cbb4d4] transition-all shadow-sm" />
                     </div>
                     <div className="space-y-2 md:col-span-2">
                       <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Official Contact Email</label>
-                      <input type="email" defaultValue="admin@hope3.org" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-sm" />
+                      <input type="email" defaultValue="admin@hope3.org" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/40 focus:border-[#cbb4d4] transition-all shadow-sm" />
                     </div>
                   </div>
                   
@@ -4538,7 +4524,7 @@ function App() {
                     <button className="px-6 py-3 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors w-full sm:w-auto">
                       Cancel
                     </button>
-                    <button className="px-8 py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5 transition-all w-full sm:w-auto flex items-center justify-center gap-2">
+                    <button className="px-8 py-3 rounded-xl font-bold text-sm text-white gradient-btn-tab hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all w-full sm:w-auto flex items-center justify-center gap-2">
                       <Check size={16} /> Save Changes
                     </button>
                   </div>
@@ -4803,7 +4789,10 @@ function App() {
         type={creationModal.type}
         isOpen={creationModal.isOpen}
         onClose={() => setCreationModal({ type: '', isOpen: false })}
-        onSubmit={handleCreateEntity}
+        onSubmit={(type, data) => {
+          handleCreateEntitySubmit(type, data);
+          setCreationModal({ type: '', isOpen: false });
+        }}
       />
 
       {/* CREATE EXPENSE MODAL */}

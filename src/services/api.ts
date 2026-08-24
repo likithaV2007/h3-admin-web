@@ -1,16 +1,10 @@
 import { auth } from '../lib/firebase';
 import { 
-  initialStudents, 
-  initialVolunteers, 
-  initialParents, 
-  initialDonors,
-  initialActivityLogs,
   type Student, 
   type Volunteer, 
   type Parent, 
   type Donor,
   type Expense,
-  type ActivityLog,
   type Activity
 } from '../mockData';
 
@@ -53,13 +47,13 @@ async function apiFetch<T>(path: string, fallback: T, retries = 1): Promise<T> {
     });
 
     if (!response.ok) {
-      console.warn(`API request ${path} failed with status ${response.status}. Using fallback data.`);
+      console.warn(`API request ${path} failed with status ${response.status}. Returning empty fallback.`);
       return fallback;
     }
 
     const data = await response.json();
     if (Array.isArray(data)) {
-      return data.length > 0 ? (data as T) : fallback;
+      return data as T;
     }
     return data ? (data as T) : fallback;
   } catch (error) {
@@ -67,7 +61,7 @@ async function apiFetch<T>(path: string, fallback: T, retries = 1): Promise<T> {
       await new Promise(res => setTimeout(res, 1200));
       return apiFetch(path, fallback, retries - 1);
     }
-    console.warn(`API request ${path} failed:`, error, '. Using fallback data.');
+    console.warn(`API request ${path} failed:`, error, '. Returning empty fallback.');
     return fallback;
   }
 }
@@ -375,6 +369,64 @@ export const apiService = {
     }
   },
 
+  // Create Volunteer
+  createVolunteer: async (payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/volunteers/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+
+      if (res.status === 422) {
+        const errDetail = await res.json();
+        console.warn("FastAPI 422 Validation Error details:", errDetail);
+      }
+
+      return null;
+    } catch (err) {
+      console.error("Error creating volunteer:", err);
+      return null;
+    }
+  },
+
+  // Create Parent
+  createParent: async (payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/parents/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        return await res.json();
+      }
+
+      if (res.status === 422) {
+        const errDetail = await res.json();
+        console.warn("FastAPI 422 Validation Error details:", errDetail);
+      }
+
+      return null;
+    } catch (err) {
+      console.error("Error creating parent:", err);
+      return null;
+    }
+  },
+
   // Create Expense
   createExpense: async (payload: any): Promise<any> => {
     try {
@@ -627,6 +679,33 @@ export const apiService = {
     } catch (error) {
       console.error('Failed to create activity:', error);
       return null;
+    }
+  },
+
+  // MOCK/STUB: Get Classes
+  getClasses: async (): Promise<any[]> => {
+    try {
+      return await apiFetch<any[]>('/api/v1/classes/', []);
+    } catch (error) {
+      return [];
+    }
+  },
+
+  // MOCK/STUB: Get Student Requests
+  getStudentRequests: async (): Promise<any[]> => {
+    try {
+      return await apiFetch<any[]>('/api/v1/requests/', []);
+    } catch (error) {
+      return [];
+    }
+  },
+
+  // MOCK/STUB: Get Leave Requests
+  getLeaveRequests: async (): Promise<any[]> => {
+    try {
+      return await apiFetch<any[]>('/api/v1/leaves/', []);
+    } catch (error) {
+      return [];
     }
   }
 };
