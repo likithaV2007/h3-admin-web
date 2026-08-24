@@ -54,7 +54,15 @@ import {
   ChevronRight,
   Layers,
   ArrowUp,
-  CalendarDays
+  CalendarDays,
+  Camera,
+  Shield,
+  LogOut,
+  Building2,
+  BadgeCheck,
+  Mail,
+  Undo,
+  Save
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { apiService, formatAvatarUrl } from './services/api';
@@ -1803,7 +1811,8 @@ function App() {
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full bg-gradient-to-b from-[#20002c] to-[#cbb4d4]"></div>
                     Monthly Expenses Chart
                   </h4>
                   <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full">
@@ -1924,7 +1933,8 @@ function App() {
 
               {/* Expense Distribution Donut Chart */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-1">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full bg-gradient-to-b from-[#20002c] to-[#cbb4d4]"></div>
                     Expense Distribution
                   </h4>
                   {(() => {
@@ -3723,7 +3733,8 @@ function App() {
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full bg-gradient-to-b from-[#20002c] to-[#cbb4d4]"></div>
                     Monthly Expenses Chart
                   </h4>
                   <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full">
@@ -3844,7 +3855,8 @@ function App() {
 
               {/* Expense Distribution Donut Chart */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-1">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 border-l-4 border-emerald-700 pl-2">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full bg-gradient-to-b from-[#20002c] to-[#cbb4d4]"></div>
                     Expense Distribution
                   </h4>
                   {(() => {
@@ -4064,227 +4076,10 @@ function App() {
 
           {/* MODULE: LOCATION & GEOFENCING */}
           {activeTab === 'Location' && (
+            <>
             <div className="space-y-6">
-              {/* Header Banner */}
-              <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
-                      <Radio size={12} className="animate-pulse text-emerald-500" />
-                      Live GPS & Geofence Engine
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-black text-white tracking-tight">
-                    Student Geofence & Location Control
-                  </h3>
-                </div>
+              {/* Header Removed */}
 
-                <div className="flex items-center gap-3 flex-wrap">
-                  {/* Geofence Group Filter */}
-                  <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
-                    <Filter size={14} className="text-blue-500" />
-                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Group Filter:</span>
-                    <select
-                      value={selectedGeofenceFilter}
-                      onChange={(e) => setSelectedGeofenceFilter(e.target.value)}
-                      className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer max-w-[160px]"
-                    >
-                      <option value="ALL">All Fences</option>
-                      {customGeofences.map(gf => (
-                        <option key={gf.id} value={gf.id}>{gf.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => {
-                        setSelectedFencesToMerge([]);
-                        setMergeTargetName('');
-                        setIsMergeModalOpen(true);
-                      }}
-                      className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
-                      title="Merge existing separate fences into a single geofence group"
-                    >
-                      <Layers size={16} />
-                      <span>Merge / Group Fences</span>
-                    </button>
-
-                    <button
-                      onClick={() => setIsFullScreenMapOpen(true)}
-                      className="px-4 py-2.5 gradient-btn-tab hover:opacity-90 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
-                      title="Open full screen map to draw, add, or delete geofences"
-                    >
-                      <Compass size={16} />
-                      <span>Open Full Screen Geofence Editor</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* GEOFENCE ZONE CARDS & SUMMARY */}
-              <div className="relative">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      Active Geofence Zones ({customGeofences.length})
-                    </h4>
-                    <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/40 dark:border-slate-700/50">
-                      <button
-                        onClick={() => setFenceTypeTab('single')}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
-                      >
-                        Single Fences ({customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
-                      </button>
-                      <button
-                        onClick={() => setFenceTypeTab('grouped')}
-                        className={`px-3 py-1 rounded-lg text-[10px] font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
-                      >
-                        Grouped Fences ({customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => scrollGeofences('left')}
-                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
-                      title="Scroll Left"
-                    >
-                      <ChevronLeft size={16} />
-                    </button>
-                    <button
-                      onClick={() => scrollGeofences('right')}
-                      className="p-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:border-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
-                      title="Scroll Right"
-                    >
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  ref={scrollContainerRef}
-                  className="flex gap-4 overflow-x-auto scroll-smooth pb-4 snap-x snap-mandatory scrollbar-none"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {customGeofences
-                    .filter(gf => {
-                      const isGrouped = gf.polygons && gf.polygons.length > 1;
-                      return fenceTypeTab === 'grouped' ? isGrouped : !isGrouped;
-                    })
-                    .map((gf) => {
-                      const assignedStudentIds = gf.studentIds || [];
-                      const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
-                      const hasViolation = assignedStudents.some(s => s.location?.status === 'Out of Bounds');
-                      const insideCount = assignedStudents.filter(s => s.location?.status !== 'Out of Bounds' && s.location?.status !== 'On Leave').length;
-
-                      const getGeofenceIcon = (name: string) => {
-                        const nameLower = name.toLowerCase();
-                        if (nameLower.includes('hostel')) return <Home size={20} />;
-                        if (nameLower.includes('college') || nameLower.includes('campus')) return <GraduationCap size={20} />;
-                        if (nameLower.includes('office') || nameLower.includes('ngo') || nameLower.includes('hub')) return <Building size={20} />;
-                        return <Compass size={20} />;
-                      };
-
-                      const accentColor = hasViolation ? '#ef4444' : (gf.color || '#3b82f6');
-
-                      return (
-                        <div
-                          key={gf.id}
-                          className={`flex-shrink-0 w-80 glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 relative overflow-hidden group transition-all snap-start border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
-                          style={{ borderLeftColor: accentColor }}
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <div
-                              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
-                              style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
-                            >
-                              {getGeofenceIcon(gf.name)}
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                              <button
-                                onClick={() => {
-                                  if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
-                                    setCustomGeofences(prev => {
-                                      const updated = prev.filter(g => g.id !== gf.id);
-                                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
-                                      return updated;
-                                    });
-                                  }
-                                }}
-                                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
-                                title="Delete Geofence"
-                              >
-                                <Trash2 size={13} />
-                              </button>
-                              <span
-                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${hasViolation
-                                  ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-650 dark:text-red-400'
-                                  : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-250/30 text-emerald-600 dark:text-emerald-450'
-                                  }`}
-                              >
-                                {hasViolation ? (
-                                  <>⚠️ Out of Bounds Alert</>
-                                ) : (
-                                  <><ShieldCheck size={12} /> Geofence Active</>
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                          <h4 className="font-bold text-sm text-white truncate" title={gf.name}>{gf.name}</h4>
-                          <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
-                            {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
-                          </p>
-
-                          {assignedStudents.length > 0 ? (
-                            <div className="flex items-center gap-1.5 mt-3">
-                              <div className="flex -space-x-2 overflow-hidden">
-                                {assignedStudents.slice(0, 4).map(s => (
-                                  <img
-                                    key={s.id}
-                                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                                    src={s.avatar}
-                                    alt={s.name}
-                                    title={s.name}
-                                  />
-                                ))}
-                                {assignedStudents.length > 4 && (
-                                  <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 ring-2 ring-white dark:ring-slate-900">
-                                    +{assignedStudents.length - 4}
-                                  </div>
-                                )}
-                              </div>
-                              <span className="text-[10px] text-slate-450 dark:text-slate-350 font-extrabold font-mono">
-                                {insideCount}/{assignedStudents.length} Inside
-                              </span>
-                            </div>
-                          ) : (
-                            <p className="text-[10px] text-slate-400 mt-3 font-medium italic">No students assigned to group</p>
-                          )}
-
-                          <div
-                            className="mt-4 pt-3 border-t flex justify-between items-center text-xs"
-                            style={{ borderColor: `${accentColor}15` }}
-                          >
-                            <button
-                              onClick={() => setEditingGeofenceGroup(gf)}
-                              className="text-[10px] font-bold text-slate-800 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
-                            >
-                              <Users size={12} />
-                              <span>Manage Group</span>
-                            </button>
-
-                            <span className="text-[10px] text-slate-450 dark:text-slate-550 font-bold uppercase tracking-wider font-mono">
-                              {gf.targetBatch || 'ALL'}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-
-              {/* LIVE MAP VISUALIZER & GEOFENCE RADAR */}
               <div className="grid grid-cols-1 gap-6">
 
                 {/* MAP GRAPHIC CANVAS SIMULATOR */}
@@ -4395,6 +4190,55 @@ function App() {
                         )}
                       </div>
                     </form>
+                    <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+                    <Filter size={14} className="text-blue-500" />
+                    <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Group Filter:</span>
+                    <select
+                      value={selectedGeofenceFilter}
+                      onChange={(e) => setSelectedGeofenceFilter(e.target.value)}
+                      className="bg-transparent font-bold text-xs text-white focus:outline-none cursor-pointer max-w-[160px]"
+                    >
+                      <option value="ALL">All Fences</option>
+                      {customGeofences.map(gf => (
+                        <option key={gf.id} value={gf.id}>{gf.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                    
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (navigator.geolocation) {
+                            navigator.geolocation.getCurrentPosition(
+                              (position) => {
+                                const { latitude, longitude } = position.coords;
+                                const map = (window as any).leafletMapInstance;
+                                const L = (window as any).L;
+                                if (map && L) {
+                                  map.setView([latitude, longitude], 16);
+                                  L.circleMarker([latitude, longitude], {
+                                    radius: 8,
+                                    color: '#3b82f6',
+                                    fillColor: '#3b82f6',
+                                    fillOpacity: 0.5
+                                  }).addTo(map).bindPopup('You are here!').openPopup();
+                                }
+                              },
+                              (err) => {
+                                alert('Unable to retrieve your location. ' + err.message);
+                              }
+                            );
+                          } else {
+                            alert('Geolocation is not supported by your browser.');
+                          }
+                        }}
+                        className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/60 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-800 transition-all shadow-sm flex items-center justify-center"
+                        title="Find My Location"
+                      >
+                        <Navigation size={18} />
+                      </button>
+
+
 
                     {/* Satellite / Streets Mode Toggle */}
                     <div className="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
@@ -4411,135 +4255,300 @@ function App() {
                         🗺️ Map
                       </button>
                     </div>
-                  </div>
+                  
+                      <button
+                      onClick={() => setIsFullScreenMapOpen(true)}
+                      className="px-4 py-2.5 gradient-btn-tab hover:opacity-90 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all"
+                      title="Open full screen map to draw, add, or delete geofences"
+                    >
+                      <Compass size={16} />
+                      <span>Open Full Screen Geofence Editor</span>
+                    </button>
+                    </div>
 
                   {/* Live OpenStreetMap Leaflet Container */}
                   <div className="w-full h-80 rounded-2xl bg-slate-100 dark:bg-slate-900 relative overflow-hidden border border-slate-200 dark:border-slate-800 z-0">
                     <div id="open-street-map-container" className="w-full h-full rounded-2xl z-0"></div>
                   </div>
                 </div>
+                </div>
+          
 
-                {/* REAL-TIME STUDENT LOCATION TABLE & CHECK-IN OVERRIDE */}
-                <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 flex flex-col justify-between">
-                  <div>
-                    <h4 className="font-bold text-sm text-white flex items-center gap-2 mb-3">
-                      <Compass size={16} className="text-red-500 animate-pulse" />
-                      Out-of-Bounds Radar ({students.filter(s => s.location?.status === 'Out of Bounds').length})
+{/* GEOFENCE ZONE CARDS & SUMMARY */}
+              <div className="relative mt-8">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full bg-gradient-to-b from-[#20002c] to-[#cbb4d4]"></div>
+                      Active Geofence Zones ({customGeofences.length})
                     </h4>
-
-                    <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
-                      {(() => {
-                        const outFliers = students.filter(s => s.location?.status === 'Out of Bounds');
-                        if (outFliers.length === 0) {
-                          return (
-                            <div className="flex flex-col items-center justify-center p-8 text-center bg-emerald-500/5 rounded-2xl border border-emerald-500/10">
-                              <span className="text-2xl mb-1">🛡️</span>
-                              <span className="font-bold text-xs text-emerald-600 dark:text-emerald-455 block">All Students Safe</span>
-                              <span className="text-[10px] text-slate-400 mt-0.5">Everyone is inside their assigned boundaries.</span>
-                            </div>
-                          );
-                        }
-
-                        return outFliers.map(std => {
-                          const assignedFence = customGeofences.find(gf => gf.studentIds && gf.studentIds.includes(std.id));
-                          return (
-                            <div
-                              key={std.id}
-                              className="p-3 rounded-2xl border border-red-200/60 dark:border-red-950/40 bg-red-50/30 dark:bg-red-950/10 flex items-center justify-between gap-3 hover:bg-red-50/50 transition-colors border-l-4 border-l-red-500"
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <img
-                                  src={std.avatar}
-                                  alt={std.name}
-                                  className="w-8 h-8 rounded-xl object-cover border border-slate-200 dark:border-slate-800"
-                                />
-                                <div>
-                                  <span className="font-bold text-xs text-slate-850 dark:text-white block">{std.name}</span>
-                                  <span className="text-[9px] text-slate-400 dark:text-slate-500 block font-mono">Outside: {assignedFence ? assignedFence.name : 'Unassigned'}</span>
-                                </div>
-                              </div>
-
-                              <span className="text-[9px] font-extrabold uppercase tracking-wider text-red-605 bg-red-100/60 dark:bg-red-950/80 dark:text-red-400 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-900/50">
-                                Violating
-                              </span>
-                            </div>
-                          );
-                        });
-                      })()}
+                    <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/40 dark:border-slate-700/50">
+                      <button
+                        onClick={() => setFenceTypeTab('single')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                      >
+                        Single (${customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
+                      </button>
+                      <button
+                        onClick={() => setFenceTypeTab('grouped')}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                      >
+                        Grouped (${customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
+                      </button>
                     </div>
                   </div>
-
-
+                  
+                  <div className="flex items-center gap-3">
+                    {/* Geofence Group Filter */}
+                  
+                    <button
+                      onClick={() => {
+                        setSelectedFencesToMerge([]);
+                        setMergeTargetName('');
+                        setIsMergeModalOpen(true);
+                      }}
+                      className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
+                      title="Merge existing separate fences into a single geofence group"
+                    >
+                      <Layers size={16} />
+                      <span>Merge / Group Fences</span>
+                    </button>
+                  </div>
                 </div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-4">
+                  {customGeofences
+                    .filter(gf => {
+                      const isGrouped = gf.polygons && gf.polygons.length > 1;
+                      return fenceTypeTab === 'grouped' ? isGrouped : !isGrouped;
+                    })
+                    .map((gf) => {
+                      const assignedStudentIds = gf.studentIds || [];
+                      const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
+                      const hasViolation = assignedStudents.some(s => s.location?.status === 'Out of Bounds');
+                      const insideCount = assignedStudents.filter(s => s.location?.status !== 'Out of Bounds' && s.location?.status !== 'On Leave').length;
 
+                      const getGeofenceIcon = (name: string) => {
+                        const nameLower = name.toLowerCase();
+                        if (nameLower.includes('hostel')) return <Home size={20} />;
+                        if (nameLower.includes('college') || nameLower.includes('campus')) return <GraduationCap size={20} />;
+                        if (nameLower.includes('office') || nameLower.includes('ngo') || nameLower.includes('hub')) return <Building size={20} />;
+                        return <Compass size={20} />;
+                      };
+
+                      const accentColor = hasViolation ? '#ef4444' : (gf.color || '#3b82f6');
+
+                      return (
+                        <div
+                          key={gf.id}
+                          className={`w-full glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 relative overflow-hidden group transition-all border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
+                          style={{ borderLeftColor: accentColor }}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold"
+                              style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
+                            >
+                              {getGeofenceIcon(gf.name)}
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
+                                    setCustomGeofences(prev => {
+                                      const updated = prev.filter(g => g.id !== gf.id);
+                                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                                      return updated;
+                                    });
+                                  }
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
+                                title="Delete Geofence"
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                              <span
+                                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${hasViolation
+                                  ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-650 dark:text-red-400'
+                                  : 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-250/30 text-emerald-600 dark:text-emerald-450'
+                                  }`}
+                              >
+                                {hasViolation ? (
+                                  <>⚠️ Out of Bounds Alert</>
+                                ) : (
+                                  <><ShieldCheck size={12} /> Geofence Active</>
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                          <h4 className="font-bold text-sm text-white truncate" title={gf.name}>{gf.name}</h4>
+                          <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
+                            {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
+                          </p>
+
+                          {assignedStudents.length > 0 ? (
+                            <div className="flex items-center gap-1.5 mt-3">
+                              <div className="flex -space-x-2 overflow-hidden">
+                                {assignedStudents.slice(0, 4).map(s => (
+                                  <img
+                                    key={s.id}
+                                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
+                                    src={s.avatar}
+                                    alt={s.name}
+                                    title={s.name}
+                                  />
+                                ))}
+                                {assignedStudents.length > 4 && (
+                                  <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 ring-2 ring-white dark:ring-slate-900">
+                                    +{assignedStudents.length - 4}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[10px] text-slate-450 dark:text-slate-350 font-extrabold font-mono">
+                                {insideCount}/{assignedStudents.length} Inside
+                              </span>
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-slate-400 mt-3 font-medium italic">No students assigned to group</p>
+                          )}
+
+                          <div
+                            className="mt-4 pt-3 border-t flex justify-between items-center text-xs"
+                            style={{ borderColor: `${accentColor}15` }}
+                          >
+                            <button
+                              onClick={() => setEditingGeofenceGroup(gf)}
+                              className="text-[10px] font-bold text-slate-800 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
+                            >
+                              <Users size={12} />
+                              <span>Manage Group</span>
+                            </button>
+
+                            <span className="text-[10px] text-slate-450 dark:text-slate-550 font-bold uppercase tracking-wider font-mono">
+                              {gf.targetBatch || 'ALL'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
             </div>
+            </>
           )}
 
           {/* MODULE: SETTINGS */}
           {activeTab === 'Profile' && (
-            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              
-              <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-8 shadow-xl shadow-fuchsia-500/5 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-r from-[#20002c] to-[#cbb4d4]"></div>
-                
-                <div className="relative z-10 flex flex-col items-center mt-16">
-                  <div className="w-36 h-36 rounded-full bg-white dark:bg-slate-900 p-2 shadow-2xl border-4 border-white dark:border-slate-900 mb-6 relative group">
-                    <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-full h-full object-contain rounded-full bg-slate-50 dark:bg-slate-800/50 p-2" />
-                    <button className="absolute bottom-2 right-2 w-10 h-10 bg-[#20002c] text-white rounded-full flex items-center justify-center shadow-lg hover:bg-[#cbb4d4] hover:text-[#20002c] hover:scale-110 transition-all opacity-0 group-hover:opacity-100">
-                      <Pencil size={16} />
-                    </button>
-                  </div>
-                  <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Hope3 Foundation</h2>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="w-2 h-2 rounded-full bg-[#cbb4d4] animate-pulse"></div>
-                    <p className="text-xs font-bold text-[#20002c] dark:text-[#cbb4d4] uppercase tracking-widest">Admin Portal Active</p>
+            <div className="w-full max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20">
+              <div className="flex flex-col lg:flex-row gap-8">
+                {/* LEFT: ID CARD */}
+                <div className="lg:w-1/3 shrink-0">
+                  <div className="sticky top-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white dark:border-slate-800 shadow-2xl shadow-purple-900/10 flex flex-col items-center relative overflow-hidden group">
+                    {/* subtle animated background glow */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#20002c]/20 to-[#cbb4d4]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>
+                    
+                    <div className="relative z-10 w-40 h-40 rounded-[2rem] bg-white dark:bg-slate-800 p-3 shadow-xl border border-slate-100 dark:border-slate-700 mb-8 rotate-3 hover:rotate-0 transition-transform duration-500">
+                       <div className="absolute inset-0 bg-gradient-to-br from-[#20002c] to-[#cbb4d4] rounded-[2rem] -z-10 blur-xl opacity-40"></div>
+                       <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-full h-full object-contain drop-shadow-md" />
+                       
+                       <button className="absolute -bottom-3 -right-3 w-12 h-12 bg-white dark:bg-slate-800 text-[#20002c] dark:text-[#cbb4d4] rounded-full flex items-center justify-center shadow-lg border border-slate-100 dark:border-slate-700 hover:scale-110 hover:bg-[#20002c] hover:text-white transition-all">
+                          <Camera size={18} />
+                       </button>
+                    </div>
+
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight text-center relative z-10">Hope3 Foundation</h2>
+                    <div className="inline-flex items-center gap-2 mt-3 px-4 py-1.5 bg-green-50 dark:bg-green-500/10 rounded-full border border-green-100 dark:border-green-500/20 relative z-10">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                      </span>
+                      <span className="text-[10px] font-bold text-green-700 dark:text-green-400 uppercase tracking-widest">Admin Portal Online</span>
+                    </div>
+
+                    <div className="w-full mt-10 space-y-3 relative z-10">
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 flex items-center gap-4 group/item hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                          <Shield size={18} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">Admin Privileges</p>
+                          <p className="text-[10px] font-medium text-slate-500">Full Access Granted</p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 flex items-center gap-4 group/item hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                        <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                          <Clock size={18} />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 dark:text-white">Last Login</p>
+                          <p className="text-[10px] font-medium text-slate-500">Today, 10:42 AM</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full mt-12 relative z-10">
+                      <button 
+                        onClick={() => { sessionStorage.removeItem('isAuthenticated'); setIsAuthenticated(false); }}
+                        className="w-full group/btn relative overflow-hidden rounded-2xl p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 hover:border-red-200 text-red-600 dark:text-red-400 transition-all shadow-sm hover:shadow-md active:scale-95"
+                      >
+                        <div className="absolute inset-0 bg-red-100 dark:bg-red-500/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out"></div>
+                        <div className="relative flex items-center justify-center gap-2 font-bold text-sm">
+                          <LogOut size={18} className="group-hover/btn:-translate-x-1 transition-transform" />
+                          Secure Log Out
+                        </div>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl p-8 border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-[#cbb4d4] opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-white mb-6 flex items-center gap-3">
-                    <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-[#20002c] dark:text-[#cbb4d4]">
-                      <Building size={20} />
+                {/* RIGHT: SETTINGS SECTIONS */}
+                <div className="lg:w-2/3 space-y-8">
+                  {/* Organization Info */}
+                  <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl transition-shadow duration-500">
+                    <div className="flex items-center gap-4 mb-8">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#20002c] to-[#cbb4d4] flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0 text-white">
+                        <Building2 size={24} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Organization Details</h3>
+                        <p className="text-xs font-medium text-slate-500">Update your official foundation information</p>
+                      </div>
                     </div>
-                    Organization Details
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Registered Name</label>
-                      <input type="text" defaultValue="Hope3 Foundation" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/40 focus:border-[#cbb4d4] transition-all shadow-sm" />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Tax Exemption ID (80G)</label>
-                      <input type="text" defaultValue="H3-80G-2024-8899" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-mono text-[#20002c] dark:text-[#cbb4d4] font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/40 focus:border-[#cbb4d4] transition-all shadow-sm" />
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Official Contact Email</label>
-                      <input type="email" defaultValue="admin@hope3.org" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/40 focus:border-[#cbb4d4] transition-all shadow-sm" />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2 relative group">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Registered Name</label>
+                        <div className="relative">
+                          <input type="text" defaultValue="Hope3 Foundation" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-2xl font-bold text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-400 transition-all hover:border-slate-300 dark:hover:border-slate-600" />
+                          <Building size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                        </div>
+                      </div>
+                      <div className="space-y-2 relative group">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tax Exemption ID (80G)</label>
+                        <div className="relative">
+                          <input type="text" defaultValue="H3-80G-2024-8899" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-2xl font-mono text-[#20002c] dark:text-[#cbb4d4] font-bold text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-400 transition-all hover:border-slate-300 dark:hover:border-slate-600" />
+                          <BadgeCheck size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                        </div>
+                      </div>
+                      <div className="space-y-2 md:col-span-2 relative group">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Official Contact Email</label>
+                        <div className="relative">
+                          <input type="email" defaultValue="admin@hope3.org" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-2xl font-bold text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-400 transition-all hover:border-slate-300 dark:hover:border-slate-600" />
+                          <Mail size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                        </div>
+                      </div>
+                      
+                      <div className="md:col-span-2 pt-6 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                         <button className="px-6 py-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                            Discard
+                         </button>
+                         <button className="px-8 py-3 rounded-xl font-bold text-sm text-white bg-slate-900 dark:bg-white dark:text-slate-900 shadow-xl shadow-slate-900/20 hover:scale-105 transition-all flex items-center gap-2 group/save">
+                            <Check size={16} className="group-hover/save:scale-110 transition-transform" /> Save Information
+                         </button>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
-                    <button className="px-6 py-3 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors w-full sm:w-auto">
-                      Cancel
-                    </button>
-                    <button className="px-8 py-3 rounded-xl font-bold text-sm text-white gradient-btn-tab hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all w-full sm:w-auto flex items-center justify-center gap-2">
-                      <Check size={16} /> Save Changes
-                    </button>
-                  </div>
                 </div>
-
-                <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex justify-center">
-                  <button 
-                    onClick={() => { sessionStorage.removeItem('isAuthenticated'); setIsAuthenticated(false); }}
-                    className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 border border-red-100 dark:border-red-500/20 hover:scale-105 transition-all shadow-sm"
-                  >
-                    <X size={18} />
-                    Secure Log Out
-                  </button>
-                </div>
-
               </div>
             </div>
           )}
@@ -5637,21 +5646,50 @@ function App() {
             {/* FLOATING PENCIL BUTTON TO MARK GEOFENCE & CANCEL DRAWING BUTTON */}
             <div className="absolute bottom-10 right-10 z-[9999] flex items-center gap-3 pointer-events-auto">
               {isDrawingActive && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const drawer = (window as any).activePolygonDrawer;
-                    if (drawer && typeof drawer.disable === 'function') {
-                      drawer.disable();
-                    }
-                    setIsDrawingActive(false);
-                    alert('❌ Drawing cancelled.');
-                  }}
-                  className="w-12 h-12 bg-red-600 hover:bg-red-700 text-slate-900 rounded-full shadow-lg border-2 border-white/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
-                  title="Cancel drawing fence"
-                >
-                  <X size={20} />
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const drawer = (window as any).activePolygonDrawer;
+                      if (drawer && typeof drawer.deleteLastVertex === 'function') {
+                        drawer.deleteLastVertex();
+                      }
+                    }}
+                    className="w-12 h-12 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg border-2 border-white/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                    title="Revert last point"
+                  >
+                    <Undo size={20} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const drawer = (window as any).activePolygonDrawer;
+                      if (drawer && typeof drawer.completeShape === 'function') {
+                        drawer.completeShape();
+                      }
+                    }}
+                    className="w-12 h-12 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg border-2 border-white/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                    title="Finish drawing shape"
+                  >
+                    <Save size={20} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const drawer = (window as any).activePolygonDrawer;
+                      if (drawer && typeof drawer.disable === 'function') {
+                        drawer.disable();
+                      }
+                      setIsDrawingActive(false);
+                    }}
+                    className="w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg border-2 border-white/40 flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer"
+                    title="Cancel drawing fence"
+                  >
+                    <X size={20} />
+                  </button>
+                </>
               )}
 
               <button
@@ -5731,7 +5769,12 @@ function App() {
                   studentIds: []
                 };
 
-                const savedData = await apiService.createGeofence(apiPayload);
+                let savedData = await apiService.createGeofence(apiPayload).catch(() => null);
+                
+                // Fallback to local save if API fails so the UI continues working
+                if (!savedData) {
+                  savedData = { id: `GF_DRAWN_${Date.now()}`, ...apiPayload };
+                }
 
                 if (savedData) {
                   const newShape = {

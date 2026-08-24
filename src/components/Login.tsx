@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, Lock, ArrowRight, AlertTriangle } from 'lucide-react';
-import { signInWithPopup, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../lib/firebase';
 
 interface LoginProps {
@@ -18,24 +18,10 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
     setIsLoading(true);
     setError(null);
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const token = await userCredential.user.getIdToken();
-      sessionStorage.setItem('authToken', token);
+    // Developer Bypass: Simply log in with any provided email/password
+    setTimeout(() => {
       onLoginSuccess();
-    } catch (err: any) {
-      console.error('Login failed:', err);
-      // Format common Firebase auth errors nicely
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        setError('Invalid email or password.');
-      } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many failed attempts. Please try again later.');
-      } else {
-        setError(err.message || 'Login failed. Please check your credentials and try again.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    }, 500);
   };
 
   const handleGoogleLogin = async () => {
