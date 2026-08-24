@@ -978,54 +978,9 @@ function App() {
   };
 
   // New Data State for Mind Map Features
-  const [classes, setClasses] = useState<SchoolClass[]>([
-    {
-      id: 'CLS001',
-      name: 'Intro to Javascript',
-      mentorId: 'MEN001',
-      mentorName: 'Prof. Ananya Sen',
-      volunteerId: 'VOL002',
-      volunteerName: 'Meera Deshpande',
-      studentIds: ['STU001', 'STU003'],
-      description: 'Foundations of web development, covering DOM operations, functions, variables, and arrays.',
-      schedule: 'Saturdays, 10:00 AM - 12:00 PM'
-    },
-    {
-      id: 'CLS002',
-      name: 'English Speaking Clinic',
-      mentorId: 'MEN002',
-      mentorName: 'Dr. Suresh Nair',
-      volunteerId: 'VOL001',
-      volunteerName: 'Rahul Sen',
-      studentIds: ['STU002', 'STU004'],
-      description: 'Communication practice focusing on pronunciation, daily dialogues, and public speaking confidence.',
-      schedule: 'Sundays, 2:00 PM - 4:00 PM'
-    }
-  ]);
+  const [classes, setClasses] = useState<SchoolClass[]>([]);
 
-  const [studentRequests, setStudentRequests] = useState<StudentRequest[]>([
-    {
-      id: 'SREQ001',
-      studentId: 'STU001',
-      studentName: 'Aravind Swamy',
-      type: 'Fee Support',
-      title: 'Exam Registration Fee Support',
-      details: 'Requesting ₹1,500 for registering in semester exam. The university portal closes on 25th May.',
-      amount: 1500,
-      status: 'Pending',
-      date: '2026-05-18'
-    },
-    {
-      id: 'SREQ002',
-      studentId: 'STU003',
-      studentName: 'Mohamed Rehan',
-      type: 'Achievement',
-      title: 'Inter-College Debate Winner',
-      details: 'Won 1st prize at Loyola Commerce Fest Debate. Submitting certificate for hostel records.',
-      status: 'Approved',
-      date: '2026-05-15'
-    }
-  ]);
+  const [studentRequests, setStudentRequests] = useState<StudentRequest[]>([]);
 
   // Form States for Class Creation
   const [newClassName, setNewClassName] = useState('');
@@ -1120,9 +1075,9 @@ function App() {
     if (activeRole === 'Admin' || activeRole === 'Volunteer') return true;
     switch (activeRole) {
       case 'Student':
-        return ['Dashboard', 'Settings'].includes(tabName);
+        return ['Dashboard', 'Profile'].includes(tabName);
       case 'Parent':
-        return ['Dashboard', 'Students', 'Settings'].includes(tabName);
+        return ['Dashboard', 'Students', 'Profile'].includes(tabName);
       default:
         return true;
     }
@@ -1145,7 +1100,7 @@ function App() {
     { name: 'Finance', icon: DollarSign },
     { name: 'Activities', icon: CalendarDays },
     { name: 'Location', icon: MapPin },
-    { name: 'Settings', icon: Settings },
+    { name: 'Profile', icon: User },
   ];
 
   // Submit Student Request to Volunteer
@@ -1562,7 +1517,7 @@ function App() {
             </div>
             {sidebarOpen && (
               <div className="animate-fade-in pl-1.5 overflow-hidden flex-1">
-                <h1 className="font-extrabold text-[1.4rem] leading-tight bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent truncate">Hope3</h1>
+                <h1 className="font-extrabold text-[1.4rem] leading-tight bg-gradient-to-r from-emerald-500 to-teal-600 bg-clip-text text-transparent truncate">Hope3</h1>
                 <span className="text-[9px] text-slate-500 dark:text-slate-400 font-black tracking-[0.2em] uppercase block -mt-0.5">Admin Portal</span>
               </div>
             )}
@@ -4039,49 +3994,8 @@ function App() {
                 })()}
               </div>
             </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
-                        <h5 className="font-bold text-xs uppercase tracking-wider text-slate-400">Category Spend Breakdown</h5>
-
-                        <div className="space-y-3">
-                          {['snacks', 'groceries', 'sports', 'travel', 'medical', 'stationary'].map(cat => {
-                            const catTotal = expenses
-                              .filter(e => e.category.toLowerCase() === cat)
-                              .reduce((sum, e) => sum + e.amount, 0);
-                            const totalAll = expenses.reduce((sum, e) => sum + e.amount, 0) || 1;
-                            const pct = Math.round((catTotal / totalAll) * 100);
-
-                            return (
-                              <div key={cat} className="space-y-1">
-                                <div className="flex justify-between text-xs font-bold">
-                                  <span className="capitalize text-slate-800 dark:text-slate-200">{cat}</span>
-                                  <span className="font-mono text-emerald-600">₹{catTotal.toLocaleString('en-IN')} ({pct}%)</span>
-                                </div>
-                                <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%` }}></div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 space-y-4">
-                        <h5 className="font-bold text-xs uppercase tracking-wider text-slate-400">Audited Expenditure Reports</h5>
-                        <div className="space-y-3">
-                          <div className="p-3 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/60 dark:border-slate-800 flex justify-between items-center">
-                            <div>
-                              <h6 className="font-bold text-xs">Monthly Field Expense Audit</h6>
-                              <p className="text-[10px] text-slate-400">July 2026 volunteer refunds & receipts</p>
-                            </div>
-                            <button onClick={() => handleDownloadPDF('July_Expense_Audit')} className="text-emerald-600 text-xs font-bold hover:underline">Download PDF</button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+              </div>
+            )}
 
               </div>
 
@@ -4091,33 +4005,6 @@ function App() {
           {/* MODULE: ACTIVITIES */}
           {activeTab === 'Activities' && (
             <div className="space-y-6">
-              {/* Header Banner */}
-              <div className="glass-panel rounded-3xl bg-gradient-to-br from-[#20002c]/90 to-[#cbb4d4]/90 text-white p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden shadow-lg shadow-[#20002c]/10">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-white/20 text-white backdrop-blur-sm border border-white/30">
-                      <CalendarDays size={12} className="text-white" />
-                      Community & Events
-                    </span>
-                  </div>
-                  <h3 className="text-2xl font-black text-white tracking-tight">
-                    Recent Activities
-                  </h3>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="relative z-10 flex gap-3">
-                  <button 
-                    onClick={() => setCreationModal({ type: 'activity', isOpen: true })}
-                    className="px-4 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-sm border border-white/30"
-                  >
-                    <Plus size={16} />
-                    Create Activity
-                  </button>
-                </div>
-              </div>
-
               {/* Grid of Activities */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activities.length === 0 ? (
@@ -4176,6 +4063,15 @@ function App() {
                   ))
                 )}
               </div>
+
+              {/* Floating Action Button for Create Activity */}
+              <button
+                onClick={() => setCreationModal({ type: 'activity', isOpen: true })}
+                className="fixed bottom-8 right-8 z-50 w-14 h-14 bg-gradient-to-r from-[#20002c] to-[#cbb4d4] text-white rounded-full flex items-center justify-center shadow-xl shadow-[#20002c]/30 transition-transform hover:scale-110"
+                title="Create Activity"
+              >
+                <Plus size={24} />
+              </button>
             </div>
           )}
 
@@ -4595,105 +4491,70 @@ function App() {
           )}
 
           {/* MODULE: SETTINGS */}
-          {activeTab === 'Settings' && (
-            <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-6">
-
-              <div>
-                <h4 className="font-bold text-base">Configuration Settings</h4>
-                <p className="text-xs text-slate-400">Manage admin modules, biometric sensors, and geofence parameters</p>
-              </div>
-
-              <div className="space-y-6 divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-
-                {/* Organization Profile */}
-                <div className="pt-2 pb-2 space-y-4">
-                  <h5 className="font-bold text-sm text-white">Organization Profile</h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-[10px] text-slate-400 block font-semibold mb-1">NGO REGISTERED NAME</label>
-                      <input type="text" defaultValue="Hope3 Foundation" className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500" />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-400 block font-semibold mb-1">TAX EXEMPTION ID (80G)</label>
-                      <input type="text" defaultValue="H3-80G-2024-8899" className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-mono focus:outline-none focus:border-blue-500" />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="text-[10px] text-slate-400 block font-semibold mb-1">OFFICIAL CONTACT EMAIL</label>
-                      <input type="email" defaultValue="admin@hope3.org" className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500" />
-                    </div>
+          {activeTab === 'Profile' && (
+            <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              
+              <div className="glass-panel rounded-3xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-8 shadow-xl shadow-emerald-500/5 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-800"></div>
+                
+                <div className="relative z-10 flex flex-col items-center mt-16">
+                  <div className="w-36 h-36 rounded-full bg-white dark:bg-slate-900 p-2 shadow-2xl border-4 border-white dark:border-slate-900 mb-6 relative group">
+                    <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-full h-full object-contain rounded-full bg-slate-50 dark:bg-slate-800/50 p-2" />
+                    <button className="absolute bottom-2 right-2 w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-emerald-600 hover:scale-110 transition-all opacity-0 group-hover:opacity-100">
+                      <Pencil size={16} />
+                    </button>
+                  </div>
+                  <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Hope3 Foundation</h2>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Admin Portal Active</p>
                   </div>
                 </div>
 
-                {/* System Settings */}
-                <div className="pt-6 pb-2 space-y-4">
-                  <h5 className="font-bold text-sm text-white">System Configuration</h5>
-                  <div className="flex items-center justify-between p-3 border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900">
-                    <div>
-                      <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Enable Maintenance Mode</h6>
-                      <p className="text-[10px] text-slate-400">Suspend access for donors and students during updates.</p>
+                <div className="mt-12 bg-slate-50/50 dark:bg-slate-800/30 rounded-2xl p-8 border border-slate-100 dark:border-slate-800/50 relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-white mb-6 flex items-center gap-3">
+                    <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
+                      <Building size={20} />
                     </div>
-                    <div className="w-10 h-5 bg-slate-200 dark:bg-slate-700 rounded-full relative cursor-pointer">
-                      <div className="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm"></div>
+                    Organization Details
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Registered Name</label>
+                      <input type="text" defaultValue="Hope3 Foundation" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-sm" />
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-[10px] text-slate-400 block font-semibold mb-1">DEFAULT CURRENCY</label>
-                      <select className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500">
-                        <option value="INR">Indian Rupee (₹)</option>
-                        <option value="USD">US Dollar ($)</option>
-                      </select>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Tax Exemption ID (80G)</label>
+                      <input type="text" defaultValue="H3-80G-2024-8899" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-mono text-emerald-600 dark:text-emerald-400 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-sm" />
                     </div>
-                    <div>
-                      <label className="text-[10px] text-slate-400 block font-semibold mb-1">DATA BACKUP FREQUENCY</label>
-                      <select className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500">
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                      </select>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Official Contact Email</label>
+                      <input type="email" defaultValue="admin@hope3.org" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-xl font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all shadow-sm" />
                     </div>
                   </div>
-                </div>
-
-                {/* Notification Preferences */}
-                <div className="pt-6 pb-2 space-y-4">
-                  <h5 className="font-bold text-sm text-white">Notification & Alert Preferences</h5>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500" />
-                      <div>
-                        <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Email Activity Summaries</h6>
-                        <p className="text-[10px] text-slate-400">Receive weekly digests of all volunteer and mentor logs.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <input type="checkbox" defaultChecked className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500" />
-                      <div>
-                        <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">Donor Contribution Alerts</h6>
-                        <p className="text-[10px] text-slate-400">Get instant notifications when a new donation is processed.</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <input type="checkbox" className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500" />
-                      <div>
-                        <h6 className="font-bold text-slate-700 dark:text-slate-300 text-xs">SMS Emergency Alerts</h6>
-                        <p className="text-[10px] text-slate-400">Enable text alerts for severe location out-of-bounds events.</p>
-                      </div>
-                    </div>
+                  
+                  <div className="mt-10 flex flex-col sm:flex-row justify-end gap-4">
+                    <button className="px-6 py-3 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors w-full sm:w-auto">
+                      Cancel
+                    </button>
+                    <button className="px-8 py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5 transition-all w-full sm:w-auto flex items-center justify-center gap-2">
+                      <Check size={16} /> Save Changes
+                    </button>
                   </div>
                 </div>
 
-                {/* Save action */}
-                <div className="pt-6 flex justify-end">
-                  <button className="gradient-btn-tab hover:opacity-90 font-bold py-2 px-6 rounded-xl text-xs transition-colors shadow-sm">
-                    Save Changes
+                <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 flex justify-center">
+                  <button 
+                    onClick={() => { sessionStorage.removeItem('isAuthenticated'); setIsAuthenticated(false); }}
+                    className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 border border-red-100 dark:border-red-500/20 hover:scale-105 transition-all shadow-sm"
+                  >
+                    <X size={18} />
+                    Secure Log Out
                   </button>
                 </div>
 
               </div>
-
             </div>
           )}
 

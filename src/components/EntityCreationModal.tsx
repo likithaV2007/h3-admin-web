@@ -89,8 +89,24 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
               options={["General", "Academic", "Event", "Workshop", "Other"]}
             />
             <CustomInput required name="audience" placeholder="Audience (e.g., Everyone)" onChange={handleChange} />
-            <div className="md:col-span-2">
-              <CustomInput name="image_url" placeholder="Google Drive Image URL" onChange={handleChange} />
+            <div className="md:col-span-2 space-y-1.5">
+              <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Activity Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                name="image_url"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setFormData((prev: any) => ({ ...prev, image_url: reader.result }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-sm font-medium text-slate-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 cursor-pointer shadow-sm"
+              />
             </div>
             <div className="md:col-span-2 space-y-1.5">
               <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Description</label>
