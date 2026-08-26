@@ -67,10 +67,9 @@ async function apiFetch<T>(path: string, fallback: T, retries = 1): Promise<T> {
 }
 
 export function formatAvatarUrl(url?: string): string {
-  const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200';
-  if (!url || typeof url !== 'string') return defaultAvatar;
+  if (!url || typeof url !== 'string') return '';
   const clean = url.trim();
-  if (!clean || clean === 'string' || clean === 'null' || clean === 'undefined' || clean.includes('example.com') || clean.includes('example.org')) return defaultAvatar;
+  if (!clean || clean === 'string' || clean === 'null' || clean === 'undefined' || clean.includes('example.com') || clean.includes('example.org')) return '';
 
   // Convert Google Drive view/share URLs to official Google thumbnail URLs
   if (clean.includes('drive.google.com') || clean.includes('googleusercontent.com')) {
@@ -85,7 +84,7 @@ export function formatAvatarUrl(url?: string): string {
     return clean;
   }
 
-  return defaultAvatar;
+  return '';
 }
 
 export const apiService = {
@@ -705,6 +704,46 @@ export const apiService = {
     try {
       return await apiFetch<any[]>('/api/v1/leaves/', []);
     } catch (error) {
+      return [];
+    }
+  },
+
+  getLeaveRequestsByStudent: async (studentId: string): Promise<any[]> => {
+    try {
+      const data = await apiFetch<any[]>(`/api/v1/leaverequests/student/${studentId}`, []);
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to fetch student leave requests:", error);
+      return [];
+    }
+  },
+
+  getFeeRequestsByStudent: async (studentId: string): Promise<any[]> => {
+    try {
+      const data = await apiFetch<any[]>(`/api/v1/feerequests/student/${studentId}`, []);
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to fetch student fee requests:", error);
+      return [];
+    }
+  },
+
+  getStudentAchievementsByStudent: async (studentId: string): Promise<any[]> => {
+    try {
+      const data = await apiFetch<any[]>(`/api/v1/studentachievements/student/${studentId}`, []);
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to fetch student achievements:", error);
+      return [];
+    }
+  },
+
+  getSemestersByStudent: async (studentId: string): Promise<any[]> => {
+    try {
+      const data = await apiFetch<any[]>(`/api/v1/semesters/student/${studentId}`, []);
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Failed to fetch student semesters:", error);
       return [];
     }
   }

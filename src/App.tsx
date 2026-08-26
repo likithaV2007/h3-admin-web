@@ -1003,7 +1003,29 @@ function App() {
 
   // Selected Student Profile State
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [profileTab, setProfileTab] = useState<'Overview' | 'Attendance' | 'Current Location' | 'Leave Requests' | 'Academic Details' | 'Notes'>('Overview');
+  const [studentLeaveRequests, setStudentLeaveRequests] = useState<any[]>([]);
+  const [studentFeeRequests, setStudentFeeRequests] = useState<any[]>([]);
+  const [studentAchievements, setStudentAchievements] = useState<any[]>([]);
+  const [studentSemesters, setStudentSemesters] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (selectedStudent) {
+      const id = (selectedStudent as any).student_id || selectedStudent.id;
+      if (id) {
+        apiService.getLeaveRequestsByStudent(id).then(setStudentLeaveRequests);
+        apiService.getFeeRequestsByStudent(id).then(setStudentFeeRequests);
+        apiService.getStudentAchievementsByStudent(id).then(setStudentAchievements);
+        apiService.getSemestersByStudent(id).then(setStudentSemesters);
+      }
+    } else {
+      setStudentLeaveRequests([]);
+      setStudentFeeRequests([]);
+      setStudentAchievements([]);
+      setStudentSemesters([]);
+    }
+  }, [selectedStudent]);
+
+  const [profileTab, setProfileTab] = useState<'Overview' | 'Attendance' | 'Fees Requests' | 'Leave Requests' | 'Academic Details' | 'Achievements' | 'Notes'>('Overview');
   const [newNoteText, setNewNoteText] = useState<string>('');
   const [newNoteType, setNewNoteType] = useState<string>('academic');
 
@@ -2341,7 +2363,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                                  className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <PhoneCall size={14} />
                                 </a>
@@ -2352,7 +2374,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                                  className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -2434,7 +2456,7 @@ function App() {
 
                   {/* PROFILE TAB BUTTONS */}
                   <div className="flex border-b border-slate-200 dark:border-slate-800 overflow-x-auto gap-2 pb-1 scrollbar-none">
-                    {(['Overview', 'Attendance', 'Current Location', 'Leave Requests', 'Academic Details', 'Notes'] as const).map(tab => (
+                    {(['Overview', 'Attendance', 'Fees Requests', 'Leave Requests', 'Academic Details', 'Achievements', 'Notes'] as const).map(tab => (
                       <button
                         key={tab}
                         onClick={() => setProfileTab(tab)}
@@ -2810,45 +2832,38 @@ function App() {
                       </div>
                     )}
 
-                    {/* PROFILE TAB: CURRENT LOCATION */}
-                    {profileTab === 'Current Location' && (
-                      <div className="max-w-2xl">
-
-                        {/* Map Details telemetries */}
-                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-                          <h4 className="font-bold text-sm border-b border-slate-100 dark:border-slate-800 pb-3">Location Telemetry</h4>
-
-                          <div className="space-y-4 text-xs">
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Current Geofence Zone</span>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className={`w-3 h-3 rounded-full inline-block bg-[#cbb4d4] ${selectedStudent.location.status === 'Out of Bounds' ? 'pulse-green' : ''}`}></span>
-                                <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.location.status}</span>
-                              </div>
-                            </div>
-
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">GPS Coordinates</span>
-                              <span className="font-mono font-bold block text-slate-700 dark:text-slate-200 mt-0.5">{selectedStudent.location.coordinates}</span>
-                            </div>
-
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Distance to Hostel Room</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.location.hostelDistance}</span>
-                            </div>
-
-                            <div>
-                              <span className="text-slate-400 block font-semibold text-[10px] uppercase">Distance to College Campus</span>
-                              <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.location.collegeDistance}</span>
-                            </div>
-
-                            <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
-                              <span className="text-slate-400 block font-semibold text-[9px]">LAST HEARTBEAT</span>
-                              <span className="font-semibold text-slate-500 text-[10px]">{selectedStudent.location.lastUpdated} via SIM-Geofence Node v2</span>
-                            </div>
-                          </div>
+                    {/* PROFILE TAB: FEES REQUESTS */}
+                    {profileTab === 'Fees Requests' && (
+                      <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-sm">Fees Requests</h4>
                         </div>
 
+                        <div className="space-y-3">
+                          {studentFeeRequests.length === 0 ? (
+                            <p className="text-xs text-slate-400 py-4 text-center">No fee requests found.</p>
+                          ) : (
+                            studentFeeRequests.map(req => (
+                              <div key={req.fee_request_id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-xs font-bold truncate max-w-[120px] block" title={req.fee_request_id}>{req.fee_request_id}</span>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase
+                                      ${req.status?.toLowerCase() === 'approved' || req.status?.toLowerCase() === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' :
+                                        req.status?.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' :
+                                          'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}
+                                    >
+                                      {req.status}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs font-bold text-slate-800 dark:text-white">{req.fee_type} (₹{req.amount})</p>
+                                  <p className="text-xs text-slate-500">{req.reason}</p>
+                                  <span className="text-[10px] text-slate-400 block">Due Date: {req.due_date} | Created: {new Date(req.created_at).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
                     )}
 
@@ -2860,38 +2875,37 @@ function App() {
                         </div>
 
                         <div className="space-y-3">
-                          {selectedStudent.leaveRequests.length === 0 ? (
+                          {studentLeaveRequests.length === 0 ? (
                             <p className="text-xs text-slate-400 py-4 text-center">No leave applications lodged yet.</p>
                           ) : (
-                            selectedStudent.leaveRequests.map(req => (
-                              <div key={req.id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                            studentLeaveRequests.map(req => (
+                              <div key={req.leave_request_id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                                 <div className="space-y-1">
                                   <div className="flex items-center gap-2">
-                                    <span className="font-mono text-xs font-bold">{req.id}</span>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold
-                                      ${req.status === 'Approved' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' :
-                                        req.status === 'Pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' :
+                                    <span className="font-mono text-xs font-bold truncate max-w-[120px] block" title={req.leave_request_id}>{req.leave_request_id}</span>
+                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase
+                                      ${req.status?.toLowerCase() === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' :
+                                        req.status?.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' :
                                           'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}
                                     >
                                       {req.status}
                                     </span>
                                   </div>
-                                  <p className="text-xs font-bold text-slate-800 dark:text-white">{req.type} ({req.days} Days)</p>
                                   <p className="text-xs text-slate-500">{req.reason}</p>
-                                  <span className="text-[10px] text-slate-400 block">Dates: {req.fromDate} to {req.toDate} | Submitted: {req.requestedAt}</span>
+                                  <span className="text-[10px] text-slate-400 block">Dates: {req.leave_date} to {req.resume_date} | Submitted: {new Date(req.created_at).toLocaleDateString()}</span>
                                 </div>
 
                                 {/* Decision actions directly on profile */}
-                                {req.status === 'Pending' && (activeRole === 'Admin') && (
+                                {req.status?.toLowerCase() === 'pending' && (activeRole === 'Admin') && (
                                   <div className="flex items-center gap-2">
                                     <button
-                                      onClick={() => handleLeaveAction(req.id, 'Approved')}
+                                      onClick={() => handleLeaveAction(req.leave_request_id, 'Approved')}
                                       className="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-750 text-slate-900 text-xs font-bold transition-colors"
                                     >
                                       Approve
                                     </button>
                                     <button
-                                      onClick={() => handleLeaveAction(req.id, 'Rejected')}
+                                      onClick={() => handleLeaveAction(req.leave_request_id, 'Rejected')}
                                       className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-750 text-slate-900 text-xs font-bold transition-colors"
                                     >
                                       Reject
@@ -2907,90 +2921,84 @@ function App() {
 
                     {/* PROFILE TAB: ACADEMIC DETAILS */}
                     {profileTab === 'Academic Details' && (
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                        {/* GPA Progress chart */}
-                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 md:col-span-2 space-y-4">
-                          <h4 className="font-bold text-sm">Semester-wise GPA Progression</h4>
-
-                          {/* GPA Line Chart */}
-                          <div className="relative pt-2 h-44">
-                            <svg className="w-full h-full" viewBox="0 0 400 120" preserveAspectRatio="none">
-                              {/* Horizontal Grid lines */}
-                              <line x1="30" y1="20" x2="380" y2="20" stroke="rgba(148, 163, 184, 0.1)" />
-                              <line x1="30" y1="50" x2="380" y2="50" stroke="rgba(148, 163, 184, 0.1)" />
-                              <line x1="30" y1="80" x2="380" y2="80" stroke="rgba(148, 163, 184, 0.1)" />
-
-                              {/* Progression Polyline */}
-                              {selectedStudent.academicProgress.length === 4 ? (
-                                <>
-                                  <polyline
-                                    fill="none"
-                                    stroke="#3b82f6"
-                                    strokeWidth="2.5"
-                                    points="50,85 150,75 250,55 350,30"
-                                  />
-                                  {/* Circles */}
-                                  <circle cx="50" cy="85" r="4.5" fill="#3b82f6" className="cursor-pointer" />
-                                  <circle cx="150" cy="75" r="4.5" fill="#3b82f6" className="cursor-pointer" />
-                                  <circle cx="250" cy="55" r="4.5" fill="#3b82f6" className="cursor-pointer" />
-                                  <circle cx="350" cy="30" r="4.5" fill="#3b82f6" className="cursor-pointer" />
-                                </>
-                              ) : (
-                                <>
-                                  <polyline
-                                    fill="none"
-                                    stroke="#3b82f6"
-                                    strokeWidth="2.5"
-                                    points="50,90 200,85 350,60"
-                                  />
-                                  {/* Circles */}
-                                  <circle cx="50" cy="90" r="4.5" fill="#3b82f6" />
-                                  <circle cx="200" cy="85" r="4.5" fill="#3b82f6" />
-                                  <circle cx="350" cy="60" r="4.5" fill="#3b82f6" />
-                                </>
-                              )}
-
-                              {/* X labels */}
-                              {selectedStudent.academicProgress.map((item, idx) => {
-                                const step = 300 / (selectedStudent.academicProgress.length - 1);
-                                const x = 50 + idx * step;
-                                return (
-                                  <text key={idx} x={x} y="112" fill="#94a3b8" fontSize="8" fontWeight="bold" textAnchor="middle">
-                                    {item.semester} ({item.gpa})
-                                  </text>
-                                );
-                              })}
-                            </svg>
-                          </div>
+                      <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-sm">Semesters & Academic Records</h4>
                         </div>
-
-                        {/* Subject marks listing */}
-                        <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-                          <h4 className="font-bold text-sm">Current Semester Subjects</h4>
-
-                          <div className="space-y-3">
-                            {selectedStudent.subjects.map((sub, idx) => (
-                              <div key={idx} className="flex justify-between items-center text-xs pb-2 border-b border-slate-100 dark:border-slate-800/40">
-                                <div>
-                                  <span className="font-bold text-slate-800 dark:text-slate-200 block truncate max-w-[140px]">{sub.name}</span>
-                                  <span className="text-[10px] text-slate-400">Score: {sub.score}/100</span>
+                        <div className="space-y-4">
+                          {studentSemesters.length === 0 ? (
+                            <p className="text-xs text-slate-400 py-4 text-center">No academic records found.</p>
+                          ) : (
+                            studentSemesters.map(sem => (
+                              <div key={sem.semester_id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 space-y-3">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <h5 className="font-bold text-sm">{sem.semester_name}</h5>
+                                    <span className="text-[10px] text-slate-500 font-mono">Year: {sem.academic_year}</span>
+                                  </div>
+                                  {sem.is_active === 1 && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase bg-blue-100 text-blue-700">Active</span>
+                                  )}
                                 </div>
-                                <span className={`font-black text-xs px-2 py-0.5 rounded
-                                  ${sub.grade === 'O' ? 'bg-green-100 text-green-700' :
-                                    sub.grade === 'A+' ? 'bg-blue-100 text-blue-700' :
-                                      'bg-slate-100 text-slate-700'}`}
-                                >
-                                  {sub.grade}
-                                </span>
+                                {sem.subject && sem.subject.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5 mt-2">
+                                    {sem.subject.map((sub: string, idx: number) => (
+                                      <span key={idx} className="px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                                        {sub}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                                {sem.marksheetImageLink && sem.marksheetImageLink !== 'string' && (
+                                  <div className="pt-2">
+                                    <a href={sem.marksheetImageLink} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline inline-flex items-center gap-1">
+                                      📄 View Marksheet
+                                    </a>
+                                  </div>
+                                )}
                               </div>
-                            ))}
-                          </div>
+                            ))
+                          )}
                         </div>
-
                       </div>
                     )}
 
+                    {/* PROFILE TAB: ACHIEVEMENTS */}
+                    {profileTab === 'Achievements' && (
+                      <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-sm">Student Achievements</h4>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {studentAchievements.length === 0 ? (
+                            <p className="text-xs text-slate-400 py-4 col-span-full text-center">No achievements recorded yet.</p>
+                          ) : (
+                            studentAchievements.map(ach => (
+                              <div key={ach.id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex gap-4 items-start">
+                                {ach.badge_image_url && ach.badge_image_url !== 'string' ? (
+                                  <img src={ach.badge_image_url} alt="Badge" className="w-12 h-12 object-contain rounded-lg shrink-0" />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-lg bg-[#cbb4d4]/20 flex items-center justify-center shrink-0">
+                                    <span className="text-xl">🏆</span>
+                                  </div>
+                                )}
+                                <div className="space-y-1">
+                                  <h5 className="font-bold text-sm leading-tight text-slate-900 dark:text-white">{ach.title}</h5>
+                                  <p className="text-xs text-slate-500 line-clamp-2">{ach.description}</p>
+                                  <div className="flex items-center justify-between pt-1">
+                                    <span className="text-[10px] text-slate-400 font-mono">{ach.date}</span>
+                                    {ach.status && ach.status !== 'string' && (
+                                      <span className="text-[9px] px-1.5 py-0.5 uppercase tracking-wider font-bold bg-slate-200/50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded">{ach.status}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
                     {/* PROFILE TAB: NOTES */}
                     {profileTab === 'Notes' && (
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -3150,7 +3158,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${par.name} via WhatsApp (${par.phone})`}
-                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={15} />
                             </a>
@@ -3161,7 +3169,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={15} />
                             </a>
@@ -3237,7 +3245,7 @@ function App() {
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{vol.phone}</td>
                         <td className="p-4">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px]
-                            ${vol.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700'}`}
+                            ${vol.status === 'Active' ? 'bg-[#cbb4d4]/10 text-[#cbb4d4] dark:bg-[#cbb4d4]/20 dark:text-[#cbb4d4]' : 'bg-amber-100 text-amber-700'}`}
                           >
                             <span className={`w-1.5 h-1.5 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
                             {vol.status}
@@ -3256,7 +3264,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
-                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3265,7 +3273,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -3342,7 +3350,7 @@ function App() {
                         </td>
                         <td className="p-4 font-mono text-slate-600 dark:text-slate-400">{donor.phone}</td>
                         <td className="p-4">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] bg-[#cbb4d4]/10 text-[#cbb4d4] dark:bg-[#cbb4d4]/20 dark:text-[#cbb4d4]">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                             {donor.status}
                           </span>
@@ -3360,7 +3368,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
-                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3369,7 +3377,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -4368,7 +4376,7 @@ function App() {
                               </span>
                             </div>
                           </div>
-                          <h4 className="font-bold text-sm text-white truncate" title={gf.name}>{gf.name}</h4>
+                          <h4 className="font-bold text-sm text-slate-800 dark:text-white truncate" title={gf.name}>{gf.name}</h4>
                           <p className="text-[11px] text-slate-400 font-mono mt-0.5 truncate">
                             {gf.shape === 'circle' ? 'Radius' : 'Polygon'} | {gf.lat ? `${gf.lat.toFixed(4)}° N, ${gf.lng ? gf.lng.toFixed(4) : 0}° E` : 'Dynamic Zone'}
                           </p>
@@ -4377,13 +4385,23 @@ function App() {
                             <div className="flex items-center gap-1.5 mt-3">
                               <div className="flex -space-x-2 overflow-hidden">
                                 {assignedStudents.slice(0, 4).map(s => (
-                                  <img
-                                    key={s.id}
-                                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover"
-                                    src={s.avatar}
-                                    alt={s.name}
-                                    title={s.name}
-                                  />
+                                  s.profile_photo_link || s.avatar ? (
+                                    <img
+                                      key={s.id}
+                                      className="inline-block h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 object-cover bg-white"
+                                      src={s.profile_photo_link || s.avatar}
+                                      alt={s.name}
+                                      title={s.name}
+                                    />
+                                  ) : (
+                                    <div
+                                      key={s.id}
+                                      className="inline-flex items-center justify-center h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 bg-[#cbb4d4]/20 text-slate-800 dark:text-[#cbb4d4] text-[10px] font-black"
+                                      title={s.name}
+                                    >
+                                      {s.name ? s.name.charAt(0).toUpperCase() : '?'}
+                                    </div>
+                                  )
                                 ))}
                                 {assignedStudents.length > 4 && (
                                   <div className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-black text-slate-500 ring-2 ring-white dark:ring-slate-900">
@@ -4572,22 +4590,25 @@ function App() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <img
-                      src={formatAvatarUrl(selectedVolunteer.profile_photo_link)}
-                      alt={selectedVolunteer.name}
-                      className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedVolunteer.name)}&background=3a2248&color=fff`;
-                      }}
-                    />
-                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></span>
+                    {selectedVolunteer.profile_photo_link && formatAvatarUrl(selectedVolunteer.profile_photo_link) ? (
+                      <img
+                        src={formatAvatarUrl(selectedVolunteer.profile_photo_link)}
+                        alt={selectedVolunteer.name}
+                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-2xl border-2 border-white/80 shadow-xl bg-[#cbb4d4] flex items-center justify-center text-white text-3xl font-bold">
+                        {selectedVolunteer.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#cbb4d4] border-2 border-white rounded-full"></span>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                       {selectedVolunteer.name}
-                      <CheckCircle2 size={18} className="text-blue-200 fill-blue-500/40" />
+                      <CheckCircle2 size={18} className="text-[#cbb4d4]" />
                     </h3>
-                    <p className="text-xs text-blue-100 font-medium">{selectedVolunteer.email}</p>
+                    <p className="text-xs text-slate-500 font-medium">{selectedVolunteer.email}</p>
                   </div>
                 </div>
 
@@ -4596,7 +4617,7 @@ function App() {
                     href={getWhatsAppLink(selectedVolunteer.phone)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    className="px-3.5 py-2 bg-[#cbb4d4] hover:bg-[#cbb4d4]/90 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
                   >
                     <PhoneCall size={14} />
                     <span>Call</span>
@@ -4605,7 +4626,7 @@ function App() {
                     href={getWhatsAppLink(selectedVolunteer.phone, `Hello ${selectedVolunteer.name}, greetings from Hope3 NGO.`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-slate-900 backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
+                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700 dark:text-white"
                   >
                     <MessageSquare size={14} />
                     <span>Message</span>
@@ -4656,8 +4677,8 @@ function App() {
 
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Account Status</span>
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-bold text-[10px] bg-green-100 text-green-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-bold text-[10px] bg-[#cbb4d4]/20 text-slate-800 dark:text-[#cbb4d4]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#cbb4d4]"></span>
                     {selectedVolunteer.status}
                   </span>
                 </div>
@@ -4689,22 +4710,25 @@ function App() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <img
-                      src={formatAvatarUrl(selectedDonor.profile_photo_link)}
-                      alt={selectedDonor.name}
-                      className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedDonor.name)}&background=3a2248&color=fff`;
-                      }}
-                    />
-                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-300 border-2 border-white rounded-full"></span>
+                    {selectedDonor.profile_photo_link && formatAvatarUrl(selectedDonor.profile_photo_link) ? (
+                      <img
+                        src={formatAvatarUrl(selectedDonor.profile_photo_link)}
+                        alt={selectedDonor.name}
+                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-2xl border-2 border-white/80 shadow-xl bg-[#cbb4d4] flex items-center justify-center text-white text-3xl font-bold">
+                        {selectedDonor.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-[#cbb4d4] border-2 border-white rounded-full"></span>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                       {selectedDonor.name}
-                      <CheckCircle2 size={18} className="text-emerald-200 fill-emerald-500/40" />
+                      <CheckCircle2 size={18} className="text-[#cbb4d4]" />
                     </h3>
-                    <p className="text-xs text-emerald-100 font-medium">{selectedDonor.email}</p>
+                    <p className="text-xs text-slate-500 font-medium">{selectedDonor.email}</p>
                   </div>
                 </div>
 
@@ -4713,7 +4737,7 @@ function App() {
                     href={getWhatsAppLink(selectedDonor.phone)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-900 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
+                    className="px-3.5 py-2 bg-[#cbb4d4] hover:bg-[#cbb4d4]/90 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md"
                   >
                     <PhoneCall size={14} />
                     <span>Call</span>
@@ -4722,7 +4746,7 @@ function App() {
                     href={getWhatsAppLink(selectedDonor.phone, `Hello ${selectedDonor.name}, thank you for supporting Hope3 NGO scholars.`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-white/20 hover:bg-white/30 text-slate-900 backdrop-blur-md rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-white/20"
+                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700 dark:text-white"
                   >
                     <MessageSquare size={14} />
                     <span>Message</span>
@@ -4737,10 +4761,10 @@ function App() {
               {/* Highlight Contribution Box */}
               <div className="glass-panel p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
                 <div>
-                  <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider block">Total Financial Contribution</span>
-                  <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono">{selectedDonor.formattedAmount}</span>
+                  <span className="text-[10px] font-bold text-[#cbb4d4] uppercase tracking-wider block">Total Financial Contribution</span>
+                  <span className="text-2xl font-black text-[#cbb4d4] font-mono">{selectedDonor.formattedAmount}</span>
                 </div>
-                <span className="bg-emerald-600 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm">
+                <span className="bg-[#cbb4d4] text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm">
                   {selectedDonor.donorType}
                 </span>
               </div>
