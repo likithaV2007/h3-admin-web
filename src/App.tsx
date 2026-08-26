@@ -2300,13 +2300,20 @@ function App() {
                             className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
                           >
                             <td className="p-4 flex items-center gap-3">
+                              {student.avatar || student.profile_photo_link ? (
+                                <img src={student.avatar || student.profile_photo_link} alt={student.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-lg shrink-0">
+                                  {student.name ? student.name.charAt(0).toUpperCase() : '?'}
+                                </div>
+                              )}
                               <div>
                                 <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
                               </div>
                             </td>
                             <td className="p-4 font-mono font-medium text-slate-500">{student.rollNo}</td>
                             <td className="p-4">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-[#cbb4d4]/10 dark:bg-[#cbb4d4]/60 text-[#cbb4d4] dark:text-[#e7c7fa] border border-[#cbb4d4]/20 dark:border-[#cbb4d4]/80">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono bg-[#cbb4d4]/10 dark:bg-[#cbb4d4]/60 text-black dark:text-white border border-[#cbb4d4]/20 dark:border-[#cbb4d4]/80">
                                 {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
                               </span>
                             </td>
@@ -2315,24 +2322,14 @@ function App() {
                               <span className="text-[10px] text-slate-400 block max-w-[180px] truncate">{student.college}</span>
                             </td>
                             <td className="p-4">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] ${((student as any).status || 'Active') === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400'}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${((student as any).status || 'Active') === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] bg-[#cbb4d4]/10 text-black dark:bg-[#cbb4d4]/20 dark:text-white">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#cbb4d4]"></span>
                                 {(student as any).status || 'Active'}
                               </span>
                             </td>
                             <td className="p-4">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px]
-                                ${student.location.status === 'In College' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' :
-                                  student.location.status === 'In Hostel' ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400' :
-                                  student.location.status === 'On Leave' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400' :
-                                  'bg-red-500/10 text-red-600 dark:text-red-400'}`}
-                              >
-                                <span className={`w-1.5 h-1.5 rounded-full
-                                  ${student.location.status === 'In College' ? 'bg-blue-500' :
-                                    student.location.status === 'In Hostel' ? 'bg-purple-500' :
-                                    student.location.status === 'On Leave' ? 'bg-amber-500' :
-                                    'bg-red-500 animate-ping'}`}
-                                ></span>
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-semibold text-[10px] bg-[#cbb4d4]/10 text-black dark:bg-[#cbb4d4]/20 dark:text-white">
+                                <span className={`w-1.5 h-1.5 rounded-full bg-[#cbb4d4] ${student.location.status === 'Out of Bounds' ? 'animate-ping' : ''}`}></span>
                                 {student.location.status}
                               </span>
                             </td>
@@ -2383,14 +2380,13 @@ function App() {
                     </button>
 
                     <div className="flex items-center gap-5">
-                      <img
-                        src={selectedStudent.avatar}
-                        alt={selectedStudent.name}
-                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedStudent.name)}&background=3a2248&color=fff`;
-                        }}
-                      />
+                      {selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl ? (
+                        <img src={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} alt={selectedStudent.name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" />
+                      ) : (
+                        <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-3xl shrink-0">
+                          {selectedStudent.name ? selectedStudent.name.charAt(0).toUpperCase() : '?'}
+                        </div>
+                      )}
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{selectedStudent.name}</h3>
@@ -2826,12 +2822,7 @@ function App() {
                             <div>
                               <span className="text-slate-400 block font-semibold text-[10px] uppercase">Current Geofence Zone</span>
                               <div className="flex items-center gap-2 mt-1">
-                                <span className={`w-3 h-3 rounded-full inline-block
-                                  ${selectedStudent.location.status === 'In College' ? 'bg-blue-500' :
-                                    selectedStudent.location.status === 'In Hostel' ? 'bg-purple-500' :
-                                      selectedStudent.location.status === 'On Leave' ? 'bg-amber-500' :
-                                        'bg-red-500 pulse-green'}`}
-                                ></span>
+                                <span className={`w-3 h-3 rounded-full inline-block bg-[#cbb4d4] ${selectedStudent.location.status === 'Out of Bounds' ? 'pulse-green' : ''}`}></span>
                                 <span className="font-bold text-slate-700 dark:text-slate-200">{selectedStudent.location.status}</span>
                               </div>
                             </div>
@@ -3120,14 +3111,13 @@ function App() {
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img 
-                              src={formatAvatarUrl(par.profile_photo_link)} 
-                              alt={par.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(par.name)}&background=3a2248&color=fff`;
-                              }}
-                            />
+                            {par.profile_photo_link || par.avatar ? (
+                              <img src={par.profile_photo_link || par.avatar} alt={par.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
+                            ) : (
+                              <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-lg shrink-0">
+                                {par.name ? par.name.charAt(0).toUpperCase() : '?'}
+                              </div>
+                            )}
                             <div>
                               <span className="font-bold text-slate-800 dark:text-white block">{par.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{par.email || 'parent@hope3.org'}</span>
@@ -3225,14 +3215,13 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img 
-                              src={vol.profile_photo_link || `https://ui-avatars.com/api/?name=${encodeURIComponent(vol.name)}&background=3a2248&color=fff`} 
-                              alt={vol.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
-                              onError={(e) => {
-                                (e.target as HTMLElement).setAttribute('src', `https://ui-avatars.com/api/?name=${encodeURIComponent(vol.name)}&background=3a2248&color=fff`);
-                              }}
-                            />
+                            {vol.profile_photo_link || vol.avatar ? (
+                              <img src={vol.profile_photo_link || vol.avatar} alt={vol.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
+                            ) : (
+                              <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-lg shrink-0">
+                                {vol.name ? vol.name.charAt(0).toUpperCase() : '?'}
+                              </div>
+                            )}
                             <div>
                               <span className="font-bold text-slate-800 dark:text-white block hover:text-[#cbb4d4] transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{vol.email}</span>
@@ -3330,14 +3319,13 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <img 
-                              src={formatAvatarUrl(donor.profile_photo_link)} 
-                              alt={donor.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(donor.name)}&background=3a2248&color=fff`;
-                              }}
-                            />
+                            {donor.profile_photo_link || donor.avatar ? (
+                              <img src={donor.profile_photo_link || donor.avatar} alt={donor.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
+                            ) : (
+                              <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-lg shrink-0">
+                                {donor.name ? donor.name.charAt(0).toUpperCase() : '?'}
+                              </div>
+                            )}
                             <div>
                               <span className="font-bold text-slate-800 dark:text-white block hover:text-[#cbb4d4] transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-slate-400 font-mono">{donor.email}</span>
