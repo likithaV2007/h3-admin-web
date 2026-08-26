@@ -4287,13 +4287,13 @@ function App() {
                         onClick={() => setFenceTypeTab('single')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
-                        Single (${customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
+                        Single ({customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
                       </button>
                       <button
                         onClick={() => setFenceTypeTab('grouped')}
                         className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
-                        Grouped (${customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
+                        Grouped ({customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
                       </button>
                     </div>
                   </div>
