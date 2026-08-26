@@ -278,6 +278,7 @@ function App() {
   const [selectedGeofenceFilter, setSelectedGeofenceFilter] = useState<string>('ALL');
   const [modalBatchFilter, setModalBatchFilter] = useState<string>('ALL');
   const [fenceTypeTab, setFenceTypeTab] = useState<'single' | 'grouped'>('single');
+  const [pendingGeofenceDetails, setPendingGeofenceDetails] = useState<{name: string, color: string, targetBatch: string} | null>(null);
   const [pendingDrawnShape, setPendingDrawnShape] = useState<{
     layer: any;
     coords: Array<[number, number]>;
@@ -956,14 +957,61 @@ function App() {
           const defaultCount = customGeofences.length + 1;
           const defaultName = `Marked Geofence #${defaultCount}`;
 
-          // Trigger Custom Naming Modal Dialog
-          setPendingDrawnShape({
-            layer,
-            coords,
-            center,
-            defaultName
+          setPendingGeofenceDetails(prevDetails => {
+            if (prevDetails) {
+              // We came from the FAB modal, so AUTO-SAVE immediately!
+              const autoSave = async () => {
+                const apiPayload = {
+                  zone_name: prevDetails.name,
+                  center_lat: center.lat,
+                  center_lng: center.lng,
+                  radius_meters: 100,
+                  coordinates: [JSON.stringify(coords)],
+                  shape: 'polygon',
+                  color: prevDetails.color,
+                  target_batch: prevDetails.targetBatch,
+                  polygons: [],
+                  student_ids: [],
+                  is_active: 1,
+                  is_deleted: 0,
+                  description: 'Added via Map Drawing'
+                };
+                
+                let savedData = await apiService.createGeofence(apiPayload).catch(() => null);
+                if (!savedData) savedData = { id: `GF_DRAWN_${Date.now()}`, ...apiPayload };
+
+                setCustomGeofences(prev => {
+                  const updated = [...prev, {
+                    id: savedData.zone_id || savedData.id || `GF_DRAWN_${Date.now()}`,
+                    name: prevDetails.name,
+                    shape: 'polygon',
+                    color: prevDetails.color,
+                    targetBatch: prevDetails.targetBatch,
+                    lat: center.lat,
+                    lng: center.lng,
+                    polygons: [{ name: 'Default Zone', coords }]
+                  }];
+                  localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                  return updated;
+                });
+                
+                // Clear the pending details so it doesn't trigger again
+                setNewZoneName('');
+              };
+              autoSave();
+              return null; // Reset pending details
+            } else {
+              // We came from clicking the Pencil directly, so show the Confirm Custom Map Drawing UI
+              setPendingDrawnShape({
+                layer,
+                coords,
+                center,
+                defaultName
+              });
+              setNewZoneName(defaultName);
+              return null;
+            }
           });
-          setNewZoneName(defaultName);
         });
 
         map.on(L.Draw.Event.DRAWSTOP, () => {
@@ -5236,51 +5284,34 @@ function App() {
                 e.preventDefault();
                 if (!newZoneName) return;
 
-                // Center around map view with vertex points for shape
-                const baseLat = 12.9740 + (Math.random() * 0.006 - 0.003);
-                const baseLng = 77.5950 + (Math.random() * 0.006 - 0.003);
+                setPendingGeofenceDetails({
+                  name: newZoneName,
+                  color: newZoneColor,
+                  targetBatch: newZoneTargetBatch
+                });
 
-                let coords: Array<[number, number]> = [];
-                const radius = 0.0015;
-
-                if (newZoneShape === 'pentagon') {
-                  // 5 sides
-                  for (let i = 0; i < 5; i++) {
-                    const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-                    coords.push([baseLat + radius * Math.sin(angle), baseLng + radius * Math.cos(angle)]);
-                  }
-                } else if (newZoneShape === 'hexagon') {
-                  // 6 sides
-                  for (let i = 0; i < 6; i++) {
-                    const angle = (i * 2 * Math.PI) / 6;
-                    coords.push([baseLat + radius * Math.sin(angle), baseLng + radius * Math.cos(angle)]);
-                  }
-                } else {
-                  // Quad Polygon
-                  coords = [
-                    [baseLat + 0.001, baseLng - 0.001],
-                    [baseLat + 0.001, baseLng + 0.001],
-                    [baseLat - 0.001, baseLng + 0.001],
-                    [baseLat - 0.001, baseLng - 0.001]
-                  ];
-                }
-
-                setCustomGeofences(prev => [
-                  ...prev,
-                  {
-                    id: `GF_${Date.now()}`,
-                    name: newZoneName,
-                    shape: newZoneShape,
-                    color: newZoneColor,
-                    targetBatch: newZoneTargetBatch,
-                    lat: baseLat,
-                    lng: baseLng,
-                    polygons: [{ name: 'Default Zone', coords }]
-                  }
-                ]);
-
-                setNewZoneName('');
                 setShowAddLocationModal(false);
+
+                // Trigger Drawing Mode
+                const map = (window as any).leafletMapInstance;
+                const L = (window as any).L;
+                if (map && L && L.Draw && L.Draw.Polygon) {
+                  if ((window as any).activePolygonDrawer) {
+                    try { (window as any).activePolygonDrawer.disable(); } catch { }
+                  }
+                  const polygonDrawer = new L.Draw.Polygon(map, {
+                    shapeOptions: {
+                      color: newZoneColor || '#cbb4d4',
+                      fillColor: newZoneColor || '#cbb4d4',
+                      fillOpacity: 0.3,
+                      weight: 3
+                    }
+                  });
+                  (window as any).activePolygonDrawer = polygonDrawer;
+                  polygonDrawer.enable();
+                  setIsDrawingActive(true);
+                  alert('🖊️ Draw Mode Active!\n\n1. Click points on the map to outline your geofence.\n2. Click the VERY FIRST marker point to CLOSE the fence!\n3. It will automatically save using the details you just provided.');
+                }
               }}
               className="space-y-4 text-xs"
             >
@@ -5310,26 +5341,7 @@ function App() {
                 </select>
               </div>
 
-              <div>
-                <label className="text-[10px] text-slate-400 block font-bold mb-1">SELECT GEOFENCE SHAPE</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { id: 'pentagon', label: 'Pentagon (5-Sided)', icon: '⬟' },
-                    { id: 'hexagon', label: 'Hexagon (6-Sided)', icon: '⬢' },
-                    { id: 'polygon', label: 'Polygon (Custom)', icon: '⬧' }
-                  ].map(sh => (
-                    <button
-                      key={sh.id}
-                      type="button"
-                      onClick={() => setNewZoneShape(sh.id as any)}
-                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-violet-600 bg-purple-50 dark:bg-purple-950/40 text-slate-800 dark:text-purple-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
-                    >
-                      <span className="text-lg leading-none">{sh.icon}</span>
-                      <span className="text-[10px]">{sh.id}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1">MAP BOUNDARY COLOR</label>
@@ -5352,7 +5364,7 @@ function App() {
                   className="w-full py-3 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 text-xs"
                 >
                   <MapPin size={16} />
-                  <span>Mark & Save Batch Geofence</span>
+                  <span>Mark Geofence on Map</span>
                 </button>
               </div>
             </form>
