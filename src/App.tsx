@@ -272,7 +272,7 @@ function App() {
   const [isFullScreenMapOpen, setIsFullScreenMapOpen] = useState<boolean>(false);
   const [newZoneName, setNewZoneName] = useState<string>('');
   const [newZoneShape, setNewZoneShape] = useState<'polygon' | 'pentagon' | 'hexagon' | 'circle'>('pentagon');
-  const [newZoneColor, setNewZoneColor] = useState<string>('#3b82f6');
+  const [newZoneColor, setNewZoneColor] = useState<string>('#cbb4d4');
   const [newZoneTargetBatch, setNewZoneTargetBatch] = useState<string>('ALL');
   const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('ALL');
   const [selectedGeofenceFilter, setSelectedGeofenceFilter] = useState<string>('ALL');
@@ -304,7 +304,7 @@ function App() {
       id: '06d77b3b-bf43-4bbc-b841-ed68db46665b',
       name: 'Hope3 Office Polygon',
       shape: 'polygon',
-      color: '#3b82f6',
+      color: '#cbb4d4',
       targetBatch: 'ALL',
       lat: 10.0815515,
       lng: 78.7463343,
@@ -582,7 +582,7 @@ function App() {
             ];
           }
 
-          const colors = ['#ef4444', '#10b981', '#3b82f6', '#a855f7', '#f59e0b', '#ec4899'];
+          const colors = ['#ef4444', '#10b981', '#cbb4d4', '#a855f7', '#f59e0b', '#ec4899'];
           const color = colors[idx % colors.length];
 
           mappedGeofences.push({
@@ -865,10 +865,10 @@ function App() {
           className: 'custom-student-pin',
           html: `
             <div style="position: relative; display: flex; flex-direction: column; items-center: center;">
-              <div style="background-color: #2563eb; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; white-space: nowrap; border: 1.5px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
+              <div style="background-color: #20002c; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: bold; white-space: nowrap; border: 1.5px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.4);">
                 👤 ${student.name.split(' ')[0]} (${student.batch || '2026'})
               </div>
-              <div style="width: 10px; h-10px; background-color: #2563eb; transform: rotate(45deg); margin: -4px auto 0 auto; border-right: 1.5px solid white; border-bottom: 1.5px solid white;"></div>
+              <div style="width: 10px; h-10px; background-color: #20002c; transform: rotate(45deg); margin: -4px auto 0 auto; border-right: 1.5px solid white; border-bottom: 1.5px solid white;"></div>
             </div>
           `,
           iconSize: [80, 30],
@@ -897,8 +897,8 @@ function App() {
               showArea: true,
               guidelineDistance: 10,
               shapeOptions: {
-                color: '#3b82f6',
-                fillColor: '#3b82f6',
+                color: '#cbb4d4',
+                fillColor: '#cbb4d4',
                 fillOpacity: 0.35,
                 weight: 3
               }
@@ -1224,9 +1224,12 @@ function App() {
   };
 
   // Leave Request Action handlers
-  const handleFeeAction = (id: string, newStatus: 'Approved' | 'Rejected') => {
-    // Note: Temporary local state update for demo
-    setStudentFeeRequests(prev => prev.map(fr => fr.fee_request_id === id ? { ...fr, status: newStatus } : fr));
+  const handleFeeAction = async (id: string, newStatus: 'Approved' | 'Rejected') => {
+    const apiStatus = newStatus === 'Approved' ? 'approved' : 'rejected';
+    const result = await apiService.updateFeeRequestStatus(id, apiStatus);
+    if (result) {
+      setStudentFeeRequests(prev => prev.map(fr => fr.fee_request_id === id ? { ...fr, status: newStatus } : fr));
+    }
   };
 
   const handleLeaveAction = (id: string, newStatus: 'Approved' | 'Rejected') => {
@@ -2166,7 +2169,7 @@ function App() {
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h5 className="font-bold text-xs">{req.studentName}</h5>
-                                  <span className="text-[9px] font-semibold text-slate-800 dark:text-blue-400 font-mono">{req.type}</span>
+                                  <span className="text-[9px] font-semibold text-slate-800 dark:text-purple-400 font-mono">{req.type}</span>
                                 </div>
                                 <span className="text-[10px] text-slate-400">{req.date}</span>
                               </div>
@@ -2280,7 +2283,7 @@ function App() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-400">Weekly GPAs:</span>
-                          <span className="font-bold text-slate-800 dark:text-blue-400">9.1/10 (Excellent)</span>
+                          <span className="font-bold text-slate-800 dark:text-purple-400">9.1/10 (Excellent)</span>
                         </div>
                       </div>
                     </div>
@@ -2290,11 +2293,11 @@ function App() {
                         <p className="text-[11px] text-slate-400">Reach out to your child's guide counselor directly</p>
                       </div>
                       <div className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-white dark:bg-slate-900/30 flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 flex items-center justify-center font-bold">AS</div>
+                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-950/50 text-purple-700 dark:text-purple-400 flex items-center justify-center font-bold">AS</div>
                         <div>
                           <h5 className="font-bold text-xs text-white">Prof. Ananya Sen</h5>
                           <span className="text-[10px] text-slate-400 block">Senior Mentor Counselor</span>
-                          <span className="text-[10px] text-slate-800 dark:text-blue-400 block mt-1 font-mono">ananya.sen@hope3.org</span>
+                          <span className="text-[10px] text-slate-800 dark:text-purple-400 block mt-1 font-mono">ananya.sen@hope3.org</span>
                         </div>
                       </div>
                     </div>
@@ -2326,7 +2329,7 @@ function App() {
                     <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                       {/* Batch Filter Dropdown */}
                       <div className="flex items-center gap-2 bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-sm">
-                        <Filter size={14} className="text-blue-500" />
+                        <Filter size={14} className="text-purple-500" />
                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Batch:</span>
                         <select
                           value={studentBatchFilter}
@@ -2346,7 +2349,7 @@ function App() {
                         placeholder="Search student, college, ID..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                        className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-purple-500/20 w-full sm:w-64 transition-all shadow-sm"
                       />
                     </div>
                   </div>
@@ -2457,7 +2460,7 @@ function App() {
 
                         {/* Basic badges */}
                         <div className="flex gap-2 mt-3 flex-wrap">
-                          <span className="text-[10px] font-semibold bg-blue-50 dark:bg-blue-950/20 text-slate-800 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-200/30">
+                          <span className="text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/20 text-slate-800 dark:text-purple-400 px-2 py-0.5 rounded border border-purple-200/30">
                             Hostel Room: {selectedStudent.hostelRoom}
                           </span>
                           <span className="text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded border border-purple-200/30">
@@ -2479,7 +2482,7 @@ function App() {
                         </button>
                         <button
                           onClick={() => handleSimulateLocationUpdate(selectedStudent.id, 'In College')}
-                          className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-blue-200/50 text-slate-800 hover:bg-blue-50 transition-colors"
+                          className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-purple-200/50 text-slate-800 hover:bg-purple-50 transition-colors"
                         >
                           College
                         </button>
@@ -2501,7 +2504,7 @@ function App() {
                         onClick={() => setProfileTab(tab)}
                         className={`px-4 py-2 font-bold text-xs shrink-0 border-b-2 transition-all duration-200
                           ${profileTab === tab
-                            ? 'border-violet-600 text-slate-800 dark:text-blue-400'
+                            ? 'border-violet-600 text-slate-800 dark:text-purple-400'
                             : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'}`}
                       >
                         {tab}
@@ -2522,7 +2525,7 @@ function App() {
                           {/* Card 1: Personal Profile */}
                           <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-                              <User size={16} className="text-blue-500" />
+                              <User size={16} className="text-purple-500" />
                               Personal Information
                             </h4>
                             <div className="grid grid-cols-2 gap-3 text-xs">
@@ -2564,7 +2567,7 @@ function App() {
                           {/* Card 2: Academic & School/College Info */}
                           <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 lg:col-span-2">
                             <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-                              <Award size={16} className="text-indigo-500" />
+                              <Award size={16} className="text-purple-500" />
                               Academic & Education Details
                             </h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
@@ -2745,7 +2748,7 @@ function App() {
                               {selectedStudent.folder_link && (
                                 <div className="sm:col-span-2">
                                   <span className="text-slate-400 block font-semibold text-[10px] uppercase">Google Drive Folder</span>
-                                  <a href={selectedStudent.folder_link} target="_blank" rel="noreferrer" className="text-slate-800 dark:text-blue-400 font-semibold underline truncate block">
+                                  <a href={selectedStudent.folder_link} target="_blank" rel="noreferrer" className="text-slate-800 dark:text-purple-400 font-semibold underline truncate block">
                                     {selectedStudent.folder_link}
                                   </a>
                                 </div>
@@ -2764,7 +2767,7 @@ function App() {
                         {/* 4. TRACKING, VOLUNTEERING & NOTES */}
                         <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
                           <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2 flex items-center gap-2">
-                            <Clock size={16} className="text-blue-500" />
+                            <Clock size={16} className="text-purple-500" />
                             Tracking, Emergency & Notes
                           </h4>
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
@@ -2813,7 +2816,7 @@ function App() {
                                 cy="50"
                                 r="40"
                                 fill="transparent"
-                                stroke="#3b82f6"
+                                stroke="#cbb4d4"
                                 strokeWidth="8"
                                 strokeDasharray={2 * Math.PI * 40}
                                 strokeDashoffset={2 * Math.PI * 40 * (1 - selectedStudent.attendance / 100)}
@@ -2927,15 +2930,15 @@ function App() {
                                   {(req.submitted_marksheets === 1 || req.submitted_payment_receipts === 1 || req.drive_link) && (
                                     <div className="flex flex-wrap gap-2 pt-3 mt-2 border-t border-slate-100 dark:border-slate-800">
                                       {req.drive_link && (
-                                        <a href={req.drive_link} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 px-3 py-1 rounded-full inline-flex items-center gap-1 transition-colors">
+                                        <a href={req.drive_link} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-slate-700 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 px-3 py-1 rounded-full inline-flex items-center gap-1 transition-colors">
                                           <span>📎</span> View Attachments
                                         </a>
                                       )}
                                       {req.submitted_marksheets === 1 && (
-                                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full inline-flex items-center gap-1">✓ Marksheet</span>
+                                        <span className="text-[10px] font-bold text-slate-700 bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/10 dark:text-[#cbb4d4] border border-[#cbb4d4]/40 px-3 py-1 rounded-full inline-flex items-center gap-1">✓ Marksheet</span>
                                       )}
                                       {req.submitted_payment_receipts === 1 && (
-                                        <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-full inline-flex items-center gap-1">✓ Receipt</span>
+                                        <span className="text-[10px] font-bold text-slate-700 bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/10 dark:text-[#cbb4d4] border border-[#cbb4d4]/40 px-3 py-1 rounded-full inline-flex items-center gap-1">✓ Receipt</span>
                                       )}
                                     </div>
                                   )}
@@ -3043,7 +3046,7 @@ function App() {
                           Semesters & Academic Records
                         </h4>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                           {studentSemesters.length === 0 ? (
                             <p className="text-xs text-slate-400 py-4 col-span-full text-center">No academic records found.</p>
                           ) : (
@@ -3093,13 +3096,13 @@ function App() {
                           Student Achievements
                         </h4>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                           {studentAchievements.length === 0 ? (
                             <p className="text-xs text-slate-400 py-4 col-span-full text-center">No achievements recorded yet.</p>
                           ) : (
                             studentAchievements.map(ach => (
                               <div key={ach.id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#cbb4d4]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
-                                <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+                                <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 flex items-center justify-center">
                                   <AchievementImage 
                                     url={ach.photo_drive_link || ach.badge_image_url} 
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -3143,7 +3146,7 @@ function App() {
                                   </div>
                                   <p className="text-xs text-slate-600 dark:text-slate-400 pt-1 leading-relaxed">{note.note}</p>
                                   <span className={`inline-block text-[9px] uppercase font-bold px-1.5 py-0.25 rounded mt-2
-                                    ${note.type === 'academic' ? 'bg-blue-100 text-blue-700' :
+                                    ${note.type === 'academic' ? 'bg-purple-100 text-purple-700' :
                                       note.type === 'health' ? 'bg-red-100 text-red-700' :
                                         'bg-amber-100 text-amber-700'}`}
                                   >
@@ -3182,7 +3185,7 @@ function App() {
                                 placeholder="Type counselor observations, notes..."
                                 value={newNoteText}
                                 onChange={(e) => setNewNoteText(e.target.value)}
-                                className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 mt-1 focus:outline-none focus:border-blue-500"
+                                className="w-full text-xs p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 mt-1 focus:outline-none focus:border-purple-500"
                               ></textarea>
                             </div>
 
@@ -3222,7 +3225,7 @@ function App() {
                   placeholder="Filter by parent or student name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-purple-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -3316,7 +3319,7 @@ function App() {
                   placeholder="Filter by admin name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -3414,7 +3417,7 @@ function App() {
                   placeholder="Filter by donor name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 w-full sm:w-64 transition-all shadow-sm"
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-purple-500/20 w-full sm:w-64 transition-all shadow-sm"
                 />
               </div>
 
@@ -3741,7 +3744,7 @@ function App() {
                                         </span>
                                       )}
                                       {item.is_foundation_paid ? (
-                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 tracking-wider flex items-center gap-1">
+                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400 tracking-wider flex items-center gap-1">
                                           🏦 H3 Paid
                                         </span>
                                       ) : (
@@ -3785,7 +3788,7 @@ function App() {
                                   </div>
 
                                   <div className="flex items-center gap-4">
-                                    <span className="text-lg font-black text-emerald-600 dark:text-cyan-400 font-mono">
+                                    <span className="text-lg font-black text-emerald-600 dark:text-purple-400 font-mono">
                                       ₹ {item.amount.toLocaleString('en-IN')}
                                     </span>
 
@@ -3813,8 +3816,8 @@ function App() {
                                         <img src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} alt="Receipt thumbnail" className="w-full h-auto max-h-48 object-cover rounded-lg bg-white dark:bg-slate-950" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<div class="py-4 text-center border-2 border-dashed border-red-200 rounded-lg text-xs font-bold text-red-500">Image is Private or Blocked. Click to open in Drive.</div>'; }} />
                                       </a>
                                     ) : (
-                                      <a href={item.receipt_drive_link!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block w-full py-3 text-center border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">Open Document</span>
+                                      <a href={item.receipt_drive_link!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block w-full py-3 text-center border-2 border-dashed border-purple-200 dark:border-purple-900/50 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20">
+                                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400">Open Document</span>
                                       </a>
                                     )}
                                   </div>
@@ -4189,7 +4192,7 @@ function App() {
                   {/* Google Street Map Location Search Bar & Geofencer Header */}
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-10">
                     <div className="flex items-center gap-2">
-                      <MapPin size={18} className="text-slate-800 dark:text-blue-400" />
+                      <MapPin size={18} className="text-slate-800 dark:text-purple-400" />
                       <h4 className="font-bold text-sm text-white">Google Maps Geofence Radar</h4>
                     </div>
 
@@ -4236,7 +4239,7 @@ function App() {
                                   id: `GF_SEARCH_${Date.now()}`,
                                   name: result.display_name.split(',')[0] + ' Geofence',
                                   shape: 'polygon',
-                                  color: '#3b82f6',
+                                  color: '#cbb4d4',
                                   lat,
                                   lng: lon,
                                   targetBatch: 'ALL',
@@ -4283,17 +4286,17 @@ function App() {
                           placeholder="Search place name to fence (e.g. Koviloor)..."
                           value={locationSearchQuery}
                           onChange={(e) => setLocationSearchQuery(e.target.value)}
-                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-blue-500/20 shadow-sm font-semibold"
+                          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-purple-500/20 shadow-sm font-semibold"
                         />
                         {isSearchingLocation ? (
-                          <RefreshCw size={14} className="absolute left-2.5 top-2 text-blue-500 animate-spin" />
+                          <RefreshCw size={14} className="absolute left-2.5 top-2 text-purple-500 animate-spin" />
                         ) : (
                           <Search size={14} className="absolute left-2.5 top-2 text-slate-400" />
                         )}
                       </div>
                     </form>
                     <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
-                    <Filter size={14} className="text-blue-500" />
+                    <Filter size={14} className="text-purple-500" />
                     <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">Group Filter:</span>
                     <select
                       value={selectedGeofenceFilter}
@@ -4320,8 +4323,8 @@ function App() {
                                   map.setView([latitude, longitude], 16);
                                   L.circleMarker([latitude, longitude], {
                                     radius: 8,
-                                    color: '#3b82f6',
-                                    fillColor: '#3b82f6',
+                                    color: '#cbb4d4',
+                                    fillColor: '#cbb4d4',
                                     fillOpacity: 0.5
                                   }).addTo(map).bindPopup('You are here!').openPopup();
                                 }
@@ -4334,7 +4337,7 @@ function App() {
                             alert('Geolocation is not supported by your browser.');
                           }
                         }}
-                        className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/60 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-800 transition-all shadow-sm flex items-center justify-center"
+                        className="p-2 bg-purple-50 hover:bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:hover:bg-purple-900/60 dark:text-purple-400 rounded-xl border border-purple-200 dark:border-purple-800 transition-all shadow-sm flex items-center justify-center"
                         title="Find My Location"
                       >
                         <Navigation size={18} />
@@ -4387,13 +4390,13 @@ function App() {
                     <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/40 dark:border-slate-700/50">
                       <button
                         onClick={() => setFenceTypeTab('single')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'single' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-purple-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
                         Single ({customGeofences.filter(gf => !gf.polygons || gf.polygons.length <= 1).length})
                       </button>
                       <button
                         onClick={() => setFenceTypeTab('grouped')}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-blue-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-black tracking-wide uppercase transition-all ${fenceTypeTab === 'grouped' ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-purple-400 shadow-sm border border-slate-200/30' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}
                       >
                         Grouped ({customGeofences.filter(gf => gf.polygons && gf.polygons.length > 1).length})
                       </button>
@@ -4437,7 +4440,7 @@ function App() {
                         return <Compass size={20} />;
                       };
 
-                      const accentColor = hasViolation ? '#ef4444' : (gf.color || '#3b82f6');
+                      const accentColor = hasViolation ? '#ef4444' : (gf.color || '#cbb4d4');
 
                       return (
                         <div
@@ -4529,7 +4532,7 @@ function App() {
                           >
                             <button
                               onClick={() => setEditingGeofenceGroup(gf)}
-                              className="text-[10px] font-bold text-slate-800 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
+                              className="text-[10px] font-bold text-slate-800 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
                             >
                               <Users size={12} />
                               <span>Manage Group</span>
@@ -4588,7 +4591,7 @@ function App() {
                       </div>
 
                       <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 flex items-center gap-4 group/item hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                        <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
                           <Clock size={18} />
                         </div>
                         <div>
@@ -4773,7 +4776,7 @@ function App() {
 
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Total Service Hours</span>
-                  <span className="font-mono font-bold text-xs text-slate-800 dark:text-blue-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
+                  <span className="font-mono font-bold text-xs text-slate-800 dark:text-purple-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
                 </div>
 
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
@@ -5083,7 +5086,7 @@ function App() {
             <div className="flex-1 overflow-y-auto space-y-4 text-xs pr-1 scrollbar-none">
               <div className="text-center py-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-800/40">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">TOTAL AMOUNT</span>
-                <span className="text-3xl font-black text-emerald-600 dark:text-cyan-400 font-mono">
+                <span className="text-3xl font-black text-emerald-600 dark:text-purple-400 font-mono">
                   ₹ {selectedExpense.amount.toLocaleString('en-IN')}
                 </span>
               </div>
@@ -5117,7 +5120,7 @@ function App() {
               <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Refund Requested</span>
-                  <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${selectedExpense.refund_requested ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-400' : 'bg-slate-100 text-slate-500'}`}>
+                  <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${selectedExpense.refund_requested ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400' : 'bg-slate-100 text-slate-500'}`}>
                     {selectedExpense.refund_requested ? 'YES' : 'NO'}
                   </span>
                 </div>
@@ -5168,8 +5171,8 @@ function App() {
                         }}
                       />
                     ) : (
-                      <a href={selectedExpense.receipt_drive_link!} target="_blank" rel="noopener noreferrer" className="block w-full py-4 text-center border-2 border-dashed border-blue-200 dark:border-blue-900/50 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">View Document in Google Drive</span>
+                      <a href={selectedExpense.receipt_drive_link!} target="_blank" rel="noopener noreferrer" className="block w-full py-4 text-center border-2 border-dashed border-purple-200 dark:border-purple-900/50 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20">
+                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400">View Document in Google Drive</span>
                       </a>
                     )}
                   </div>
@@ -5212,7 +5215,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-slate-800 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-slate-800 flex items-center justify-center font-bold">
                   <MapPin size={18} />
                 </div>
                 <div>
@@ -5289,7 +5292,7 @@ function App() {
                   placeholder="e.g. Hostel Block B - Batch 2026 Fence"
                   value={newZoneName}
                   onChange={(e) => setNewZoneName(e.target.value)}
-                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-purple-500"
                 />
               </div>
 
@@ -5298,7 +5301,7 @@ function App() {
                 <select
                   value={newZoneTargetBatch}
                   onChange={(e) => setNewZoneTargetBatch(e.target.value)}
-                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-purple-500"
                 >
                   <option value="ALL">All Batches (ALL)</option>
                   {availableBatches.map(b => (
@@ -5319,7 +5322,7 @@ function App() {
                       key={sh.id}
                       type="button"
                       onClick={() => setNewZoneShape(sh.id as any)}
-                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-violet-600 bg-blue-50 dark:bg-blue-950/40 text-slate-800 dark:text-blue-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
+                      className={`p-2.5 rounded-xl border text-center font-bold flex flex-col items-center gap-1 transition-all ${newZoneShape === sh.id ? 'border-violet-600 bg-purple-50 dark:bg-purple-950/40 text-slate-800 dark:text-purple-400' : 'border-slate-200 dark:border-slate-800 text-slate-500 hover:bg-slate-50'}`}
                     >
                       <span className="text-lg leading-none">{sh.icon}</span>
                       <span className="text-[10px]">{sh.id}</span>
@@ -5331,7 +5334,7 @@ function App() {
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1">MAP BOUNDARY COLOR</label>
                 <div className="flex items-center gap-3">
-                  {['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
+                  {['#cbb4d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
                     <button
                       key={col}
                       type="button"
@@ -5363,7 +5366,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh]">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-slate-800 dark:text-blue-400 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-slate-800 dark:text-purple-400 flex items-center justify-center font-bold">
                   <Users size={16} />
                 </div>
                 <div>
@@ -5396,7 +5399,7 @@ function App() {
                       return updated;
                     });
                   }}
-                  className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-blue-500 text-xs"
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-purple-500 text-xs"
                 />
               </div>
 
@@ -5407,7 +5410,7 @@ function App() {
                   <select
                     value={modalBatchFilter}
                     onChange={(e) => setModalBatchFilter(e.target.value)}
-                    className="p-1 px-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold text-[10px] text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500"
+                    className="p-1 px-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold text-[10px] text-slate-700 dark:text-slate-200 focus:outline-none focus:border-purple-500"
                   >
                     <option value="ALL">All Batches</option>
                     {availableBatches.map(b => (
@@ -5433,7 +5436,7 @@ function App() {
                       setEditingGeofenceGroup({ ...editingGeofenceGroup, studentIds: newStudentIds });
                       setCustomGeofences(prev => prev.map(gf => gf.id === editingGeofenceGroup.id ? { ...gf, studentIds: newStudentIds } : gf));
                     }}
-                    className="p-1 px-2.5 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/80 text-slate-800 dark:text-blue-400 rounded-xl text-[10px] font-bold transition-all border border-blue-200/40"
+                    className="p-1 px-2.5 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-950/80 text-slate-800 dark:text-purple-400 rounded-xl text-[10px] font-bold transition-all border border-purple-200/40"
                   >
                     {(() => {
                       const filteredStudents = students.filter(student => modalBatchFilter === 'ALL' || (student.batch || student.current_year || '2026') === modalBatchFilter);
@@ -5483,7 +5486,7 @@ function App() {
                             return gf;
                           }));
                         }}
-                        className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                        className="w-4 h-4 rounded text-slate-800 focus:ring-purple-500 border-slate-300 dark:border-slate-700"
                       />
                     </label>
                   );
@@ -5519,7 +5522,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh] space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-slate-800 dark:text-blue-400 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-slate-800 dark:text-purple-400 flex items-center justify-center font-bold">
                   <Layers size={16} />
                 </div>
                 <div>
@@ -5544,7 +5547,7 @@ function App() {
                   placeholder="e.g. Combined Hostel & Office Perimeter"
                   value={mergeTargetName}
                   onChange={(e) => setMergeTargetName(e.target.value)}
-                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-purple-500"
                 />
               </div>
 
@@ -5603,7 +5606,7 @@ function App() {
                                   : prev.filter(id => id !== gf.id)
                               );
                             }}
-                            className="w-4 h-4 rounded text-slate-800 focus:ring-blue-500 border-slate-300 dark:border-slate-700"
+                            className="w-4 h-4 rounded text-slate-800 focus:ring-purple-500 border-slate-300 dark:border-slate-700"
                           />
                         </label>
                       );
@@ -5661,7 +5664,7 @@ function App() {
                       id: savedData.zone_id || savedData.id || `GF_MERGED_${Date.now()}`,
                       name: mergeTargetName.trim(),
                       shape: 'polygon',
-                      color: baseParent.color || '#3b82f6',
+                      color: baseParent.color || '#cbb4d4',
                       targetBatch: 'ALL',
                       lat: baseParent.lat,
                       lng: baseParent.lng,
@@ -5709,13 +5712,13 @@ function App() {
                 <span>Back</span>
               </button>
 
-              <div className="w-9 h-9 rounded-xl bg-violet-600/30 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold">
+              <div className="w-9 h-9 rounded-xl bg-violet-600/30 border border-purple-500/30 text-purple-400 flex items-center justify-center font-bold">
                 <Compass size={20} />
               </div>
               <div>
                 <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                   Full Screen Satellite Geofencing Radar
-                  <span className="text-[10px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-mono">
+                  <span className="text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded-full font-mono">
                     Batch Mode
                   </span>
                 </h3>
@@ -5726,7 +5729,7 @@ function App() {
             {/* Batch Selector & View Controls inside Fullscreen Header */}
             <div className="flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5">
-                <Filter size={14} className="text-blue-400" />
+                <Filter size={14} className="text-purple-400" />
                 <span className="text-xs font-bold text-slate-300">Filter Batch:</span>
                 <select
                   value={selectedBatchFilter}
@@ -5822,8 +5825,8 @@ function App() {
                     }
                     const polygonDrawer = new L.Draw.Polygon(map, {
                       shapeOptions: {
-                        color: '#3b82f6',
-                        fillColor: '#3b82f6',
+                        color: '#cbb4d4',
+                        fillColor: '#cbb4d4',
                         fillOpacity: 0.3,
                         weight: 3
                       }
@@ -5853,7 +5856,7 @@ function App() {
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-blue-500/15 text-slate-800 flex items-center justify-center font-bold">
+                <div className="w-9 h-9 rounded-2xl bg-purple-500/15 text-slate-800 flex items-center justify-center font-bold">
                   <Pencil size={20} />
                 </div>
                 <div>
@@ -5899,7 +5902,7 @@ function App() {
                     id: savedData.zone_id || savedData.id || `GF_DRAWN_${Date.now()}`,
                     name: nameToSave,
                     shape: 'polygon',
-                    color: newZoneColor || '#3b82f6',
+                    color: newZoneColor || '#cbb4d4',
                     targetBatch: newZoneTargetBatch || 'ALL',
                     lat: pendingDrawnShape.center.lat,
                     lng: pendingDrawnShape.center.lng,
@@ -5949,7 +5952,7 @@ function App() {
                   placeholder="e.g. Koviloor Hostel Perimeter"
                   value={newZoneName}
                   onChange={(e) => setNewZoneName(e.target.value)}
-                  className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                  className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-purple-500"
                 />
               </div>
 
@@ -5958,7 +5961,7 @@ function App() {
                 <select
                   value={newZoneTargetBatch}
                   onChange={(e) => setNewZoneTargetBatch(e.target.value)}
-                  className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-blue-500"
+                  className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-purple-500"
                 >
                   <option value="ALL">All Batches (ALL)</option>
                   {availableBatches.map(b => (
@@ -5970,7 +5973,7 @@ function App() {
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">BOUNDARY COLOR</label>
                 <div className="flex items-center gap-3">
-                  {['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
+                  {['#cbb4d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
                     <button
                       key={col}
                       type="button"
@@ -6005,14 +6008,18 @@ function App() {
       />
 
       {/* FLOATING ACTION BUTTON FOR QUICK ADD */}
-      {['Students', 'Parents', 'Admins', 'Volunteers', 'Donors'].includes(activeTab) && (
+      {['Students', 'Parents', 'Admins', 'Volunteers', 'Donors', 'Location'].includes(activeTab) && (
         <button
           onClick={() => {
-            const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
-            setCreationModal({ type, isOpen: true });
+            if (activeTab === 'Location') {
+              setShowAddLocationModal(true);
+            } else {
+              const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
+              setCreationModal({ type, isOpen: true });
+            }
           }}
           className="fixed bottom-8 right-8 z-40 w-12 h-12 gradient-btn-tab hover:opacity-90 rounded-full shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 border border-white/30 backdrop-blur-md"
-          title={`Add New ${activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
+          title={`Add New ${activeTab === 'Location' ? 'Geofence' : activeTab === 'Admins' ? 'Admin' : activeTab.slice(0, -1)}`}
         >
           <Plus size={22} />
         </button>

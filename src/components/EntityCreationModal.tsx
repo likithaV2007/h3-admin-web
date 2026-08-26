@@ -17,7 +17,7 @@ const CustomInput = ({ name, placeholder, type = "text", onChange, required }: a
       name={name}
       onChange={onChange}
       placeholder={`Enter ${placeholder.toLowerCase()}`}
-      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm"
+      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm"
     />
   </div>
 );
@@ -31,7 +31,7 @@ const CustomSelect = ({ name, placeholder, onChange, options, required }: any) =
         name={name}
         onChange={onChange}
         defaultValue=""
-        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white appearance-none shadow-sm"
+        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white appearance-none shadow-sm"
       >
         <option value="" disabled>Select {placeholder.toLowerCase()}</option>
         {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
@@ -62,14 +62,14 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
   const getTypeIcon = () => {
     switch (type) {
       case 'activity': return <CalendarDays className="text-emerald-500" size={24} />;
-      case 'Student': return <BookOpen className="text-blue-500" size={24} />;
-      case 'Parent': return <Users className="text-indigo-500" size={24} />;
+      case 'Student': return <BookOpen className="text-purple-500" size={24} />;
+      case 'Parent': return <Users className="text-purple-500" size={24} />;
       case 'Donor': return <Heart className="text-rose-500" size={24} />;
       case 'Volunteer': return <UserPlus className="text-emerald-500" size={24} />;
       case 'Mentor': return <Briefcase className="text-amber-500" size={24} />;
       case 'Alumnus': return <GraduationCap className="text-purple-500" size={24} />;
-      case 'Board Member': return <Briefcase className="text-cyan-500" size={24} />;
-      default: return <UserPlus className="text-blue-500" size={24} />;
+      case 'Board Member': return <Briefcase className="text-purple-500" size={24} />;
+      default: return <UserPlus className="text-purple-500" size={24} />;
     }
   };
 
@@ -115,7 +115,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
                 name="description"
                 onChange={handleChange as any}
                 placeholder="Enter activity description"
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm min-h-[100px]"
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm min-h-[100px]"
               />
             </div>
           </div>

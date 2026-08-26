@@ -43,10 +43,10 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] text-slate-800 relative overflow-hidden">
       {/* Background decorations */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md p-8 bg-white/60 backdrop-blur-3xl border border-slate-200/50 rounded-[2rem] shadow-2xl shadow-blue-900/5 z-10 mx-4">
+      <div className="w-full max-w-md p-8 bg-white/60 backdrop-blur-3xl border border-slate-200/50 rounded-[2rem] shadow-2xl shadow-purple-900/5 z-10 mx-4">
         <div className="flex flex-col items-center mb-8">
           <img
             src="/hope3_logo-removebg-preview.png"
@@ -61,13 +61,13 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider ml-1">Email Address</label>
             <div className="relative group">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition-colors" size={18} />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@hope3.org"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-blue-500/50 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/10 transition-all duration-300 placeholder:text-slate-400 text-slate-900 shadow-sm"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-purple-500/50 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-purple-600/10 transition-all duration-300 placeholder:text-slate-400 text-slate-900 shadow-sm"
               />
             </div>
           </div>
@@ -77,13 +77,13 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
               <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Password</label>
             </div>
             <div className="relative group">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={18} />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-600 transition-colors" size={18} />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-blue-500/50 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-blue-600/10 transition-all duration-300 placeholder:text-slate-400 text-slate-900 shadow-sm"
+                className="w-full pl-10 pr-4 py-3 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-purple-500/50 rounded-xl text-sm focus:outline-none focus:ring-4 focus:ring-purple-600/10 transition-all duration-300 placeholder:text-slate-400 text-slate-900 shadow-sm"
               />
             </div>
           </div>
