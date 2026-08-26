@@ -135,23 +135,47 @@ const getDriveImageUrl = (photoLink?: string | null, driveLink?: string | null) 
   return clean || null;
 };
 
-const AchievementImage = ({ url }: { url: string }) => {
+
+const ProfileAvatar = ({ url, name, className, fallbackClassName }: { url?: string | null, name?: string | null, className: string, fallbackClassName: string }) => {
   const [error, setError] = useState(false);
   const parsedUrl = getDriveImageUrl(url);
 
   if (!parsedUrl || error) {
+    const initial = name ? name.charAt(0).toUpperCase() : '?';
     return (
-      <div className="w-12 h-12 rounded-lg bg-[#cbb4d4]/20 flex items-center justify-center shrink-0">
-        <span className="text-xl">🏆</span>
+      <div className={fallbackClassName}>
+        {initial}
       </div>
     );
   }
 
   return (
-    <img 
+    <img referrerPolicy="no-referrer" 
+      src={parsedUrl} 
+      alt={name || "Profile"} 
+      className={className} 
+      onError={() => setError(true)}
+    />
+  );
+};
+
+const AchievementImage = ({ url, className = "w-12 h-12 object-contain rounded-lg shrink-0", fallbackClassName = "w-12 h-12 rounded-lg bg-[#cbb4d4]/20 flex items-center justify-center shrink-0" }: { url: string, className?: string, fallbackClassName?: string }) => {
+  const [error, setError] = useState(false);
+  const parsedUrl = getDriveImageUrl(url);
+
+  if (!parsedUrl || error) {
+    return (
+      <div className={fallbackClassName}>
+        <span className="text-4xl drop-shadow-sm">🏆</span>
+      </div>
+    );
+  }
+
+  return (
+    <img referrerPolicy="no-referrer" 
       src={parsedUrl} 
       alt="Badge" 
-      className="w-12 h-12 object-contain rounded-lg shrink-0" 
+      className={className} 
       onError={() => setError(true)}
     />
   );
@@ -1200,6 +1224,11 @@ function App() {
   };
 
   // Leave Request Action handlers
+  const handleFeeAction = (id: string, newStatus: 'Approved' | 'Rejected') => {
+    // Note: Temporary local state update for demo
+    setStudentFeeRequests(prev => prev.map(fr => fr.fee_request_id === id ? { ...fr, status: newStatus } : fr));
+  };
+
   const handleLeaveAction = (id: string, newStatus: 'Approved' | 'Rejected') => {
     // Update global leave list
     setLeaveRequests(prev => prev.map(lr => lr.id === id ? { ...lr, status: newStatus } : lr));
@@ -2145,10 +2174,10 @@ function App() {
                               {req.amount && <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Requested: ₹{req.amount}</span>}
 
                               <div className="flex gap-2 justify-end mt-1">
-                                <button onClick={() => handleStudentRequestAction(req.id, 'Approved')} className="bg-green-600 hover:bg-green-700 text-slate-900 font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
+                                <button onClick={() => handleStudentRequestAction(req.id, 'Approved')} className="bg-green-100 hover:bg-green-200 text-green-700 dark:bg-green-900/30 dark:hover:bg-green-900/50 dark:text-green-400 border border-green-200 dark:border-green-800 font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
                                   Approve
                                 </button>
-                                <button onClick={() => handleStudentRequestAction(req.id, 'Rejected')} className="bg-red-600 hover:bg-red-700 text-slate-900 font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
+                                <button onClick={() => handleStudentRequestAction(req.id, 'Rejected')} className="bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 border border-red-200 dark:border-red-800 font-bold text-[10px] px-2.5 py-1 rounded-lg transition-colors">
                                   Reject
                                 </button>
                               </div>
@@ -2344,13 +2373,7 @@ function App() {
                             className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
                           >
                             <td className="p-4 flex items-center gap-3">
-                              {student.avatar || student.profile_photo_link ? (
-                                <img src={student.avatar || student.profile_photo_link} alt={student.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
-                              ) : (
-                                <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0">
-                                  {student.name ? student.name.charAt(0).toUpperCase() : '?'}
-                                </div>
-                              )}
+                              <ProfileAvatar url={student.avatar || student.profile_photo_link} name={student.name || (student as any).student_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
                               <div>
                                 <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
                               </div>
@@ -2424,13 +2447,7 @@ function App() {
                     </button>
 
                     <div className="flex items-center gap-5">
-                      {selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl ? (
-                        <img src={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} alt={selectedStudent.name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" />
-                      ) : (
-                        <div className="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-3xl shrink-0">
-                          {selectedStudent.name ? selectedStudent.name.charAt(0).toUpperCase() : '?'}
-                        </div>
-                      )}
+                      <ProfileAvatar url={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} name={selectedStudent.name || (selectedStudent as any).student_name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" fallbackClassName="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-3xl shrink-0" />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{selectedStudent.name}</h3>
@@ -2866,22 +2883,81 @@ function App() {
                             <p className="text-xs text-slate-400 py-4 text-center">No fee requests found.</p>
                           ) : (
                             studentFeeRequests.map(req => (
-                              <div key={req.fee_request_id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-xs font-bold truncate max-w-[120px] block" title={req.fee_request_id}>{req.fee_request_id}</span>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase
-                                      ${req.status?.toLowerCase() === 'approved' || req.status?.toLowerCase() === 'paid' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' :
-                                        req.status?.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' :
-                                          'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}
-                                    >
-                                      {req.status}
-                                    </span>
+                              <div key={req.fee_request_id} className="p-5 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl bg-white dark:bg-slate-900 shadow-sm flex flex-col gap-4">
+                                <div className="space-y-3 w-full">
+                                  <div className="flex items-start sm:items-center justify-between gap-2 flex-col sm:flex-row">
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="font-bold text-base text-slate-900 dark:text-white">{req.fee_type} <span className="text-slate-500 font-normal">(₹{req.amount})</span></h5>
+                                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase border
+                                        ${req.status?.toLowerCase() === 'approved' || req.status?.toLowerCase() === 'paid' ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                                          req.status?.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
+                                            'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'}`}
+                                      >
+                                        {req.status}
+                                      </span>
+                                    </div>
+                                    <span className="text-[10px] text-slate-400 block font-mono">Submitted: {new Date(req.created_at).toLocaleDateString()}</span>
                                   </div>
-                                  <p className="text-xs font-bold text-slate-800 dark:text-white">{req.fee_type} (₹{req.amount})</p>
-                                  <p className="text-xs text-slate-500">{req.reason}</p>
-                                  <span className="text-[10px] text-slate-400 block">Due Date: {req.due_date} | Created: {new Date(req.created_at).toLocaleDateString()}</span>
+                                  
+                                  <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg italic border border-slate-100 dark:border-slate-800/80">
+                                    "{req.reason || 'No reason provided'}"
+                                  </p>
+
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px] pt-1">
+                                    {req.due_date && (
+                                      <div><span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Due Date</span><span className="font-bold text-slate-700 dark:text-slate-300">{req.due_date}</span></div>
+                                    )}
+                                    {req.payment_mode && (
+                                      <div><span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Payment Mode</span><span className="font-bold text-slate-700 dark:text-slate-300 capitalize">{req.payment_mode.replace('_', ' ')}</span></div>
+                                    )}
+                                    {req.course && (
+                                      <div><span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Course</span><span className="font-bold text-slate-700 dark:text-slate-300">{req.course}</span></div>
+                                    )}
+                                    {req.email && (
+                                      <div><span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Email</span><span className="font-bold text-slate-700 dark:text-slate-300 truncate block" title={req.email}>{req.email}</span></div>
+                                    )}
+                                    {req.contact_number && (
+                                      <div><span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Contact</span><span className="font-bold text-slate-700 dark:text-slate-300">{req.contact_number}</span></div>
+                                    )}
+                                    {req.review_note && (
+                                      <div className="col-span-full"><span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Admin Note</span><span className="font-bold text-slate-700 dark:text-slate-300">{req.review_note}</span></div>
+                                    )}
+                                  </div>
+
+                                  {(req.submitted_marksheets === 1 || req.submitted_payment_receipts === 1 || req.drive_link) && (
+                                    <div className="flex flex-wrap gap-2 pt-3 mt-2 border-t border-slate-100 dark:border-slate-800">
+                                      {req.drive_link && (
+                                        <a href={req.drive_link} target="_blank" rel="noreferrer" className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 px-3 py-1 rounded-full inline-flex items-center gap-1 transition-colors">
+                                          <span>📎</span> View Attachments
+                                        </a>
+                                      )}
+                                      {req.submitted_marksheets === 1 && (
+                                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full inline-flex items-center gap-1">✓ Marksheet</span>
+                                      )}
+                                      {req.submitted_payment_receipts === 1 && (
+                                        <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 px-3 py-1 rounded-full inline-flex items-center gap-1">✓ Receipt</span>
+                                      )}
+                                    </div>
+                                  )}
                                 </div>
+                                
+                                {/* Decision actions directly on profile */}
+                                {req.status?.toLowerCase() === 'pending' && (activeRole === 'Admin') && (
+                                  <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 w-full justify-end">
+                                    <button
+                                      onClick={() => handleFeeAction(req.fee_request_id, 'Approved')}
+                                      className="px-4 py-2 rounded-xl bg-green-100 hover:bg-green-200 text-green-700 dark:bg-green-900/30 dark:hover:bg-green-900/50 dark:text-green-400 border border-green-200 dark:border-green-800 text-xs font-bold transition-colors"
+                                    >
+                                      Approve Request
+                                    </button>
+                                    <button
+                                      onClick={() => handleFeeAction(req.fee_request_id, 'Rejected')}
+                                      className="px-4 py-2 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 border border-red-200 dark:border-red-800 text-xs font-bold transition-colors"
+                                    >
+                                      Reject
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             ))
                           )}
@@ -2901,34 +2977,52 @@ function App() {
                             <p className="text-xs text-slate-400 py-4 text-center">No leave applications lodged yet.</p>
                           ) : (
                             studentLeaveRequests.map(req => (
-                              <div key={req.leave_request_id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-xs font-bold truncate max-w-[120px] block" title={req.leave_request_id}>{req.leave_request_id}</span>
-                                    <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase
-                                      ${req.status?.toLowerCase() === 'approved' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400' :
-                                        req.status?.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400' :
-                                          'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400'}`}
-                                    >
-                                      {req.status}
-                                    </span>
+                              <div key={req.leave_request_id} className="p-5 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl bg-white dark:bg-slate-900 shadow-sm flex flex-col gap-4">
+                                <div className="space-y-3 w-full">
+                                  <div className="flex items-start sm:items-center justify-between gap-2 flex-col sm:flex-row">
+                                    <div className="flex items-center gap-2">
+                                      <h5 className="font-bold text-base text-slate-900 dark:text-white">{req.reason || 'Leave Request'}</h5>
+                                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase border
+                                        ${req.status?.toLowerCase() === 'approved' ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                                          req.status?.toLowerCase() === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
+                                            'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'}`}
+                                      >
+                                        {req.status}
+                                      </span>
+                                    </div>
+                                    <span className="text-[10px] text-slate-400 block font-mono">Submitted: {new Date(req.created_at).toLocaleDateString()}</span>
                                   </div>
-                                  <p className="text-xs text-slate-500">{req.reason}</p>
-                                  <span className="text-[10px] text-slate-400 block">Dates: {req.leave_date} to {req.resume_date} | Submitted: {new Date(req.created_at).toLocaleDateString()}</span>
+                                  
+                                  <div className="grid grid-cols-2 gap-4 text-[11px] pt-1">
+                                    <div>
+                                      <span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Leave Start Date</span>
+                                      <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">📅 {req.leave_date}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Return/Resume Date</span>
+                                      <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">📅 {req.resume_date}</span>
+                                    </div>
+                                    {req.review_note && (
+                                      <div className="col-span-full">
+                                        <span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Admin Note</span>
+                                        <span className="font-bold text-slate-700 dark:text-slate-300">{req.review_note}</span>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
 
                                 {/* Decision actions directly on profile */}
                                 {req.status?.toLowerCase() === 'pending' && (activeRole === 'Admin') && (
-                                  <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 w-full justify-end">
                                     <button
                                       onClick={() => handleLeaveAction(req.leave_request_id, 'Approved')}
-                                      className="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-750 text-slate-900 text-xs font-bold transition-colors"
+                                      className="px-4 py-2 rounded-xl bg-green-100 hover:bg-green-200 text-green-700 dark:bg-green-900/30 dark:hover:bg-green-900/50 dark:text-green-400 border border-green-200 dark:border-green-800 text-xs font-bold transition-colors"
                                     >
-                                      Approve
+                                      Approve Leave
                                     </button>
                                     <button
                                       onClick={() => handleLeaveAction(req.leave_request_id, 'Rejected')}
-                                      className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-750 text-slate-900 text-xs font-bold transition-colors"
+                                      className="px-4 py-2 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 border border-red-200 dark:border-red-800 text-xs font-bold transition-colors"
                                     >
                                       Reject
                                     </button>
@@ -2943,41 +3037,47 @@ function App() {
 
                     {/* PROFILE TAB: ACADEMIC DETAILS */}
                     {profileTab === 'Academic Details' && (
-                      <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h4 className="font-bold text-sm">Semesters & Academic Records</h4>
-                        </div>
-                        <div className="space-y-4">
+                      <div className="space-y-4 w-full">
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3 mb-6">
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full bg-gradient-to-b from-[#20002c] to-[#cbb4d4]"></div>
+                          Semesters & Academic Records
+                        </h4>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           {studentSemesters.length === 0 ? (
-                            <p className="text-xs text-slate-400 py-4 text-center">No academic records found.</p>
+                            <p className="text-xs text-slate-400 py-4 col-span-full text-center">No academic records found.</p>
                           ) : (
                             studentSemesters.map(sem => (
-                              <div key={sem.semester_id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 space-y-3">
-                                <div className="flex justify-between items-start">
+                              <div key={sem.semester_id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#cbb4d4]/20 hover:-translate-y-1 transition-all duration-300 flex flex-col p-5">
+                                <div className="flex justify-between items-start mb-4">
                                   <div>
-                                    <h5 className="font-bold text-sm">{sem.semester_name}</h5>
-                                    <span className="text-[10px] text-slate-500 font-mono">Year: {sem.academic_year}</span>
+                                    <h5 className="font-bold text-base leading-tight text-slate-900 dark:text-white mb-1">{sem.semester_name}</h5>
+                                    <span className="text-[10px] font-bold text-slate-500 font-mono tracking-wider uppercase">Year: {sem.academic_year}</span>
                                   </div>
                                   {sem.is_active === 1 && (
-                                    <span className="text-[10px] px-2 py-0.5 rounded font-bold uppercase bg-blue-100 text-blue-700">Active</span>
+                                    <span className="text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold bg-[#cbb4d4]/10 text-slate-800 dark:text-white rounded-full border border-[#cbb4d4]/30">Active</span>
                                   )}
                                 </div>
                                 {sem.subject && sem.subject.length > 0 && (
-                                  <div className="flex flex-wrap gap-1.5 mt-2">
+                                  <div className="flex flex-wrap gap-2 mb-4">
                                     {sem.subject.map((sub: string, idx: number) => (
-                                      <span key={idx} className="px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                                      <span key={idx} className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg text-[10px] font-bold text-slate-700 dark:text-slate-300">
                                         {sub}
                                       </span>
                                     ))}
                                   </div>
                                 )}
-                                {sem.marksheetImageLink && sem.marksheetImageLink !== 'string' && (
-                                  <div className="pt-2">
-                                    <a href={sem.marksheetImageLink} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline inline-flex items-center gap-1">
+                                <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                                  {sem.marksheetImageLink && sem.marksheetImageLink !== 'string' ? (
+                                    <a href={sem.marksheetImageLink} target="_blank" rel="noreferrer" className="text-xs font-bold text-[#cbb4d4] hover:text-[#20002c] dark:hover:text-white hover:underline inline-flex items-center gap-1.5 transition-colors">
                                       📄 View Marksheet
                                     </a>
-                                  </div>
-                                )}
+                                  ) : (
+                                    <span className="text-xs font-bold text-slate-400 inline-flex items-center gap-1.5">
+                                      📄 No Marksheet
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             ))
                           )}
@@ -2987,27 +3087,35 @@ function App() {
 
                     {/* PROFILE TAB: ACHIEVEMENTS */}
                     {profileTab === 'Achievements' && (
-                      <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h4 className="font-bold text-sm">Student Achievements</h4>
-                        </div>
+                      <div className="space-y-4 w-full">
+                        <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3 mb-6">
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full bg-gradient-to-b from-[#20002c] to-[#cbb4d4]"></div>
+                          Student Achievements
+                        </h4>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           {studentAchievements.length === 0 ? (
                             <p className="text-xs text-slate-400 py-4 col-span-full text-center">No achievements recorded yet.</p>
                           ) : (
                             studentAchievements.map(ach => (
-                              <div key={ach.id} className="p-4 border border-slate-200/50 dark:border-slate-800/50 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 flex gap-4 items-start">
-                                <AchievementImage url={ach.badge_image_url} />
-                                <div className="space-y-1">
-                                  <h5 className="font-bold text-sm leading-tight text-slate-900 dark:text-white">{ach.title}</h5>
-                                  <p className="text-xs text-slate-500 line-clamp-2">{ach.description}</p>
-                                  <div className="flex items-center justify-between pt-1">
-                                    <span className="text-[10px] text-slate-400 font-mono">{ach.date}</span>
+                              <div key={ach.id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#cbb4d4]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                                <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
+                                  <AchievementImage 
+                                    url={ach.photo_drive_link || ach.badge_image_url} 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                    fallbackClassName="w-full h-full bg-[#cbb4d4]/10 flex items-center justify-center shrink-0" 
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                                </div>
+                                <div className="p-5 flex flex-col flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-[10px] font-bold text-slate-500 font-mono tracking-wider uppercase">{ach.date}</span>
                                     {ach.status && ach.status !== 'string' && (
-                                      <span className="text-[9px] px-1.5 py-0.5 uppercase tracking-wider font-bold bg-slate-200/50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded">{ach.status}</span>
+                                      <span className="text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold bg-[#cbb4d4]/10 text-slate-800 dark:text-white rounded-full border border-[#cbb4d4]/30">{ach.status}</span>
                                     )}
                                   </div>
+                                  <h5 className="font-bold text-base leading-tight text-slate-900 dark:text-white mb-2">{ach.title}</h5>
+                                  <p className="text-xs text-slate-500 line-clamp-2">{ach.description}</p>
                                 </div>
                               </div>
                             ))
@@ -3135,13 +3243,7 @@ function App() {
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            {par.profile_photo_link || par.avatar ? (
-                              <img src={par.profile_photo_link || par.avatar} alt={par.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0">
-                                {par.name ? par.name.charAt(0).toUpperCase() : '?'}
-                              </div>
-                            )}
+                            <ProfileAvatar url={par.profile_photo_link || par.avatar} name={par.name || (par as any).parent_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
                             <div>
                               <span className="font-bold text-black dark:text-white block">{par.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{par.email || 'parent@hope3.org'}</span>
@@ -3239,13 +3341,7 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            {vol.profile_photo_link || vol.avatar ? (
-                              <img src={vol.profile_photo_link || vol.avatar} alt={vol.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0">
-                                {vol.name ? vol.name.charAt(0).toUpperCase() : '?'}
-                              </div>
-                            )}
+                            <ProfileAvatar url={vol.profile_photo_link || vol.avatar} name={vol.name || (vol as any).volunteer_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
                             <div>
                               <span className="font-bold text-black dark:text-white block hover:text-black dark:text-white transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{vol.email}</span>
@@ -3343,13 +3439,7 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            {donor.profile_photo_link || donor.avatar ? (
-                              <img src={donor.profile_photo_link || donor.avatar} alt={donor.name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0">
-                                {donor.name ? donor.name.charAt(0).toUpperCase() : '?'}
-                              </div>
-                            )}
+                            <ProfileAvatar url={donor.profile_photo_link || donor.avatar} name={donor.name || (donor as any).donor_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
                             <div>
                               <span className="font-bold text-black dark:text-white block hover:text-black dark:text-white transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{donor.email}</span>
