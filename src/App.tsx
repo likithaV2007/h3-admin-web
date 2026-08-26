@@ -5291,27 +5291,29 @@ function App() {
                 });
 
                 setShowAddLocationModal(false);
+                setIsFullScreenMapOpen(true);
 
-                // Trigger Drawing Mode
-                const map = (window as any).leafletMapInstance;
-                const L = (window as any).L;
-                if (map && L && L.Draw && L.Draw.Polygon) {
-                  if ((window as any).activePolygonDrawer) {
-                    try { (window as any).activePolygonDrawer.disable(); } catch { }
-                  }
-                  const polygonDrawer = new L.Draw.Polygon(map, {
-                    shapeOptions: {
-                      color: newZoneColor || '#cbb4d4',
-                      fillColor: newZoneColor || '#cbb4d4',
-                      fillOpacity: 0.3,
-                      weight: 3
+                // Trigger Drawing Mode after modal closes
+                setTimeout(() => {
+                  const map = (window as any).leafletMapInstance;
+                  const L = (window as any).L;
+                  if (map && L && L.Draw && L.Draw.Polygon) {
+                    if ((window as any).activePolygonDrawer) {
+                      try { (window as any).activePolygonDrawer.disable(); } catch { }
                     }
-                  });
-                  (window as any).activePolygonDrawer = polygonDrawer;
-                  polygonDrawer.enable();
-                  setIsDrawingActive(true);
-                  alert('🖊️ Draw Mode Active!\n\n1. Click points on the map to outline your geofence.\n2. Click the VERY FIRST marker point to CLOSE the fence!\n3. It will automatically save using the details you just provided.');
-                }
+                    const polygonDrawer = new L.Draw.Polygon(map, {
+                      shapeOptions: {
+                        color: newZoneColor || '#cbb4d4',
+                        fillColor: newZoneColor || '#cbb4d4',
+                        fillOpacity: 0.3,
+                        weight: 3
+                      }
+                    });
+                    (window as any).activePolygonDrawer = polygonDrawer;
+                    polygonDrawer.enable();
+                    setIsDrawingActive(true);
+                  }
+                }, 500);
               }}
               className="space-y-4 text-xs"
             >
