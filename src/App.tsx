@@ -1097,6 +1097,13 @@ function App() {
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
+  // Column Filters
+  const [studentColFilters, setStudentColFilters] = useState<Record<string, string>>({});
+  const [parentColFilters, setParentColFilters] = useState<Record<string, string>>({});
+  const [adminColFilters, setAdminColFilters] = useState<Record<string, string>>({});
+  const [donorColFilters, setDonorColFilters] = useState<Record<string, string>>({});
+
+
   // Selected Student Profile State
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [studentLeaveRequests, setStudentLeaveRequests] = useState<any[]>([]);
@@ -1147,7 +1154,20 @@ function App() {
     const studentBatch = student.batch || student.current_year || student.year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024');
     const matchesBatch = studentBatchFilter === 'ALL' || studentBatch === studentBatchFilter;
 
-    return matchesSearch && matchesBatch;
+        const matchesColFilters = Object.entries(studentColFilters).every(([key, value]) => {
+      if (!value) return true;
+      const v = value.toLowerCase();
+      if (key === 'name') return student.name.toLowerCase().includes(v);
+      if (key === 'rollNo') return (student.rollNo || '').toLowerCase().includes(v);
+      if (key === 'batch') return studentBatch.toLowerCase().includes(v);
+      if (key === 'course') return (student.grade || '').toLowerCase().includes(v) || (student.course || '').toLowerCase().includes(v);
+      if (key === 'college') return (student.college || '').toLowerCase().includes(v);
+      if (key === 'location') return (student.location?.status || '').toLowerCase().includes(v);
+      return true;
+    });
+
+    return matchesSearch && matchesBatch && matchesColFilters;
+
   });
 
   const handleDownloadPDF = (reportName: string) => {
@@ -2411,13 +2431,14 @@ function App() {
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
                         <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
-                          <th className="p-4">Student</th>
-                          <th className="p-4">Roll ID</th>
-                          <th className="p-4">Batch</th>
-                          <th className="p-4">Course / College</th>
-                          <th className="p-4">Status</th>
-                          <th className="p-4">Location Status</th>
-                          <th className="p-4 text-right">Actions</th>
+                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Student</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Roll ID</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'rollNo': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Batch</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'batch': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Course</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'course': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>College Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'college': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'status': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Location Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'location': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 text-right align-top">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -2428,7 +2449,7 @@ function App() {
                             className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
                           >
                             <td className="p-4 flex items-center gap-3">
-                              <ProfileAvatar url={student.avatar || student.profile_photo_link} name={student.name || (student as any).student_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
+                              <ProfileAvatar url={student.avatar || student.profile_photo_link} name={student.name || (student as any).student_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-[#20002c] to-[#cbb4d4] text-white font-black text-lg shrink-0" />
                               <div>
                                 <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
                               </div>
@@ -2440,8 +2461,10 @@ function App() {
                               </span>
                             </td>
                             <td className="p-4">
-                              <span className="block font-medium text-slate-700 dark:text-slate-350">{student.grade}</span>
-                              <span className="text-[10px] text-black/70 dark:text-white/70 block max-w-[180px] truncate">{student.college}</span>
+                              <span className="block font-medium text-slate-700 dark:text-slate-350">{student.grade ? student.grade.replace(/\s*-\s*\d+[a-zA-Z]{2}\s*Year\s*/i, ' ').trim() : ''}</span>
+                            </td>
+                            <td className="p-4">
+                              <span className="block font-medium text-slate-700 dark:text-slate-350 max-w-[180px] truncate" title={student.college}>{student.college}</span>
                             </td>
                             <td className="p-4">
                               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] bg-[#cbb4d4]/10 text-black dark:bg-[#cbb4d4]/20 dark:text-white">
@@ -2502,7 +2525,7 @@ function App() {
                     </button>
 
                     <div className="flex items-center gap-5">
-                      <ProfileAvatar url={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} name={selectedStudent.name || (selectedStudent as any).student_name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" fallbackClassName="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md bg-[#cbb4d4]/10 text-slate-800 dark:text-[#cbb4d4] font-black text-3xl shrink-0" />
+                      <ProfileAvatar url={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} name={selectedStudent.name || (selectedStudent as any).student_name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" fallbackClassName="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md bg-gradient-to-br from-[#20002c] to-[#cbb4d4] text-white font-black text-3xl shrink-0" />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{selectedStudent.name}</h3>
@@ -3285,12 +3308,12 @@ function App() {
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
-                      <th className="p-4">Parent / Guardian Name</th>
-                      <th className="p-4">Relationship</th>
-                      <th className="p-4">Child Scholar</th>
-                      <th className="p-4">Occupation</th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Parent / Guardian Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setParentColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Relationship</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setParentColFilters(prev => ({...prev, 'relationship': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Child Scholar</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setParentColFilters(prev => ({...prev, 'child': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Occupation</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setParentColFilters(prev => ({...prev, 'occupation': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
                       <th className="p-4">Contact Phone</th>
-                      <th className="p-4 text-right">Actions</th>
+                      <th className="p-4 text-right align-top">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3298,7 +3321,7 @@ function App() {
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <ProfileAvatar url={par.profile_photo_link || par.avatar} name={par.name || (par as any).parent_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
+                            <ProfileAvatar url={par.profile_photo_link || par.avatar} name={par.name || (par as any).parent_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-[#20002c] to-[#cbb4d4] text-white font-black text-lg shrink-0" />
                             <div>
                               <span className="font-bold text-black dark:text-white block">{par.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{par.email || 'parent@hope3.org'}</span>
@@ -3379,12 +3402,12 @@ function App() {
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
-                      <th className="p-4">Admin Name</th>
-                      <th className="p-4">Assigned Department</th>
-                      <th className="p-4">Total Service Hours</th>
-                      <th className="p-4">Phone Number</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-right">Actions</th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Admin Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Assigned Department</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'department': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Total Service Hours</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'hours': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Phone Number</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'phone': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'status': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 text-right align-top">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3396,7 +3419,7 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <ProfileAvatar url={vol.profile_photo_link || vol.avatar} name={vol.name || (vol as any).volunteer_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
+                            <ProfileAvatar url={vol.profile_photo_link || vol.avatar} name={vol.name || (vol as any).volunteer_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-[#20002c] to-[#cbb4d4] text-white font-black text-lg shrink-0" />
                             <div>
                               <span className="font-bold text-black dark:text-white block hover:text-black dark:text-white transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{vol.email}</span>
@@ -3477,12 +3500,12 @@ function App() {
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
-                      <th className="p-4">Donor Name</th>
-                      <th className="p-4">Donor Category</th>
-                      <th className="p-4">Total Contribution</th>
-                      <th className="p-4">Phone Number</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-right">Actions</th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Donor Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Donor Category</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'category': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Total Contribution</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'contribution': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Phone Number</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'phone': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'status': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 text-right align-top">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3494,7 +3517,7 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <ProfileAvatar url={donor.profile_photo_link || donor.avatar} name={donor.name || (donor as any).donor_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-[#cbb4d4]/10 text-black dark:text-white font-black text-lg shrink-0" />
+                            <ProfileAvatar url={donor.profile_photo_link || donor.avatar} name={donor.name || (donor as any).donor_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-[#20002c] to-[#cbb4d4] text-white font-black text-lg shrink-0" />
                             <div>
                               <span className="font-bold text-black dark:text-white block hover:text-black dark:text-white transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{donor.email}</span>
@@ -4557,7 +4580,7 @@ function App() {
                                   ) : (
                                     <div
                                       key={s.id}
-                                      className="inline-flex items-center justify-center h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 bg-[#cbb4d4]/20 text-slate-800 dark:text-[#cbb4d4] text-[10px] font-black"
+                                      className="inline-flex items-center justify-center h-6 w-6 rounded-full ring-2 ring-white dark:ring-slate-900 bg-gradient-to-br from-[#20002c] to-[#cbb4d4] text-white text-[10px] font-black"
                                       title={s.name}
                                     >
                                       {s.name ? s.name.charAt(0).toUpperCase() : '?'}

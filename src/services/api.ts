@@ -69,7 +69,7 @@ async function apiFetch<T>(path: string, fallback: T, retries = 1): Promise<T> {
 export function formatAvatarUrl(url?: string): string {
   if (!url || typeof url !== 'string') return '';
   const clean = url.trim();
-  if (!clean || clean === 'string' || clean === 'null' || clean === 'undefined' || clean.includes('example.com') || clean.includes('example.org')) return '';
+  if (!clean || clean === 'string' || clean === 'null' || clean === 'undefined' || clean.includes('example.com') || clean.includes('example.org') || clean.includes('ui-avatars.com')) return '';
 
   // Convert Google Drive view/share URLs to official Google thumbnail URLs
   if (clean.includes('drive.google.com') || clean.includes('googleusercontent.com')) {
