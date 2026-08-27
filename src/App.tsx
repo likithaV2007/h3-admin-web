@@ -1095,6 +1095,8 @@ function App() {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
 
 
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
   // Selected Student Profile State
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [studentLeaveRequests, setStudentLeaveRequests] = useState<any[]>([]);
@@ -1193,9 +1195,9 @@ function App() {
     if (activeRole === 'Admin' || activeRole === 'Volunteer') return true;
     switch (activeRole) {
       case 'Student':
-        return ['Dashboard', 'Profile'].includes(tabName);
+        return ['Dashboard'].includes(tabName);
       case 'Parent':
-        return ['Dashboard', 'Students', 'Profile'].includes(tabName);
+        return ['Dashboard', 'Students'].includes(tabName);
       default:
         return true;
     }
@@ -1218,7 +1220,6 @@ function App() {
     { name: 'Finance', icon: DollarSign },
     { name: 'Activities', icon: CalendarDays },
     { name: 'Location', icon: MapPin },
-    { name: 'Profile', icon: User },
   ];
 
   // Submit Student Request to Volunteer
@@ -1696,9 +1697,12 @@ function App() {
 
         {/* User Profile Widget (Bottom of Sidebar) */}
         <div className={`p-5 mb-2 mt-2 shrink-0 relative z-20 ${sidebarOpen ? '' : 'flex justify-center'}`}>
-          <div className={`flex items-center bg-slate-50 dark:bg-[#0c1222] rounded-[1.25rem] border border-slate-200/60 dark:border-slate-800/60 transition-all duration-300 cursor-pointer hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-md p-2.5 ${sidebarOpen ? 'gap-3' : 'justify-center w-14 h-14'}`}>
+          <div 
+            onClick={() => setIsProfileModalOpen(true)}
+            className={`flex items-center bg-slate-50 dark:bg-[#0c1222] rounded-[1.25rem] border border-slate-200/60 dark:border-slate-800/60 transition-all duration-300 cursor-pointer hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-md p-2.5 ${sidebarOpen ? 'gap-3' : 'justify-center w-14 h-14'}`}
+          >
             <div className="relative shrink-0">
-              <img src="https://ui-avatars.com/api/?name=Admin+User&background=20002c&color=fff&rounded=true&bold=true" alt="Admin" className={`${sidebarOpen ? 'w-10 h-10' : 'w-10 h-10'} rounded-full object-cover border-2 border-white dark:border-[#0c1222]`} />
+              <div className={`${sidebarOpen ? 'w-10 h-10' : 'w-10 h-10'} rounded-full bg-gradient-to-br from-[#20002c] to-[#cbb4d4] flex items-center justify-center text-white font-bold border-2 border-white dark:border-[#0c1222]`}>A</div>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#0c1222] rounded-full"></div>
             </div>
             {sidebarOpen && (
@@ -4599,123 +4603,6 @@ function App() {
             </>
           )}
 
-          {/* MODULE: SETTINGS */}
-          {activeTab === 'Profile' && (
-            <div className="w-full max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20">
-              <div className="flex flex-col lg:flex-row gap-8">
-                {/* LEFT: ID CARD */}
-                <div className="lg:w-1/3 shrink-0">
-                  <div className="sticky top-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white dark:border-slate-800 shadow-2xl shadow-purple-900/10 flex flex-col items-center relative overflow-hidden group">
-                    {/* subtle animated background glow */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#20002c]/20 to-[#cbb4d4]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>
-                    
-                    <div className="relative z-10 w-40 h-40 rounded-[2rem] bg-white dark:bg-slate-800 p-3 shadow-xl border border-slate-100 dark:border-slate-700 mb-8 rotate-3 hover:rotate-0 transition-transform duration-500">
-                       <div className="absolute inset-0 bg-gradient-to-br from-[#20002c] to-[#cbb4d4] rounded-[2rem] -z-10 blur-xl opacity-40"></div>
-                       <img src="/hope3_logo-removebg-preview.png" alt="Hope3 Logo" className="w-full h-full object-contain drop-shadow-md" />
-                       
-                       <button className="absolute -bottom-3 -right-3 w-12 h-12 bg-white dark:bg-slate-800 text-[#20002c] dark:text-[#cbb4d4] rounded-full flex items-center justify-center shadow-lg border border-slate-100 dark:border-slate-700 hover:scale-110 hover:bg-[#20002c] hover:text-white transition-all">
-                          <Camera size={18} />
-                       </button>
-                    </div>
-
-                    <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight text-center relative z-10">Hope3 Foundation</h2>
-                    <div className="inline-flex items-center gap-2 mt-3 px-4 py-1.5 bg-green-50 dark:bg-green-500/10 rounded-full border border-green-100 dark:border-green-500/20 relative z-10">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                      </span>
-                      <span className="text-[10px] font-bold text-green-700 dark:text-green-400 uppercase tracking-widest">Admin Portal Online</span>
-                    </div>
-
-                    <div className="w-full mt-10 space-y-3 relative z-10">
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 flex items-center gap-4 group/item hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                          <Shield size={18} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">Admin Privileges</p>
-                          <p className="text-[10px] font-medium text-slate-500">Full Access Granted</p>
-                        </div>
-                      </div>
-
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 flex items-center gap-4 group/item hover:bg-white dark:hover:bg-slate-800 transition-colors cursor-pointer">
-                        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                          <Clock size={18} />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">Last Login</p>
-                          <p className="text-[10px] font-medium text-slate-500">Today, 10:42 AM</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="w-full mt-12 relative z-10">
-                      <button 
-                        onClick={() => { sessionStorage.removeItem('isAuthenticated'); setIsAuthenticated(false); }}
-                        className="w-full group/btn relative overflow-hidden rounded-2xl p-4 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 hover:border-red-200 text-red-600 dark:text-red-400 transition-all shadow-sm hover:shadow-md active:scale-95"
-                      >
-                        <div className="absolute inset-0 bg-red-100 dark:bg-red-500/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out"></div>
-                        <div className="relative flex items-center justify-center gap-2 font-bold text-sm">
-                          <LogOut size={18} className="group-hover/btn:-translate-x-1 transition-transform" />
-                          Secure Log Out
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RIGHT: SETTINGS SECTIONS */}
-                <div className="lg:w-2/3 space-y-8">
-                  {/* Organization Info */}
-                  <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-3xl rounded-[2.5rem] p-8 border border-white dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl transition-shadow duration-500">
-                    <div className="flex items-center gap-4 mb-8">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#20002c] to-[#cbb4d4] flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0 text-white">
-                        <Building2 size={24} />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Organization Details</h3>
-                        <p className="text-xs font-medium text-slate-500">Update your official foundation information</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2 relative group">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Registered Name</label>
-                        <div className="relative">
-                          <input type="text" defaultValue="Hope3 Foundation" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-2xl font-bold text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-400 transition-all hover:border-slate-300 dark:hover:border-slate-600" />
-                          <Building size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
-                        </div>
-                      </div>
-                      <div className="space-y-2 relative group">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Tax Exemption ID (80G)</label>
-                        <div className="relative">
-                          <input type="text" defaultValue="H3-80G-2024-8899" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-2xl font-mono text-[#20002c] dark:text-[#cbb4d4] font-bold text-sm focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-400 transition-all hover:border-slate-300 dark:hover:border-slate-600" />
-                          <BadgeCheck size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
-                        </div>
-                      </div>
-                      <div className="space-y-2 md:col-span-2 relative group">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-2">Official Contact Email</label>
-                        <div className="relative">
-                          <input type="email" defaultValue="admin@hope3.org" className="w-full px-5 py-4 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 rounded-2xl font-bold text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-400 transition-all hover:border-slate-300 dark:hover:border-slate-600" />
-                          <Mail size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300" />
-                        </div>
-                      </div>
-                      
-                      <div className="md:col-span-2 pt-6 mt-2 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                         <button className="px-6 py-3 rounded-xl font-bold text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                            Discard
-                         </button>
-                         <button className="px-8 py-3 rounded-xl font-bold text-sm text-white bg-slate-900 dark:bg-white dark:text-slate-900 shadow-xl shadow-slate-900/20 hover:scale-105 transition-all flex items-center gap-2 group/save">
-                            <Check size={16} className="group-hover/save:scale-110 transition-transform" /> Save Information
-                         </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
         </main>
 
         {/* BOTTOM METRIC BAR OR FOOTER */}
@@ -6039,6 +5926,64 @@ function App() {
         </button>
       )}
 
+      {/* USER PROFILE MODAL */}
+      {isProfileModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95 duration-200">
+            {/* Header / Banner */}
+            <div className="h-32 bg-gradient-to-br from-[#20002c] to-[#cbb4d4] relative">
+              <button
+                onClick={() => setIsProfileModalOpen(false)}
+                className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="px-8 pb-8 pt-0 relative flex flex-col items-center">
+              {/* Avatar overlapping banner */}
+              <div className="w-24 h-24 rounded-2xl border-4 border-white dark:border-slate-900 shadow-xl bg-slate-100 dark:bg-slate-800 -mt-12 relative z-10 shrink-0">
+                <div className="w-full h-full rounded-xl bg-gradient-to-br from-[#20002c] to-[#cbb4d4] flex items-center justify-center text-white text-5xl font-black shadow-inner">
+                  A
+                </div>
+                <div className="absolute bottom-[-4px] right-[-4px] w-6 h-6 bg-emerald-500 border-4 border-white dark:border-slate-900 rounded-full"></div>
+              </div>
+              
+              {/* Profile Info */}
+              <div className="text-center mt-4 mb-8 w-full">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Hope3 Admin</h3>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1.5">Super Administrator</p>
+                <div className="mt-6 px-5 py-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-400">Email</span>
+                    <span className="font-semibold">admin@hope3.org</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-400">Role</span>
+                    <span className="font-semibold">{activeRole}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Actions */}
+              <div className="w-full space-y-2">
+                <button 
+                  onClick={() => setIsProfileModalOpen(false)}
+                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-bold text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Manage Account
+                </button>
+                <button 
+                  onClick={() => { sessionStorage.removeItem('isAuthenticated'); setIsAuthenticated(false); }}
+                  className="w-full p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-red-600 dark:text-red-400 font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+                >
+                  <LogOut size={16} /> Secure Log Out
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
