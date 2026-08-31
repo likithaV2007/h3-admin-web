@@ -322,7 +322,7 @@ export const apiService = {
     return donorsData.map((item, idx) => {
       const user = userMap[item.user_id] || {};
 
-      let donorName = item.organization_name || user.user_name || item.full_name || item.name;
+      let donorName = item.donor_name || item.organization_name || user.user_name || item.full_name || item.name;
       if (!donorName || donorName === 'string' || donorName.trim() === '') {
         donorName = `Donor Sponsor ${idx + 1}`;
       } else if (donorName.toLowerCase() === donorName) {
