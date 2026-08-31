@@ -6,9 +6,10 @@ interface EntityCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (type: string, data: any) => void;
+  initialData?: any;
 }
 
-const CustomInput = ({ name, placeholder, type = "text", onChange, required }: any) => (
+const CustomInput = ({ name, placeholder, type = "text", onChange, required, value }: any) => (
   <div className="space-y-1.5">
     <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">{placeholder}</label>
     <input
@@ -16,13 +17,14 @@ const CustomInput = ({ name, placeholder, type = "text", onChange, required }: a
       type={type}
       name={name}
       onChange={onChange}
+      value={value || ''}
       placeholder={`Enter ${placeholder.toLowerCase()}`}
       className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm"
     />
   </div>
 );
 
-const CustomSelect = ({ name, placeholder, onChange, options, required }: any) => (
+const CustomSelect = ({ name, placeholder, onChange, options, required, value }: any) => (
   <div className="space-y-1.5">
     <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">{placeholder}</label>
     <div className="relative">
@@ -30,7 +32,7 @@ const CustomSelect = ({ name, placeholder, onChange, options, required }: any) =
         required={required}
         name={name}
         onChange={onChange}
-        defaultValue=""
+        value={value || ''}
         className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white appearance-none shadow-sm"
       >
         <option value="" disabled>Select {placeholder.toLowerCase()}</option>
@@ -43,8 +45,26 @@ const CustomSelect = ({ name, placeholder, onChange, options, required }: any) =
   </div>
 );
 
-export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, isOpen, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState<any>({});
+export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, isOpen, onClose, onSubmit, initialData }) => {
+  const [formData, setFormData] = useState<any>(initialData || {});
+
+  React.useEffect(() => {
+    if (initialData) {
+      if (type === 'Student') {
+        setFormData({ ...initialData, name: initialData.name || initialData.student_name });
+      } else if (type === 'Parent') {
+        setFormData({ ...initialData, name: initialData.name || initialData.parent_name, relationship: initialData.guardianName || initialData.relationship || initialData.relation, childId: initialData.childId || initialData.student_id });
+      } else if (type === 'Volunteer') {
+        setFormData({ ...initialData, name: initialData.name || initialData.full_name });
+      } else if (type === 'Donor') {
+        setFormData({ ...initialData, name: initialData.name || initialData.organization_name, level: initialData.donorType || initialData.donor_type });
+      } else {
+        setFormData(initialData);
+      }
+    } else {
+      setFormData({});
+    }
+  }, [initialData, isOpen, type]);
 
   if (!isOpen) return null;
 
@@ -124,88 +144,67 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <CustomInput required name="name" placeholder="Full Name" onChange={handleChange} />
+              <CustomInput required name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
             </div>
-            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
-            <CustomInput required name="rollNo" placeholder="Roll Number" onChange={handleChange} />
-            <CustomInput required type="number" name="age" placeholder="Age" onChange={handleChange} />
+            <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
+            <CustomInput required name="rollNo" placeholder="Roll Number" value={formData.rollNo} onChange={handleChange} />
+            <CustomInput required type="number" name="age" placeholder="Age" value={formData.age} onChange={handleChange} />
             <CustomSelect
               required
               name="batch"
               placeholder="Allocated Batch"
+              value={formData.batch}
               onChange={handleChange}
               options={["Batch 2026", "Batch 2025", "Batch 2024", "Batch 2023"]}
             />
-            <CustomInput required name="grade" placeholder="Course & Year" onChange={handleChange} />
+            <CustomInput required name="grade" placeholder="Course & Year" value={formData.grade} onChange={handleChange} />
             <div className="md:col-span-2">
-              <CustomInput required name="college" placeholder="College / Institution" onChange={handleChange} />
+              <CustomInput required name="college" placeholder="College / University" value={formData.college} onChange={handleChange} />
             </div>
           </div>
         );
       case 'Parent':
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <CustomInput required name="name" placeholder="Parent Name" onChange={handleChange} />
-            </div>
-            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
-            <CustomInput required name="phone" placeholder="Phone Number" onChange={handleChange} />
-            <CustomInput required name="childName" placeholder="Child's Name" onChange={handleChange} />
-            <CustomInput required name="occupation" placeholder="Occupation" onChange={handleChange} />
+          <div className="space-y-4">
+            <CustomInput required name="name" placeholder="Parent / Guardian Name" value={formData.name} onChange={handleChange} />
+            <CustomSelect
+              required
+              name="relationship"
+              placeholder="Relationship to Student"
+              value={formData.relationship}
+              onChange={handleChange}
+              options={['Father', 'Mother', 'Legal Guardian', 'Other']}
+            />
+            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+            <CustomInput required name="childId" placeholder="Child's Student ID" value={formData.childId} onChange={handleChange} />
+            <CustomInput required name="occupation" placeholder="Occupation" value={formData.occupation} onChange={handleChange} />
           </div>
         );
       case 'Donor':
         return (
           <div className="space-y-4">
-            <CustomInput required name="name" placeholder="Donor Organization / Name" onChange={handleChange} />
-            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
-            <CustomSelect required name="level" placeholder="Donation Level" onChange={handleChange} options={['Platinum', 'Gold', 'Silver']} />
+            <CustomInput required name="name" placeholder="Donor Organization / Name" value={formData.name} onChange={handleChange} />
+            <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
+            <CustomSelect required name="level" placeholder="Donation Level" value={formData.level} onChange={handleChange} options={['Platinum', 'Gold', 'Silver', 'Bronze', 'Individual Benefactor']} />
           </div>
         );
       case 'Volunteer':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <CustomInput required name="name" placeholder="Volunteer Name" onChange={handleChange} />
+              <CustomInput required name="name" placeholder="Volunteer Name" value={formData.name} onChange={handleChange} />
             </div>
-            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
-            <CustomInput required name="phone" placeholder="Phone Number" onChange={handleChange} />
-            <div className="md:col-span-2">
-              <CustomInput required name="program" placeholder="Program / Department" onChange={handleChange} />
-            </div>
-          </div>
-        );
-      case 'Mentor':
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <CustomInput required name="name" placeholder="Mentor Name" onChange={handleChange} />
-            </div>
-            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
-            <CustomInput required name="phone" placeholder="Phone Number" onChange={handleChange} />
-            <div className="md:col-span-2">
-              <CustomInput required name="expertise" placeholder="Area of Expertise" onChange={handleChange} />
-            </div>
-          </div>
-        );
-      case 'Alumnus':
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <CustomInput required name="name" placeholder="Alumnus Name" onChange={handleChange} />
-            </div>
-            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
-            <CustomInput required type="number" name="graduationYear" placeholder="Graduation Year" onChange={handleChange} />
-            <CustomInput required name="currentCompany" placeholder="Current Company" onChange={handleChange} />
-            <CustomInput required name="designation" placeholder="Designation" onChange={handleChange} />
-          </div>
-        );
-      case 'Board Member':
-        return (
-          <div className="space-y-4">
-            <CustomInput required name="name" placeholder="Board Member Name" onChange={handleChange} />
-            <CustomInput required name="email" type="email" placeholder="Email Address" onChange={handleChange} />
-            <CustomInput required name="role" placeholder="Role / Title" onChange={handleChange} />
+            <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
+            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+            <CustomInput required name="specialization" placeholder="Specialization (e.g., Mentorship, IT)" value={formData.specialization} onChange={handleChange} />
+            <CustomSelect
+              required
+              name="availability"
+              placeholder="Availability"
+              value={formData.availability}
+              onChange={handleChange}
+              options={['Weekends', 'Weekdays', 'Evenings', 'Flexible']}
+            />
           </div>
         );
       default:
@@ -234,8 +233,10 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
               {getTypeIcon()}
             </div>
             <div>
-              <h3 className="font-bold text-xl text-slate-900 dark:text-white tracking-tight">Add New {type}</h3>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">Enter details to create a new record.</p>
+              <h2 className="text-xl font-black text-slate-900 dark:text-white mt-4">{initialData ? 'Edit' : 'Add'} {type}</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                {initialData ? `Update the details for this ${type.toLowerCase()}.` : `Fill in the details to register a new ${type.toLowerCase()}.`}
+              </p>
             </div>
           </div>
           <button

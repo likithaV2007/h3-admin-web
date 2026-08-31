@@ -466,6 +466,90 @@ export const apiService = {
       return null;
     }
   },
+  // Create Donor
+  createDonor: async (payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/donors/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.error("Error creating donor:", err);
+      return null;
+    }
+  },
+
+  // Update Methods
+  updateStudent: async (id: string, payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/students/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.error("Error updating student:", err);
+      return null;
+    }
+  },
+
+  updateParent: async (id: string, payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/parents/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.error("Error updating parent:", err);
+      return null;
+    }
+  },
+
+  updateVolunteer: async (id: string, payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/volunteers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.error("Error updating volunteer:", err);
+      return null;
+    }
+  },
+
+  updateDonor: async (id: string, payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/donors/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.error("Error updating donor:", err);
+      return null;
+    }
+  },
 
   // Create Expense
   createExpense: async (payload: any): Promise<any> => {

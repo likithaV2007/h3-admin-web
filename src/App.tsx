@@ -1070,7 +1070,7 @@ function App() {
     }
   };
 
-  const [creationModal, setCreationModal] = useState<{ type: string; isOpen: boolean }>({ type: '', isOpen: false });
+  const [creationModal, setCreationModal] = useState<{ type: string; isOpen: boolean; isEdit?: boolean; initialData?: any }>({ type: '', isOpen: false });
 
   // Removed legacy handleCreateEntity mock handler
   // New Data State for Mind Map Features
@@ -1102,6 +1102,7 @@ function App() {
   const [parentColFilters, setParentColFilters] = useState<Record<string, string>>({});
   const [adminColFilters, setAdminColFilters] = useState<Record<string, string>>({});
   const [donorColFilters, setDonorColFilters] = useState<Record<string, string>>({});
+
 
 
   // Selected Student Profile State
@@ -1396,8 +1397,8 @@ function App() {
     setNewNoteText('');
   };
 
-  // Entity Creation Handler (Student, Parent, Volunteer, Donor) with FastAPI Integration
-  const handleCreateEntitySubmit = async (type: string, data: any) => {
+  // Entity Creation/Update Handler (Student, Parent, Volunteer, Donor) with FastAPI Integration
+  const handleEntitySubmit = async (type: string, data: any, isEdit: boolean = false, editId: string | null = null) => {
     if (type === 'Student') {
       const payload = {
         student_name: data.name,
@@ -1410,7 +1411,14 @@ function App() {
         school_name: data.college || 'Government College',
         location_status: 'In Hostel'
       };
-      await apiService.createStudent(payload);
+      if (isEdit && editId) {
+        await apiService.updateStudent(editId, payload);
+        if (selectedStudent && (selectedStudent.id === editId || (selectedStudent as any).student_id === editId)) {
+          setSelectedStudent({ ...selectedStudent, name: data.name, rollNo: data.rollNo, age: data.age, batch: data.batch, grade: data.grade, college: data.college });
+        }
+      } else {
+        await apiService.createStudent(payload);
+      }
       await loadDataFromApi();
     } else if (type === 'Parent') {
       const payload = {
@@ -1420,7 +1428,11 @@ function App() {
         occupation: data.occupation,
         student_id: data.childId
       };
-      await apiService.createParent(payload);
+      if (isEdit && editId) {
+        await apiService.updateParent(editId, payload);
+      } else {
+        await apiService.createParent(payload);
+      }
       await loadDataFromApi();
     } else if (type === 'Volunteer') {
       const payload = {
@@ -1430,7 +1442,29 @@ function App() {
         specialization: data.specialization,
         availability: data.availability
       };
-      await apiService.createVolunteer(payload);
+      if (isEdit && editId) {
+        await apiService.updateVolunteer(editId, payload);
+        if (selectedAdmin && (selectedAdmin.id === editId || (selectedAdmin as any).volunteer_id === editId)) {
+          setSelectedAdmin({ ...selectedAdmin, name: data.name, email: data.email, phone: data.phone, specialization: data.specialization, availability: data.availability });
+        }
+      } else {
+        await apiService.createVolunteer(payload);
+      }
+      await loadDataFromApi();
+    } else if (type === 'Donor') {
+      const payload = {
+        organization_name: data.name,
+        email: data.email,
+        donor_type: data.level,
+      };
+      if (isEdit && editId) {
+        await apiService.updateDonor(editId, payload);
+        if (selectedDonor && (selectedDonor.id === editId || selectedDonor.donor_id === editId)) {
+          setSelectedDonor({ ...selectedDonor, name: data.name, email: data.email, donorType: data.level });
+        }
+      } else {
+        await apiService.createDonor(payload);
+      }
       await loadDataFromApi();
     } else if (type === 'activity') {
       const payload: Partial<Activity> = {
@@ -2516,13 +2550,21 @@ function App() {
 
                   {/* PROFILE HEADER PANEL */}
                   <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
-                    <button
-                      onClick={() => setSelectedStudent(null)}
-                      className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                      title="Back to Database"
-                    >
-                      <X size={18} />
-                    </button>
+                    <div className="absolute top-4 right-4 flex items-center gap-2">
+                      <button
+                        onClick={() => setCreationModal({ type: 'Student', isOpen: true, isEdit: true, initialData: selectedStudent })}
+                        className="px-3 py-1.5 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/40 transition-colors text-xs font-bold uppercase tracking-wider"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setSelectedStudent(null)}
+                        className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        title="Back to Database"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
 
                     <div className="flex items-center gap-5">
                       <ProfileAvatar url={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} name={selectedStudent.name || (selectedStudent as any).student_name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" fallbackClassName="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md bg-gradient-to-br from-[#20002c] to-[#cbb4d4] text-white font-black text-3xl shrink-0" />
@@ -3348,6 +3390,15 @@ function App() {
                         <td className="p-4 font-mono text-black dark:text-white">{par.phone}</td>
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            {/* EDIT BUTTON */}
+                            <button
+                              onClick={() => setCreationModal({ type: 'Parent', isOpen: true, isEdit: true, initialData: par })}
+                              title={`Edit ${par.name}`}
+                              className="p-2 bg-[#cbb4d4]/10 hover:bg-[#cbb4d4]/20 dark:bg-[#cbb4d4]/40 dark:hover:bg-[#cbb4d4]/60 text-black dark:text-white rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center"
+                            >
+                              <Pencil size={15} />
+                            </button>
+
                             {/* WHATSAPP PHONE CALL ICON BUTTON */}
                             <a 
                               href={getWhatsAppLink(par.phone)} 
@@ -4645,12 +4696,20 @@ function App() {
                 <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Admin Profile
                 </span>
-                <button
-                  onClick={() => setSelectedVolunteer(null)}
-                  className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
-                >
-                  <X size={16} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCreationModal({ type: 'Volunteer', isOpen: true, isEdit: true, initialData: selectedVolunteer })}
+                    className="px-3 py-1 bg-black/20 hover:bg-black/40 text-slate-900 rounded-lg transition-colors text-[10px] font-bold uppercase"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setSelectedVolunteer(null)}
+                    className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
 
               {/* Avatar & Profile Title inside Header */}
@@ -4765,12 +4824,20 @@ function App() {
                 <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Donor Benefactor Profile
                 </span>
-                <button
-                  onClick={() => setSelectedDonor(null)}
-                  className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
-                >
-                  <X size={16} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCreationModal({ type: 'Donor', isOpen: true, isEdit: true, initialData: selectedDonor })}
+                    className="px-3 py-1 bg-black/20 hover:bg-black/40 text-slate-900 rounded-lg transition-colors text-[10px] font-bold uppercase"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => setSelectedDonor(null)}
+                    className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
 
               {/* Avatar & Profile Title inside Header */}
@@ -4876,9 +4943,11 @@ function App() {
       <EntityCreationModal
         type={creationModal.type}
         isOpen={creationModal.isOpen}
+        initialData={creationModal.initialData}
         onClose={() => setCreationModal({ type: '', isOpen: false })}
         onSubmit={(type, data) => {
-          handleCreateEntitySubmit(type, data);
+          const editId = creationModal.initialData?.id || creationModal.initialData?.student_id || creationModal.initialData?.donor_id || creationModal.initialData?.volunteer_id;
+          handleEntitySubmit(type, data, creationModal.isEdit, editId);
           setCreationModal({ type: '', isOpen: false });
         }}
       />
@@ -5927,8 +5996,12 @@ function App() {
       <EntityCreationModal
         type={creationModal.type}
         isOpen={creationModal.isOpen}
+        initialData={creationModal.initialData}
         onClose={() => setCreationModal(prev => ({ ...prev, isOpen: false }))}
-        onSubmit={handleCreateEntitySubmit}
+        onSubmit={(type, data) => {
+          const editId = creationModal.initialData?.id || creationModal.initialData?.student_id || creationModal.initialData?.donor_id || creationModal.initialData?.volunteer_id;
+          handleEntitySubmit(type, data, creationModal.isEdit, editId);
+        }}
       />
 
       {/* FLOATING ACTION BUTTON FOR QUICK ADD */}
