@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { themeClasses, colors } from './theme';
+import { themeClasses, colors } from '../theme';
 import { X, UserPlus, BookOpen, Heart, Briefcase, GraduationCap, Users, CalendarDays } from 'lucide-react';
 
 interface EntityCreationModalProps {

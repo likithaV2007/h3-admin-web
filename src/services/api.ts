@@ -323,8 +323,14 @@ export const apiService = {
       const user = userMap[item.user_id] || {};
 
       let donorName = item.donor_name || item.organization_name || user.user_name || item.full_name || item.name;
+      
+      // Clean up backend placeholder names like "Donor 214"
+      if (donorName && /^Donor\s*\d+$/i.test(donorName.trim())) {
+        donorName = 'Anonymous Donor';
+      }
+      
       if (!donorName || donorName === 'string' || donorName.trim() === '') {
-        donorName = `Donor Sponsor ${idx + 1}`;
+        donorName = `Anonymous Donor`;
       } else if (donorName.toLowerCase() === donorName) {
         donorName = donorName.replace(/\b\w/g, (c: string) => c.toUpperCase());
       }
@@ -351,7 +357,7 @@ export const apiService = {
         profile_photo_link: formatAvatarUrl(item.profile_photo_link || user.profile_photo_link),
         joined_date: item.created_at ? item.created_at.split('T')[0] : '2026-05-30'
       };
-    });
+    }).filter(donor => !donor.name.toLowerCase().includes('donor'));
   },
 
   // Fetch Expenses List
