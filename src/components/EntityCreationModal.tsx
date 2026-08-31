@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { themeClasses, colors } from './theme';
 import { X, UserPlus, BookOpen, Heart, Briefcase, GraduationCap, Users, CalendarDays } from 'lucide-react';
 
 interface EntityCreationModalProps {
@@ -19,7 +20,7 @@ const CustomInput = ({ name, placeholder, type = "text", onChange, required, val
       onChange={onChange}
       value={value || ''}
       placeholder={`Enter ${placeholder.toLowerCase()}`}
-      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm"
+      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm`}
     />
   </div>
 );
@@ -33,7 +34,7 @@ const CustomSelect = ({ name, placeholder, onChange, options, required, value }:
         name={name}
         onChange={onChange}
         value={value || ''}
-        className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white appearance-none shadow-sm"
+        className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white appearance-none shadow-sm`}
       >
         <option value="" disabled>Select {placeholder.toLowerCase()}</option>
         {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
@@ -57,7 +58,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
       } else if (type === 'Volunteer') {
         setFormData({ ...initialData, name: initialData.name || initialData.full_name });
       } else if (type === 'Donor') {
-        setFormData({ ...initialData, name: initialData.name || initialData.organization_name, level: initialData.donorType || initialData.donor_type });
+        setFormData({ ...initialData, name: initialData.name || initialData.organization_name, phone: initialData.phone, address: initialData.address, contribution: initialData.totalDonated || initialData.contribution });
       } else {
         setFormData(initialData);
       }
@@ -125,7 +126,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
                     reader.readAsDataURL(file);
                   }
                 }}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-sm font-medium text-slate-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-600 hover:file:bg-emerald-100 cursor-pointer shadow-sm"
+                className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} text-sm font-medium text-slate-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:${themeClasses.bgPrimaryLight}/10 file:${themeClasses.textPrimaryDark} dark:file:text-white hover:file:${themeClasses.bgPrimaryLight}/20 cursor-pointer shadow-sm`}
               />
             </div>
             <div className="md:col-span-2 space-y-1.5">
@@ -135,7 +136,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
                 name="description"
                 onChange={handleChange as any}
                 placeholder="Enter activity description"
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm min-h-[100px]"
+                className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm min-h-[100px]`}
               />
             </div>
           </div>
@@ -185,7 +186,9 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
           <div className="space-y-4">
             <CustomInput required name="name" placeholder="Donor Organization / Name" value={formData.name} onChange={handleChange} />
             <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
-            <CustomSelect required name="level" placeholder="Donation Level" value={formData.level} onChange={handleChange} options={['Platinum', 'Gold', 'Silver', 'Bronze', 'Individual Benefactor']} />
+            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+            <CustomInput required name="address" placeholder="Address" value={formData.address} onChange={handleChange} />
+            <CustomInput required type="number" name="contribution" placeholder="Contribution Amount" value={formData.contribution} onChange={handleChange} />
           </div>
         );
       case 'Volunteer':
