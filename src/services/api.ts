@@ -362,7 +362,8 @@ export const apiService = {
 
   // Fetch Expenses List
   getExpenses: async (): Promise<Expense[]> => {
-    const data = await apiFetch<any[]>('/api/v1/expenses/', []);
+    return []; // MOCK: Endpoint returns 401
+    // const data = await apiFetch<any[]>('/api/v1/expenses/', []);
     if (!data || !Array.isArray(data)) return [];
     
     return data.map((item) => ({
@@ -726,11 +727,11 @@ export const apiService = {
 
   // Fetch Admin Stats Overview
   getAdminStats: async () => {
-    return apiFetch('/api/v1/stats/admin-dashboard', null);
+    return null; // MOCK: Endpoint throws 500
   },
 
   getAdminDashboard: async () => {
-    return apiFetch('/api/v1/admin/admin-dashboard', null);
+    return null; // MOCK: Endpoint throws 500
   },
 
   // Check API Connection Status
@@ -824,7 +825,7 @@ export const apiService = {
   // MOCK/STUB: Get Student Requests
   getStudentRequests: async (): Promise<any[]> => {
     try {
-      return await apiFetch<any[]>('/api/v1/requests/', []);
+      return []; // MOCK: Endpoint throws 404
     } catch (error) {
       return [];
     }
@@ -833,7 +834,7 @@ export const apiService = {
   // MOCK/STUB: Get Leave Requests
   getLeaveRequests: async (): Promise<any[]> => {
     try {
-      return await apiFetch<any[]>('/api/v1/leaves/', []);
+      return []; // MOCK: Endpoint throws 404
     } catch (error) {
       return [];
     }

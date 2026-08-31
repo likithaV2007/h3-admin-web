@@ -66,6 +66,8 @@ import {
   Save
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
+import { ContributionModal } from './components/ContributionModal';
+import { generateContributionReceipt } from './services/pdfGenerator';
 import { apiService, formatAvatarUrl } from './services/api';
 import {
   initialStudents,
@@ -80,6 +82,7 @@ import {
   type Expense,
   type ActivityLog,
   type LeaveRequest,
+  type Contribution,
   type Activity
 } from './mockData';
 export interface SchoolClass {
@@ -203,6 +206,8 @@ function App() {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [parents, setParents] = useState<Parent[]>([]);
   const [donors, setDonors] = useState<Donor[]>([]);
+  const [contributions, setContributions] = useState<Contribution[]>([]);
+  const [isContributionModalOpen, setIsContributionModalOpen] = useState(false);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
@@ -1239,6 +1244,7 @@ function App() {
     { name: 'Parents', icon: User },
     { name: 'Admins', icon: Award },
     { name: 'Donors', icon: HeartHandshake },
+    { name: 'Contributions', icon: Receipt },
     { name: 'Finance', icon: DollarSign },
     { name: 'Activities', icon: CalendarDays },
     { name: 'Location', icon: MapPin },
@@ -3525,6 +3531,72 @@ function App() {
                         </td>
                       </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          
+          {/* MODULE: CONTRIBUTIONS */}
+          {activeTab === 'Contributions' && (
+            <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h4 className="font-bold text-base">Contributions & Receipts</h4>
+                  <p className="text-xs text-slate-400">Manage all charitable donations and generate PDF receipts</p>
+                </div>
+                <button
+                  onClick={() => setIsContributionModalOpen(true)}
+                  className={`${themeClasses.bgGradientMain} hover:opacity-90 text-white shadow-lg ${themeClasses.shadowPrimaryDark} px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2`}
+                >
+                  <Plus size={16} />
+                  Record Contribution
+                </button>
+              </div>
+
+              <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50 mt-4">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
+                      <th className="p-4">Receipt ID</th>
+                      <th className="p-4">Donor Name</th>
+                      <th className="p-4">Date</th>
+                      <th className="p-4">Amount</th>
+                      <th className="p-4">Method</th>
+                      <th className="p-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contributions.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="p-8 text-center text-slate-400">No contributions recorded yet.</td>
+                      </tr>
+                    ) : (
+                      contributions.map(c => {
+                        const donorObj = donors.find(d => d.id === c.donorId);
+                        return (
+                          <tr key={c.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/40 dark:hover:bg-slate-800/30">
+                            <td className="p-4 font-mono font-semibold">{c.id}</td>
+                            <td className="p-4 font-bold">{c.donorName}</td>
+                            <td className="p-4">{c.date}</td>
+                            <td className="p-4 font-mono font-bold">₹{c.amount.toLocaleString('en-IN')}</td>
+                            <td className="p-4">
+                              <span className={`px-2 py-1 rounded text-[10px] font-bold ${themeClasses.bgPrimaryLight}/20 text-black dark:text-white`}>{c.paymentMethod}</span>
+                            </td>
+                            <td className="p-4 text-right">
+                              <button
+                                onClick={() => donorObj && generateContributionReceipt(c, donorObj, true)}
+                                className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors inline-flex items-center gap-1.5 font-semibold text-[10px]"
+                                title="Download PDF Receipt"
+                              >
+                                <Receipt size={14} /> Download
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -6005,6 +6077,15 @@ function App() {
         onSubmit={(type, data) => {
           const editId = creationModal.initialData?.id || creationModal.initialData?.student_id || creationModal.initialData?.donor_id || creationModal.initialData?.volunteer_id;
           handleEntitySubmit(type, data, creationModal.isEdit, editId);
+        }}
+      />
+
+      <ContributionModal
+        isOpen={isContributionModalOpen}
+        onClose={() => setIsContributionModalOpen(false)}
+        donors={donors}
+        onSubmit={(data) => {
+          setContributions(prev => [{...data, id: `REC${Date.now()}`, receiptSent: true}, ...prev]);
         }}
       />
 

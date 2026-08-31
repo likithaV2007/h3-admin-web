@@ -12,6 +12,17 @@ export interface LeaveRequest {
   [key: string]: any;
 }
 
+export interface Contribution {
+  id: string;
+  donorId: string;
+  donorName: string;
+  amount: number;
+  date: string;
+  paymentMethod: string;
+  receiptSent: boolean;
+  notes?: string;
+}
+
 export interface Student {
   id: string;
   name: string;
