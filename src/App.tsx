@@ -139,6 +139,96 @@ const getDriveImageUrl = (photoLink?: string | null, driveLink?: string | null) 
   return clean || null;
 };
 
+const ActivityCardNode = ({ activity, setViewingActivityImages }: { activity: any, setViewingActivityImages: (urls: string[]) => void }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activity.images && activity.images.length > 0) {
+      setCurrentImageIndex(prev => (prev + 1) % activity.images.length);
+    }
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activity.images && activity.images.length > 0) {
+      setCurrentImageIndex(prev => (prev - 1 + activity.images.length) % activity.images.length);
+    }
+  };
+
+  return (
+    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#cbb4d4]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+      {activity.images && activity.images.length > 0 ? (
+        <div 
+          className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 cursor-pointer group/carousel"
+          onClick={() => setViewingActivityImages(activity.images!.map((img: any) => formatAvatarUrl(img.image_url)))}
+        >
+          <img 
+            referrerPolicy="no-referrer"
+            src={formatAvatarUrl(activity.images[currentImageIndex].image_url)} 
+            alt={activity.title}
+            className="w-full h-full object-cover transition-transform duration-500"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              if (e.currentTarget.parentElement) {
+                e.currentTarget.parentElement.innerHTML = '<div class="absolute inset-0 flex items-center justify-center bg-slate-200 dark:bg-slate-800"><span class="text-xs font-bold text-slate-500 text-center px-4">Image Blocked by Google Drive<br/>Click to view</span></div>';
+              }
+            }}
+          />
+          
+          {activity.images.length > 1 && (
+            <>
+              <button 
+                onClick={handlePrev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover/carousel:opacity-100 transition-opacity backdrop-blur-md"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button 
+                onClick={handleNext}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover/carousel:opacity-100 transition-opacity backdrop-blur-md"
+              >
+                <ChevronRight size={16} />
+              </button>
+              <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md pointer-events-none">
+                {currentImageIndex + 1} / {activity.images.length}
+              </div>
+            </>
+          )}
+        </div>
+      ) : null}
+      
+      <div className="p-5 flex flex-col flex-1">
+        <div className="flex justify-between items-start gap-2 mb-3">
+          <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 leading-tight">
+            {activity.title}
+          </h4>
+          <span className="shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded border border-slate-200 dark:border-slate-700 uppercase tracking-wider">
+            {activity.activity_type}
+          </span>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-3 mb-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <CalendarDays size={14} className={`${themeClasses.textPrimaryLight}`} />
+            {new Date(activity.activity_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+          </div>
+          {activity.audience && (
+            <div className="flex items-center gap-1.5">
+              <Users size={14} className={`${themeClasses.textPrimaryLight}`} />
+              {activity.audience}
+            </div>
+          )}
+        </div>
+        
+        <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line line-clamp-4 mt-auto">
+          {activity.description}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 
 const ProfileAvatar = ({ url, name, className, fallbackClassName }: { url?: string | null, name?: string | null, className: string, fallbackClassName: string }) => {
   const [error, setError] = useState(false);
@@ -210,6 +300,7 @@ function App() {
   const [isContributionModalOpen, setIsContributionModalOpen] = useState(false);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
+  const [viewingActivityImages, setViewingActivityImages] = useState<string[] | null>(null);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [adminCount, setAdminCount] = useState<number>(3);
   const [dashboardStats, setDashboardStats] = useState<any>(null);
@@ -3900,7 +3991,7 @@ function App() {
                                   {/* Icon/Image Thumbnail */}
                                   {(item.receipt_photo_link || item.receipt_drive_link) ? (
                                     <div className="w-11 h-11 rounded-2xl shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-                                      <img src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) || "https://placehold.co/44"} alt="Receipt" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-[8px] font-bold text-slate-400 p-1 text-center leading-tight">Private Image</span>'; }} />
+                                      <img referrerPolicy="no-referrer" src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) || "https://placehold.co/44"} alt="Receipt" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-[8px] font-bold text-slate-400 p-1 text-center leading-tight">Private Image</span>'; }} />
                                     </div>
                                   ) : (
                                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${themeClasses.bgPrimaryLight}/10 ${themeClasses.textPrimaryLight} border-[#cbb4d4]/20`}>
@@ -4000,7 +4091,7 @@ function App() {
                                     </div>
                                     {getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) ? (
                                       <a href={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                        <img src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} alt="Receipt thumbnail" className="w-full h-auto max-h-48 object-cover rounded-lg bg-white dark:bg-slate-950" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<div class="py-4 text-center border-2 border-dashed border-red-200 rounded-lg text-xs font-bold text-red-500">Image is Private or Blocked. Click to open in Drive.</div>'; }} />
+                                        <img referrerPolicy="no-referrer" src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} alt="Receipt thumbnail" className="w-full h-auto max-h-48 object-cover rounded-lg bg-white dark:bg-slate-950" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<div class="py-4 text-center border-2 border-dashed border-red-200 rounded-lg text-xs font-bold text-red-500">Image is Private or Blocked. Click to open in Drive.</div>'; }} />
                                       </a>
                                     ) : (
                                       <a href={item.receipt_drive_link!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block w-full py-3 text-center border-2 border-dashed border-purple-200 dark:border-purple-900/50 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20">
@@ -4303,53 +4394,7 @@ function App() {
                   </div>
                 ) : (
                   activities.map(activity => (
-                    <div key={activity.activity_id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#cbb4d4]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
-                      {activity.images && activity.images.length > 0 ? (
-                        <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0">
-                          <img 
-                            src={formatAvatarUrl(activity.images[0].image_url)} 
-                            alt={activity.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                          {activity.images.length > 1 && (
-                            <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md">
-                              +{activity.images.length - 1} More
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="relative h-20 w-full bg-gradient-to-r from-[#20002c]/80 to-[#cbb4d4]/80 shrink-0"></div>
-                      )}
-                      
-                      <div className="p-5 flex flex-col flex-1">
-                        <div className="flex justify-between items-start gap-2 mb-3">
-                          <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 leading-tight">
-                            {activity.title}
-                          </h4>
-                          <span className="shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded border border-slate-200 dark:border-slate-700 uppercase tracking-wider">
-                            {activity.activity_type}
-                          </span>
-                        </div>
-                        
-                        <div className="flex flex-wrap items-center gap-3 mb-4 text-xs font-medium text-slate-500 dark:text-slate-400">
-                          <div className="flex items-center gap-1.5">
-                            <CalendarDays size={14} className={`${themeClasses.textPrimaryLight}`} />
-                            {new Date(activity.activity_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </div>
-                          {activity.audience && (
-                            <div className="flex items-center gap-1.5">
-                              <Users size={14} className={`${themeClasses.textPrimaryLight}`} />
-                              {activity.audience}
-                            </div>
-                          )}
-                        </div>
-                        
-                        <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line line-clamp-4 mt-auto">
-                          {activity.description}
-                        </p>
-                      </div>
-                    </div>
+                    <ActivityCardNode key={activity.activity_id} activity={activity} setViewingActivityImages={setViewingActivityImages} />
                   ))
                 )}
               </div>
@@ -5250,6 +5295,7 @@ function App() {
                   <div className="relative rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 p-2">
                     {getDriveImageUrl(selectedExpense.receipt_photo_link, selectedExpense.receipt_drive_link) ? (
                       <img
+                        referrerPolicy="no-referrer"
                         src={getDriveImageUrl(selectedExpense.receipt_photo_link, selectedExpense.receipt_drive_link) || "https://placehold.co/400"}
                         alt="Expense Receipt"
                         className="w-full max-h-48 object-contain hover:scale-[1.03] transition-transform cursor-zoom-in rounded-xl"
@@ -6161,6 +6207,38 @@ function App() {
           </div>
         </div>
       )}
+      {/* ACTIVITY IMAGES MODAL */}
+      {viewingActivityImages && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 sm:p-8 overflow-y-auto" onClick={() => setViewingActivityImages(null)}>
+          <div className="relative w-full max-w-4xl flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
+            <button 
+              onClick={() => setViewingActivityImages(null)}
+              className="absolute -top-12 right-0 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition-colors"
+            >
+              <X size={24} />
+            </button>
+            <div className="flex flex-col gap-6 w-full pb-10">
+              {viewingActivityImages.map((imgSrc, idx) => (
+                <div key={idx} className="w-full bg-slate-900/50 rounded-xl overflow-hidden shadow-2xl flex flex-col items-center justify-center min-h-[200px]">
+                  <img 
+                    referrerPolicy="no-referrer"
+                    src={imgSrc} 
+                    alt={`Activity Image ${idx + 1}`} 
+                    className="w-full h-auto object-contain max-h-[80vh] mx-auto"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.parentElement) {
+                        e.currentTarget.parentElement.innerHTML = `<a href="${imgSrc}" target="_blank" class="text-white bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-bold">Open Private Image in Google Drive</a>`;
+                      }
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
