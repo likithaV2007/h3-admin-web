@@ -36,7 +36,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
     }
   };
 
-  const handlePreview = () => {
+  const handlePreview = async () => {
     if (!selectedDonor || !formData.amount) return;
     
     const previewContribution = {
@@ -49,7 +49,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
       receiptSent: false
     };
     
-    const doc = generateContributionReceipt(previewContribution as any, selectedDonor, false);
+    const doc = await generateContributionReceipt(previewContribution as any, selectedDonor, false);
     const blobUrl = doc.output('bloburl');
     window.open(blobUrl, '_blank');
   };

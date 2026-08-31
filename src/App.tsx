@@ -238,34 +238,7 @@ function App() {
     url: 'https://h3apps-api.hope3.org'
   });
 
-  // Finance Module: Fetch Real Expenses from API
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const fetchExpenses = async () => {
-      try {
-        const response = await fetch(`${apiStatus.url}/api/v1/expenses/?skip=0&limit=100&_t=${Date.now()}`, {
-          headers: {
-            'accept': 'application/json',
-            'Authorization': `Bearer ${sessionStorage.getItem('authToken') || localStorage.getItem('authToken')}`,
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-          },
-          cache: 'no-store'
-        });
-        if (response.ok) {
-          const data = await response.json();
-          const sorted = Array.isArray(data) ? data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
-          setExpenses(sorted.length > 0 ? sorted : []);
-        } else {
-          setExpenses([]);
-        }
-      } catch (err) {
-        console.error("Failed to load live expenses", err);
-        setExpenses([]);
-      }
-    };
-    fetchExpenses();
-  }, [isAuthenticated, apiStatus.url]);
+
 
   const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
   const [customTokenInput, setCustomTokenInput] = useState<string>(localStorage.getItem('authToken') || '');
@@ -469,7 +442,7 @@ function App() {
 
       const fetchedStudents = await apiService.getStudents();
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities, fetchedClasses, fetchedStudentRequests, fetchedLeaveRequests] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities, fetchedClasses, fetchedStudentRequests, fetchedLeaveRequests, fetchedContributions] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
@@ -481,7 +454,8 @@ function App() {
         apiService.getActivities(),
         apiService.getClasses(),
         apiService.getStudentRequests(),
-        apiService.getLeaveRequests()
+        apiService.getLeaveRequests(),
+        apiService.getContributions()
       ]);
 
       setAdminCount(fetchedAdminCount);
@@ -551,6 +525,18 @@ function App() {
       if (fetchedParents && fetchedParents.length > 0) setParents(fetchedParents);
       if (fetchedDonors && fetchedDonors.length > 0) setDonors(fetchedDonors);
       if (fetchedExpenses && fetchedExpenses.length > 0) setExpenses(fetchedExpenses);
+      
+      if (fetchedContributions && fetchedContributions.length > 0) {
+        // Map donor names from donors list
+        const enrichedContributions = fetchedContributions.map(c => {
+          const matchedDonor = (fetchedDonors || []).find((d: any) => d.id === c.donorId || d.donor_id === c.donorId);
+          return {
+            ...c,
+            donorName: matchedDonor ? matchedDonor.name : 'Unknown Donor'
+          };
+        }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        setContributions(enrichedContributions);
+      }
       
       setClasses(fetchedClasses || []);
       setStudentRequests(fetchedStudentRequests || []);
@@ -1451,8 +1437,8 @@ function App() {
       };
       if (isEdit && editId) {
         await apiService.updateVolunteer(editId, payload);
-        if (selectedAdmin && (selectedAdmin.id === editId || (selectedAdmin as any).volunteer_id === editId)) {
-          setSelectedAdmin({ ...selectedAdmin, name: data.name, email: data.email, phone: data.phone, specialization: data.specialization, availability: data.availability });
+        if (selectedVolunteer && (selectedVolunteer.id === editId || (selectedVolunteer as any).volunteer_id === editId)) {
+          setSelectedVolunteer({ ...selectedVolunteer, name: data.name, email: data.email, phone: data.phone, specialization: data.specialization, availability: data.availability } as any);
         }
       } else {
         await apiService.createVolunteer(payload);
@@ -3710,7 +3696,7 @@ function App() {
                 {/* Total Spend Card - Left Side */}
                 <div className="w-full lg:w-1/2 relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] p-8 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-h-[160px]">
                   {/* Decorative wavy background */}
-                  <svg className="absolute bottom-0 left-0 w-full h-full pointer-events-none opacity-60" preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fill-opacity="0.1" d="M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,197.3C672,203,768,181,864,154.7C960,128,1056,96,1152,96C1248,96,1344,128,1392,144L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
+                  <svg className="absolute bottom-0 left-0 w-full h-full pointer-events-none opacity-60" preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fillOpacity="0.1" d="M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,197.3C672,203,768,181,864,154.7C960,128,1056,96,1152,96C1248,96,1344,128,1392,144L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
 
                   {/* Decorative Wallet Icon */}
                   <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-100 pointer-events-none hidden sm:block">
@@ -6084,8 +6070,18 @@ function App() {
         isOpen={isContributionModalOpen}
         onClose={() => setIsContributionModalOpen(false)}
         donors={donors}
-        onSubmit={(data) => {
-          setContributions(prev => [{...data, id: `REC${Date.now()}`, receiptSent: true}, ...prev]);
+        onSubmit={async (data) => {
+          try {
+            await apiService.createContribution({
+              ...data,
+              receiptSent: true
+            });
+            await loadDataFromApi(); // Refresh the list
+          } catch (err) {
+            console.error("Failed to create contribution:", err);
+            // Fallback for UI if API fails but we still want it visible locally
+            setContributions(prev => [{...data, id: `REC${Date.now()}`, receiptSent: true}, ...prev]);
+          }
         }}
       />
 

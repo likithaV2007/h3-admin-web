@@ -5,7 +5,8 @@ import {
   type Parent, 
   type Donor,
   type Expense,
-  type Activity
+  type Activity,
+  type Contribution
 } from '../mockData';
 
 const BASE_URL = (import.meta.env.VITE_API_URL || 'https://h3apps-api.hope3.org').replace(/\/+$/, '');
@@ -353,7 +354,7 @@ export const apiService = {
         organizationName: item.organization_name || '',
         totalDonated: numAmount,
         formattedAmount: formattedAmount,
-        status: 'Active Sponsor',
+        status: 'Active Sponsor' as "Active Sponsor" | "Past Benefactor",
         profile_photo_link: formatAvatarUrl(item.profile_photo_link || user.profile_photo_link),
         joined_date: item.created_at ? item.created_at.split('T')[0] : '2026-05-30'
       };
@@ -362,11 +363,10 @@ export const apiService = {
 
   // Fetch Expenses List
   getExpenses: async (): Promise<Expense[]> => {
-    return []; // MOCK: Endpoint returns 401
-    // const data = await apiFetch<any[]>('/api/v1/expenses/', []);
+    const data = await apiFetch<any[]>('/api/v1/expenses/', []);
     if (!data || !Array.isArray(data)) return [];
     
-    return data.map((item) => ({
+    return data.map((item: any) => ({
       id: item.id || item.expense_id,
       title: item.title || 'Expense Record',
       category: item.category || 'general',
@@ -376,6 +376,7 @@ export const apiService = {
       is_private: item.is_private ?? false,
       is_foundation_paid: item.is_foundation_paid ?? true,
       status: (item.status || 'pending').toUpperCase(),
+      user_id: item.user_id || null,
       student_id: item.student_id || null,
       target_group: item.target_group || 'ALL',
       created_by_name: item.created_by_name || 'System Admin',
@@ -877,6 +878,54 @@ export const apiService = {
     } catch (error) {
       console.error("Failed to fetch student semesters:", error);
       return [];
+    }
+  },
+
+  // Fetch Contributions List
+  getContributions: async (): Promise<Contribution[]> => {
+    const data = await apiFetch<any[]>('/api/v1/contributions/?skip=0&limit=100', []);
+    if (!data || !Array.isArray(data)) return [];
+    
+    return data.map((item: any) => ({
+      id: item.contribution_id || item.id || `REC${Date.now()}`,
+      donorId: item.donor_id,
+      donorName: item.donor_name || 'Donor',
+      amount: parseFloat(item.amount) || 0,
+      date: item.date || new Date().toISOString().split('T')[0],
+      paymentMethod: item.payment_method || 'Bank Transfer',
+      receiptSent: item.receipt_sent === 1 || item.receipt_sent === true,
+      notes: item.notes || ''
+    }));
+  },
+
+  // Create Contribution
+  createContribution: async (payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/contributions/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({
+          donor_id: payload.donorId,
+          amount: String(payload.amount),
+          payment_method: payload.paymentMethod || 'Bank Transfer',
+          date: payload.date || new Date().toISOString().split('T')[0],
+          receipt_sent: payload.receiptSent ? 1 : 0,
+          notes: payload.notes || '',
+          is_deleted: 0
+        }),
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to create contribution');
+      }
+      return await res.json();
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   }
 };
