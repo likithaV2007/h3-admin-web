@@ -1082,5 +1082,31 @@ export const apiService = {
       console.error(error);
       throw error;
     }
+  },
+
+  // Send Receipt Email
+  sendReceiptEmail: async (email: string, donorName: string, fileBlob: Blob): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('donor_name', donorName);
+      formData.append('file', fileBlob, 'Donation_Receipt.pdf');
+
+      const res = await fetch(`${BASE_URL}/api/v1/emails/send-receipt`, {
+        method: 'POST',
+        headers: authHeaders,
+        body: formData,
+      });
+
+      if (!res.ok) {
+        console.error("Failed to send receipt email:", await res.text());
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error sending receipt email:", error);
+      return false;
+    }
   }
 };

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, Receipt, Download, Mail, CheckCircle2, Eye } from 'lucide-react';
 import { generateContributionReceipt } from '../services/pdfGenerator';
+import { apiService } from '../services/api';
+import toast from 'react-hot-toast';
 import type { Donor } from '../mockData';
 import { themeClasses } from '../theme';
 
@@ -22,18 +24,15 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
+  const [emailSentStatus, setEmailSentStatus] = useState(false);
+  
+  const selectedDonor = donors.find(d => d.id === formData.donorId) || null;
 
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
-    if (name === 'donorId') {
-      const donor = donors.find(d => d.id === value);
-      setSelectedDonor(donor || null);
-    }
   };
 
   const handlePreview = async () => {
@@ -59,8 +58,40 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
     if (!formData.donorId || !formData.amount || !selectedDonor) return;
     
     setIsSubmitting(true);
+    const loadingToast = toast.loading('Saving contribution & emailing receipt...');
     
     try {
+      // 1. Generate PDF Blob
+      const previewContribution = {
+        id: `REC${Date.now()}`,
+        donorId: formData.donorId,
+        donorName: selectedDonor.name,
+        amount: parseFloat(formData.amount),
+        date: formData.date,
+        paymentMethod: formData.paymentMethod,
+        receiptSent: true
+      };
+      const doc = await generateContributionReceipt(previewContribution as any, selectedDonor, false);
+      const pdfBlob = doc.output('blob');
+      
+      // 2. Send email via backend
+      if (selectedDonor.email && selectedDonor.email !== 'N/A') {
+        const emailSent = await apiService.sendReceiptEmail(selectedDonor.email, selectedDonor.name, pdfBlob);
+        
+        if (!emailSent) {
+          toast.error(`Failed to send email. Contribution was NOT saved.`, { id: loadingToast });
+          setIsSubmitting(false);
+          return; // Stop execution, do not save to database
+        }
+        
+        toast.success(`Receipt securely emailed to ${selectedDonor.email}!`, { id: loadingToast });
+        setEmailSentStatus(true);
+      } else {
+        toast.success(`Contribution saved locally (no email provided).`, { id: loadingToast });
+        setEmailSentStatus(false);
+      }
+
+      // 3. Save Contribution to DB
       await onSubmit({
         donorId: formData.donorId,
         donorName: selectedDonor.name,
@@ -75,11 +106,11 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
       setTimeout(() => {
         setShowSuccess(false);
         setFormData({ donorId: '', amount: '', date: new Date().toISOString().split('T')[0], paymentMethod: 'Bank Transfer', notes: '' });
-        setSelectedDonor(null);
         onClose();
       }, 2000);
     } catch (error) {
       console.error("Error submitting contribution:", error);
+      toast.error('Error processing contribution.', { id: loadingToast });
     } finally {
       setIsSubmitting(false);
     }
@@ -108,9 +139,11 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
             <div className={`w-20 h-20 rounded-full ${themeClasses.bgPrimaryLight}/20 flex items-center justify-center ${themeClasses.textPrimaryDark} mb-2`}>
               <CheckCircle2 size={40} />
             </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white">Contribution Recorded!</h3>
-            <p className="text-sm font-medium text-slate-500">
-              The contribution was successfully logged and a PDF receipt has been emailed to <strong className="text-slate-700 dark:text-slate-300">{selectedDonor?.email}</strong>.
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white">Contribution Recorded!</h3>
+            <p className="text-slate-500 font-medium">
+              {emailSentStatus 
+                ? `The donation has been logged and the receipt has been emailed to ${selectedDonor?.email}.`
+                : `The donation has been successfully logged.`}
             </p>
           </div>
         ) : (
