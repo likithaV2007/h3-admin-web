@@ -7,7 +7,7 @@ import { themeClasses } from '../theme';
 interface ContributionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: any) => void | Promise<void>;
   donors: Donor[];
 }
 
@@ -54,32 +54,35 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
     window.open(blobUrl, '_blank');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.donorId || !formData.amount || !selectedDonor) return;
     
     setIsSubmitting(true);
     
-    // Simulate API call and email sending
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await onSubmit({
+        donorId: formData.donorId,
+        donorName: selectedDonor.name,
+        amount: parseFloat(formData.amount),
+        date: formData.date,
+        paymentMethod: formData.paymentMethod,
+        notes: formData.notes
+      });
+      
       setShowSuccess(true);
       
       setTimeout(() => {
-        onSubmit({
-          donorId: formData.donorId,
-          donorName: selectedDonor.name,
-          amount: parseFloat(formData.amount),
-          date: formData.date,
-          paymentMethod: formData.paymentMethod,
-          notes: formData.notes
-        });
         setShowSuccess(false);
         setFormData({ donorId: '', amount: '', date: new Date().toISOString().split('T')[0], paymentMethod: 'Bank Transfer', notes: '' });
         setSelectedDonor(null);
         onClose();
       }, 2000);
-    }, 1500);
+    } catch (error) {
+      console.error("Error submitting contribution:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
