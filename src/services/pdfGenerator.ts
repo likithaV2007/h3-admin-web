@@ -28,11 +28,11 @@ export const generateContributionReceipt = async (contribution: Contribution, do
     doc.text('H', 130, 26);
     
     // O (swirl image) - The image is 1:1, draw as 16x16
-    doc.addImage(logoImg, 'PNG', 147, 12, 16, 16); 
+    doc.addImage(logoImg, 'PNG', 142, 12, 16, 16); 
     
     // PE
     doc.setTextColor(31, 78, 121); // Dark blue
-    doc.text('PE', 165, 26);
+    doc.text('PE', 159, 26);
     
   } catch (e) {
     console.error('Failed to load logo', e);

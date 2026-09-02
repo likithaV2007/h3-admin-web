@@ -133,7 +133,7 @@ export const apiService = {
   // Fetch Admins Count
   getAdminsCount: async (): Promise<number> => {
     try {
-      const usersData = await apiFetch<any[]>('/api/v1/users/', []);
+      const usersData = await apiFetch<any[]>('/api/v1/users/?limit=10000', []);
       if (!Array.isArray(usersData)) return 3;
       
       const adminUsers = usersData.filter(u => 
@@ -186,7 +186,7 @@ export const apiService = {
   getVolunteers: async (): Promise<Volunteer[]> => {
     const [volsData, usersData] = await Promise.all([
       apiFetch<any[]>('/api/v1/volunteers/', []),
-      apiFetch<any[]>('/api/v1/users/', [])
+      apiFetch<any[]>('/api/v1/users/?limit=10000', [])
     ]);
 
     if (!volsData || volsData.length === 0) return [];
@@ -296,8 +296,8 @@ export const apiService = {
   // Fetch Donors
   getDonors: async (): Promise<Donor[]> => {
     const [donorsData, usersData] = await Promise.all([
-      apiFetch<any[]>('/api/v1/donors/', []),
-      apiFetch<any[]>('/api/v1/users/', [])
+      apiFetch<any[]>('/api/v1/donors/?limit=10000', []),
+      apiFetch<any[]>('/api/v1/users/?limit=10000', [])
     ]);
 
     if (!donorsData || donorsData.length === 0) return [];
@@ -345,7 +345,8 @@ export const apiService = {
         formattedAmount: formattedAmount,
         status: 'Active Sponsor' as "Active Sponsor" | "Past Benefactor",
         profile_photo_link: formatAvatarUrl(item.profile_photo_link || user.profile_photo_link),
-        joined_date: item.created_at ? item.created_at.split('T')[0] : 'N/A'
+        joined_date: item.created_at ? item.created_at.split('T')[0] : 'N/A',
+        address: item.address || 'N/A'
       };
     });
   },
@@ -442,23 +443,26 @@ export const apiService = {
     try {
       if (!userId || userId === "00000000-0000-0000-0000-000000000000") return false;
       const authHeaders = await getAuthHeader();
-      const userPayload = {
-        user_name: payload.name || payload.donor_name || payload.full_name || "string",
-        user_email: payload.email || "string",
-        user_phone: payload.phone || "string",
-        password_hash: "string",
-        is_active: 1,
-        is_deleted: 0,
-        fcm_token: "string",
-        apple_account: "string"
-      };
+      const userPayload: any = {};
+      if (payload.name && payload.name !== "N/A" && payload.name !== "string") userPayload.user_name = payload.name;
+      else if (payload.donor_name && payload.donor_name !== "N/A" && payload.donor_name !== "string") userPayload.user_name = payload.donor_name;
+      else if (payload.full_name && payload.full_name !== "N/A" && payload.full_name !== "string") userPayload.user_name = payload.full_name;
+
+      if (payload.email && payload.email !== "N/A" && payload.email !== "string") userPayload.user_email = payload.email;
+      if (payload.phone && payload.phone !== "N/A" && payload.phone !== "string") userPayload.user_phone = payload.phone;
       
+      console.log("Sending User Update Payload:", userPayload);
+
       const res = await fetch(`${BASE_URL}/api/v1/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify(userPayload)
       });
-      return res.ok;
+      if (!res.ok) {
+        console.error("Failed to update user:", await res.text());
+        return false;
+      }
+      return true;
     } catch (err) {
       console.error("Error updating user:", err);
       return false;

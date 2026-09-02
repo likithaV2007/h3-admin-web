@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { themeClasses, colors } from './theme';
 import {
   LayoutDashboard,
@@ -1483,7 +1484,9 @@ function App() {
 
   // Entity Creation/Update Handler (Student, Parent, Volunteer, Donor) with FastAPI Integration
   const handleEntitySubmit = async (type: string, data: any, isEdit: boolean = false, editId: string | null = null) => {
-    if (type === 'Student') {
+    const loadingToast = toast.loading(`${isEdit ? 'Updating' : 'Creating'} ${type}...`);
+    try {
+      if (type === 'Student') {
       const payload = {
         student_name: data.name || 'New Student',
         student_code: data.rollNo || `STU_${Date.now()}`,
@@ -1648,6 +1651,12 @@ function App() {
         };
         setActivities(prev => [uiActivity, ...prev]);
       }
+      }
+      
+      toast.success(`${type} successfully ${isEdit ? 'updated' : 'created'}!`, { id: loadingToast });
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to ${isEdit ? 'update' : 'create'} ${type}. Please try again.`, { id: loadingToast });
     }
   };
 
@@ -1835,6 +1844,7 @@ function App() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 flex ${darkMode ? 'dark bg-[#0b0f19] text-slate-100' : 'bg-[#f8fafc] text-slate-800'}`}>
+      <Toaster position="top-right" />
 
       {/* MOBILE BACKDROP OVERLAY */}
       {sidebarOpen && (
