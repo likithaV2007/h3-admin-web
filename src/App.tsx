@@ -1618,6 +1618,9 @@ function App() {
       };
       if (isEdit && editId) {
         await apiService.updateDonor(editId, payload);
+        if (payload.user_id && payload.user_id !== "00000000-0000-0000-0000-000000000000") {
+          await apiService.updateUser(payload.user_id, { email: data.email, phone: data.phone, name: data.name });
+        }
         if (selectedDonor && (selectedDonor.id === editId || selectedDonor.donor_id === editId)) {
           setSelectedDonor({ ...selectedDonor, name: data.name, email: data.email, phone: data.phone, address: data.address, totalDonated: data.contribution, formattedAmount: `$${Number(data.contribution || 0).toLocaleString()}` });
         }
@@ -4908,7 +4911,6 @@ function App() {
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                       {selectedVolunteer.name}
-                      <CheckCircle2 size={18} className={`${themeClasses.textPrimaryLight}`} />
                     </h3>
                     <p className="text-xs text-slate-500 font-medium">{selectedVolunteer.email}</p>
                   </div>
@@ -5036,7 +5038,6 @@ function App() {
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                       {selectedDonor.name}
-                      <CheckCircle2 size={18} className="text-purple-600 dark:text-purple-400" />
                     </h3>
                   </div>
                 </div>

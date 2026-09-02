@@ -428,15 +428,41 @@ export const apiService = {
         body: JSON.stringify(userPayload)
       });
       if (res.ok) {
-        const data = await res.json();
-        return data.user_id;
-      } else {
-        console.warn("User creation failed:", await res.text());
+        const createdUser = await res.json();
+        return createdUser.user_id;
       }
+      return "00000000-0000-0000-0000-000000000000";
     } catch (e) {
       console.error("User creation error:", e);
     }
     return "00000000-0000-0000-0000-000000000000";
+  },
+
+  updateUser: async (userId: string, payload: any): Promise<boolean> => {
+    try {
+      if (!userId || userId === "00000000-0000-0000-0000-000000000000") return false;
+      const authHeaders = await getAuthHeader();
+      const userPayload = {
+        user_name: payload.name || payload.donor_name || payload.full_name || "string",
+        user_email: payload.email || "string",
+        user_phone: payload.phone || "string",
+        password_hash: "string",
+        is_active: 1,
+        is_deleted: 0,
+        fcm_token: "string",
+        apple_account: "string"
+      };
+      
+      const res = await fetch(`${BASE_URL}/api/v1/users/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(userPayload)
+      });
+      return res.ok;
+    } catch (err) {
+      console.error("Error updating user:", err);
+      return false;
+    }
   },
 
 
@@ -664,15 +690,11 @@ export const apiService = {
       const cleanPayload = {
         user_id: payload.user_id || "00000000-0000-0000-0000-000000000000",
         donor_type: payload.donor_type || "individual",
-        total_donated: String(payload.total_donated || payload.contribution || "0"),
+        total_donated: Number(payload.total_donated || payload.contribution || 0),
         is_deleted: 0,
         organization_name: payload.organization_name || payload.donor_name || "string",
         profile_photo_link: payload.profile_photo_link || "string",
-        donor_id: id,
-        created_at: payload.created_at || new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        donor_name: payload.donor_name || "string",
-        donor_phone: payload.phone || payload.donor_phone || "string"
+        address: payload.address || "string"
       };
 
       const res = await fetch(`${BASE_URL}/api/v1/donors/${id}`, {
