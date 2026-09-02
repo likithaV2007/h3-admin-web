@@ -1612,7 +1612,7 @@ function App() {
         total_donated: String(data.contribution || "0"),
         contribution: Number(data.contribution) || 0,
         donor_type: "individual",
-        user_id: "00000000-0000-0000-0000-000000000000",
+        user_id: data.user_id || "00000000-0000-0000-0000-000000000000",
         is_deleted: 0,
         profile_photo_link: ""
       };
@@ -5038,7 +5038,6 @@ function App() {
                       {selectedDonor.name}
                       <CheckCircle2 size={18} className="text-purple-600 dark:text-purple-400" />
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium">{selectedDonor.email}</p>
                   </div>
                 </div>
 
@@ -5097,6 +5096,11 @@ function App() {
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Contact Phone Number</span>
                   <span className="font-mono font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.phone}</span>
+                </div>
+
+                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Email Address</span>
+                  <span className="font-mono font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.email}</span>
                 </div>
 
                 {selectedDonor.address && (

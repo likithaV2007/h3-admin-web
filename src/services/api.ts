@@ -661,10 +661,24 @@ export const apiService = {
   updateDonor: async (id: string, payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
+      const cleanPayload = {
+        user_id: payload.user_id || "00000000-0000-0000-0000-000000000000",
+        donor_type: payload.donor_type || "individual",
+        total_donated: String(payload.total_donated || payload.contribution || "0"),
+        is_deleted: 0,
+        organization_name: payload.organization_name || payload.donor_name || "string",
+        profile_photo_link: payload.profile_photo_link || "string",
+        donor_id: id,
+        created_at: payload.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        donor_name: payload.donor_name || "string",
+        donor_phone: payload.phone || payload.donor_phone || "string"
+      };
+
       const res = await fetch(`${BASE_URL}/api/v1/donors/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(cleanPayload),
       });
       if (res.ok) return await res.json();
       return null;
