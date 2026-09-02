@@ -1091,7 +1091,7 @@ export const apiService = {
       const formData = new FormData();
       formData.append('email', email);
       formData.append('donor_name', donorName);
-      formData.append('file', fileBlob, 'Donation_Receipt.pdf');
+      formData.append('file', fileBlob, 'Hope3_Donation_Receipt.pdf');
 
       const res = await fetch(`${BASE_URL}/api/v1/emails/send-receipt`, {
         method: 'POST',

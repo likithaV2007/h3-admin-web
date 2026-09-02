@@ -22,6 +22,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
     notes: ''
   });
   
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [emailSentStatus, setEmailSentStatus] = useState(false);
@@ -55,13 +56,16 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.donorId || !formData.amount || !selectedDonor) return;
+    if (!formData.amount) return;
+    if (!isAnonymous && (!formData.donorId || !selectedDonor)) return;
     
     setIsSubmitting(true);
-    const loadingToast = toast.loading('Saving contribution & emailing receipt...');
+    const loadingToast = toast.loading('Saving contribution...');
     
     try {
-      // 1. Generate PDF Blob
+      if (!isAnonymous && selectedDonor) {
+        toast.loading('Saving contribution & emailing receipt...', { id: loadingToast });
+        // 1. Generate PDF Blob
       const previewContribution = {
         id: `REC${Date.now()}`,
         donorId: formData.donorId,
@@ -75,7 +79,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
       const pdfBlob = doc.output('blob');
       
       // 2. Send email via backend
-      if (selectedDonor.email && selectedDonor.email !== 'N/A') {
+      if (!isAnonymous && selectedDonor && selectedDonor.email && selectedDonor.email !== 'N/A') {
         const emailSent = await apiService.sendReceiptEmail(selectedDonor.email, selectedDonor.name, pdfBlob);
         
         if (!emailSent) {
@@ -86,15 +90,16 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
         
         toast.success(`Receipt securely emailed to ${selectedDonor.email}!`, { id: loadingToast });
         setEmailSentStatus(true);
-      } else {
+      } else if (!isAnonymous) {
         toast.success(`Contribution saved locally (no email provided).`, { id: loadingToast });
         setEmailSentStatus(false);
+      }
       }
 
       // 3. Save Contribution to DB
       await onSubmit({
-        donorId: formData.donorId,
-        donorName: selectedDonor.name,
+        donorId: isAnonymous ? null : formData.donorId,
+        donorName: isAnonymous ? 'Anonymous' : selectedDonor?.name,
         amount: parseFloat(formData.amount),
         date: formData.date,
         paymentMethod: formData.paymentMethod,
@@ -106,6 +111,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
       setTimeout(() => {
         setShowSuccess(false);
         setFormData({ donorId: '', amount: '', date: new Date().toISOString().split('T')[0], paymentMethod: 'Bank Transfer', notes: '' });
+        setIsAnonymous(false);
         onClose();
       }, 2000);
     } catch (error) {
@@ -148,13 +154,32 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            <div className="space-y-1.5">
+            <div className="flex items-center gap-2 mb-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+              <input 
+                type="checkbox" 
+                id="anonymous" 
+                checked={isAnonymous} 
+                onChange={(e) => {
+                  setIsAnonymous(e.target.checked);
+                  if (e.target.checked) {
+                    setFormData(prev => ({ ...prev, donorId: '' }));
+                  }
+                }}
+                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
+              <label htmlFor="anonymous" className="text-sm font-bold text-slate-700 dark:text-slate-300 select-none cursor-pointer">
+                Anonymous Donation (No donor info required, no receipt sent)
+              </label>
+            </div>
+
+            <div className={`space-y-1.5 transition-opacity ${isAnonymous ? 'opacity-40 pointer-events-none' : ''}`}>
               <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Select Donor</label>
               <select
-                required
+                required={!isAnonymous}
                 name="donorId"
                 value={formData.donorId}
                 onChange={handleChange}
+                disabled={isAnonymous}
                 className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white appearance-none`}
               >
                 <option value="" disabled>Select a donor</option>
@@ -218,7 +243,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
               />
             </div>
             
-            {selectedDonor && (
+            {!isAnonymous && selectedDonor && (
               <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900 flex gap-3">
                 <Mail className="text-blue-500 shrink-0 mt-0.5" size={18} />
                 <p className="text-xs text-blue-700 dark:text-blue-300 font-medium leading-relaxed">
@@ -228,15 +253,17 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
             )}
 
             <div className="pt-4 flex justify-end gap-3 border-t border-slate-200 dark:border-slate-800">
-              <button
-                type="button"
-                onClick={handlePreview}
-                disabled={!formData.donorId || !formData.amount}
-                className="px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Eye size={16} />
-                Preview Receipt
-              </button>
+              {!isAnonymous && (
+                <button
+                  type="button"
+                  onClick={handlePreview}
+                  disabled={!formData.donorId || !formData.amount}
+                  className="px-5 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-200/50 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Eye size={16} />
+                  Preview Receipt
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onClose}
@@ -247,7 +274,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting || !formData.donorId || !formData.amount}
+                disabled={isSubmitting || (!isAnonymous && !formData.donorId) || !formData.amount}
                 className={`px-6 py-2.5 text-sm font-bold text-white ${themeClasses.bgGradientMain} rounded-xl shadow-lg ${themeClasses.shadowPrimaryDark} hover:opacity-90 transition-all flex items-center justify-center min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {isSubmitting ? (
@@ -257,8 +284,8 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Download size={16} />
-                    <span>Save & Send Receipt</span>
+                    {isAnonymous ? <Download size={16} /> : <Mail size={16} />}
+                    <span>{isAnonymous ? 'Save Contribution' : 'Send Receipt'}</span>
                   </div>
                 )}
               </button>

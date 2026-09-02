@@ -64,7 +64,8 @@ import {
   BadgeCheck,
   Mail,
   Undo,
-  Save
+  Save,
+  Download
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { ContributionModal } from './components/ContributionModal';
@@ -3757,10 +3758,10 @@ function App() {
                             <td className="p-4 text-right">
                               <button
                                 onClick={() => donorObj && generateContributionReceipt(c, donorObj, true)}
-                                className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-slate-600 dark:text-slate-300 transition-colors inline-flex items-center gap-1.5 font-semibold text-[10px]"
+                                className={`px-3 py-1.5 rounded-lg text-white ${themeClasses.bgGradientMain} hover:opacity-90 shadow-sm transition-colors inline-flex items-center gap-1.5 font-bold text-xs`}
                                 title="Download PDF Receipt"
                               >
-                                <Receipt size={14} /> Download
+                                <Download size={14} /> Download
                               </button>
                             </td>
                           </tr>
