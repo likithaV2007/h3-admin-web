@@ -140,9 +140,9 @@ export const apiService = {
         u.role === 'admin' || u.is_superuser === true || u.is_admin === true || u.user_role === 'admin'
       );
       
-      return adminUsers.length > 0 ? adminUsers.length : 3;
+      return adminUsers.length > 0 ? adminUsers.length : 0;
     } catch (err) {
-      return 3;
+      return 0;
     }
   },
 
@@ -154,34 +154,31 @@ export const apiService = {
     // Map backend response fields to Student type
     return data.map((item, idx) => ({
       ...item,
-      id: item.student_code || item.student_id || item.id || `STU00${idx + 1}`,
-      name: item.student_name || item.full_name || item.name || (item.first_name ? `${item.first_name || ''} ${item.last_name || ''}`.trim() : `Student ${idx + 1}`),
-      rollNo: item.student_code || `STU00${idx + 1}`,
-      age: item.age || 19,
-      gender: item.gender || 'Not specified',
-      batch: item.batch || item.current_year || item.year || (item.grade && item.grade.includes('2nd Year') ? '2026' : item.grade && item.grade.includes('3rd Year') ? '2025' : '2024'),
-      grade: item.year || item.grade || item.class || 'Class 10',
-      college: item.college || item.school_name || item.college_name || 'Government High School',
-      course: item.course || item.major || 'Science & Tech',
-      hostelRoom: item.hostel_room || 'Room 102',
-      parentName: item.father_name || item.mother_name || item.guardian_name || item.parent_name || 'Parent Contact',
-      parentPhone: item.father_contact_number || item.mother_contact_number || item.emergency_contact || '+91 98765 43210',
-      attendance: item.attendance || 95,
+      id: item.student_code || item.student_id || item.id || `STU${idx + 1}`,
+      name: item.student_name || item.full_name || item.name || (item.first_name ? `${item.first_name || ''} ${item.last_name || ''}`.trim() : 'N/A'),
+      rollNo: item.student_code || 'N/A',
+      age: item.age || null,
+      gender: item.gender || 'N/A',
+      batch: item.batch || item.current_year || item.year || (item.grade && item.grade.includes('2nd Year') ? '2026' : item.grade && item.grade.includes('3rd Year') ? '2025' : 'N/A'),
+      grade: item.year || item.grade || item.class || 'N/A',
+      college: item.college || item.school_name || item.college_name || 'N/A',
+      course: item.course || item.major || 'N/A',
+      hostelRoom: item.hostel_room || 'N/A',
+      parentName: item.father_name || item.mother_name || item.guardian_name || item.parent_name || 'N/A',
+      parentPhone: item.father_contact_number || item.mother_contact_number || item.emergency_contact || 'N/A',
+      attendance: item.attendance || null,
       avatar: formatAvatarUrl(item.profile_photo_link || item.profile_photo_url || item.avatar),
       location: {
-        status: item.location_status || 'In Hostel',
-        lastUpdated: item.last_updated || 'Just now',
-        coordinates: item.coordinates || '12.9716, 77.5946',
-        hostelDistance: '0.2 km',
-        collegeDistance: '1.5 km'
+        status: item.location_status || 'N/A',
+        lastUpdated: item.last_updated || 'N/A',
+        coordinates: item.coordinates || '',
+        hostelDistance: '',
+        collegeDistance: ''
       },
       leaveRequests: item.leave_requests || [],
-      academicProgress: item.academic_progress || [
-        { term: 'Term 1', gpa: 3.8, status: 'Completed' },
-        { term: 'Term 2', gpa: 3.9, status: 'In Progress' }
-      ],
-      subjects: item.subjects || ['Mathematics', 'Physics', 'Computer Science'],
-      notes: item.notes || ['Consistently high academic performer']
+      academicProgress: item.academic_progress || [],
+      subjects: item.subjects || [],
+      notes: item.notes || []
     }));
   },
 
@@ -215,36 +212,32 @@ export const apiService = {
         }
       }
       if (!realName || realName === 'string' || realName.trim() === '') {
-        realName = `Volunteer ${idx + 1}`;
+        realName = 'N/A';
       } else if (realName.toLowerCase() === realName) {
-        // Capitalize words (e.g. "siva kumar" -> "Siva Kumar")
         realName = realName.replace(/\b\w/g, (c: string) => c.toUpperCase());
       }
 
-      // Determine email
-      const realEmail = (user.user_email && user.user_email !== 'string') ? user.user_email : (item.email || `volunteer${idx + 1}@hope3.org`);
-
-      // Determine phone
-      const realPhone = (user.user_phone && user.user_phone !== 'string') ? user.user_phone : (item.phone || '+91 98765 12345');
+      const realEmail = (user.user_email && user.user_email !== 'string') ? user.user_email : (item.email || 'N/A');
+      const realPhone = (user.user_phone && user.user_phone !== 'string') ? user.user_phone : (item.phone || 'N/A');
 
       return {
-        id: item.volunteer_id || item.id || `VOL00${idx + 1}`,
+        id: item.volunteer_id || item.id || `VOL${idx + 1}`,
         volunteer_id: item.volunteer_id,
         user_id: item.user_id,
         name: realName,
         email: realEmail,
         phone: realPhone,
-        program: item.specialization || item.program || 'Student Mentoring',
-        specialization: item.specialization || 'Student Mentoring',
-        availability: item.availability || 'Weekends',
-        bio: item.bio || 'Dedicated volunteer supporting student education and mentorship.',
+        program: item.specialization || item.program || 'N/A',
+        specialization: item.specialization || 'N/A',
+        availability: item.availability || 'N/A',
+        bio: item.bio || '',
         profile_photo_link: formatAvatarUrl(item.profile_photo_link),
-        joined_date: item.joined_date || '2026-06-01',
+        joined_date: item.joined_date || 'N/A',
         fcm_token: item.fcm_token || '',
-        hoursContributed: item.hours_contributed || item.hours || 40,
-        status: item.status || 'Active',
-        assignedStudents: item.assigned_students || ['STU001', 'STU002'],
-        role: item.specialization || 'Academic Mentor'
+        hoursContributed: item.hours_contributed || item.hours || 0,
+        status: item.status || 'N/A',
+        assignedStudents: item.assigned_students || [],
+        role: item.specialization || 'N/A'
       };
     });
   },
@@ -270,27 +263,23 @@ export const apiService = {
             parentName = `${matchedStudent.name}'s ${item.relation ? item.relation.charAt(0).toUpperCase() + item.relation.slice(1) : 'Guardian'}`;
           }
         } else {
-          parentName = item.relation ? `Guardian (${item.relation})` : `Guardian ${idx + 1}`;
+          parentName = item.relation ? `Guardian (${item.relation})` : 'N/A';
         }
       }
 
-      // Determine Child Scholar Name
-      const childName = matchedStudent?.name || item.student_name || item.child_name || 'Student Scholar';
-      const childId = matchedStudent?.id || item.student_id || 'STU001';
+      const childName = matchedStudent?.name || item.student_name || item.child_name || 'N/A';
+      const childId = matchedStudent?.id || item.student_id || '';
 
-      // Determine Phone
-      const phone = item.parent_phone || item.phone || matchedStudent?.parentPhone || matchedStudent?.father_contact_number || matchedStudent?.mother_contact_number || '+91 98765 67890';
+      const phone = item.parent_phone || item.phone || matchedStudent?.parentPhone || matchedStudent?.father_contact_number || matchedStudent?.mother_contact_number || 'N/A';
 
-      // Determine Relation / Guardian role
       const rel = item.relation ? item.relation.charAt(0).toUpperCase() + item.relation.slice(1) : 'Guardian';
       const guardianRole = item.is_primary ? `${rel} (Primary)` : rel;
 
-      // Determine Occupation
-      const occupation = item.occupation || matchedStudent?.father_occupation || matchedStudent?.mother_occupation || 'Guardian';
+      const occupation = item.occupation || matchedStudent?.father_occupation || matchedStudent?.mother_occupation || 'N/A';
 
       return {
         ...item,
-        id: item.parent_id || item.id || `PAR00${idx + 1}`,
+        id: item.parent_id || item.id || `PAR${idx + 1}`,
         name: parentName,
         guardianName: guardianRole,
         phone: phone,
@@ -299,7 +288,7 @@ export const apiService = {
         relationship: rel,
         relation: rel,
         occupation: occupation,
-        address: item.address || matchedStudent?.address || 'Tamil Nadu'
+        address: item.address || matchedStudent?.address || 'N/A'
       };
     });
   },
@@ -325,7 +314,6 @@ export const apiService = {
 
       let donorName = item.donor_name || item.organization_name || user.user_name || item.full_name || item.name;
       
-      // Clean up backend placeholder names like "Donor 214"
       if (donorName && /^Donor\s*\d+$/i.test(donorName.trim())) {
         donorName = 'Anonymous Donor';
       }
@@ -336,15 +324,16 @@ export const apiService = {
         donorName = donorName.replace(/\b\w/g, (c: string) => c.toUpperCase());
       }
 
-      const email = (user.user_email && user.user_email !== 'string') ? user.user_email : `donor${idx + 1}@hope3.org`;
-      const phone = (user.user_phone && user.user_phone !== 'string') ? user.user_phone : '+91 98765 43210';
+      const email = (user.user_email && user.user_email !== 'string') ? user.user_email : 'N/A';
+      const phone = (item.donor_phone && item.donor_phone !== 'string') ? item.donor_phone : 
+                    ((user.user_phone && user.user_phone !== 'string') ? user.user_phone : 'N/A');
       const numAmount = parseFloat(item.total_donated) || 0;
       const formattedAmount = numAmount > 0 ? `₹${numAmount.toLocaleString('en-IN')}` : '₹0.00';
       
       const category = item.donor_type === 'organization' ? 'Corporate / Trust Sponsor' : (item.donor_type ? item.donor_type.charAt(0).toUpperCase() + item.donor_type.slice(1) : 'Individual Benefactor');
 
       return {
-        id: item.donor_id || `DON00${idx + 1}`,
+        id: item.donor_id || `DON${idx + 1}`,
         donor_id: item.donor_id,
         user_id: item.user_id,
         name: donorName,
@@ -356,7 +345,7 @@ export const apiService = {
         formattedAmount: formattedAmount,
         status: 'Active Sponsor' as "Active Sponsor" | "Past Benefactor",
         profile_photo_link: formatAvatarUrl(item.profile_photo_link || user.profile_photo_link),
-        joined_date: item.created_at ? item.created_at.split('T')[0] : '2026-05-30'
+        joined_date: item.created_at ? item.created_at.split('T')[0] : 'N/A'
       };
     });
   },
@@ -368,8 +357,8 @@ export const apiService = {
     
     return data.map((item: any) => ({
       id: item.id || item.expense_id,
-      title: item.title || 'Expense Record',
-      category: item.category || 'general',
+      title: item.title || 'N/A',
+      category: item.category || 'N/A',
       amount: parseFloat(item.amount) || 0,
       date: item.date || new Date().toISOString(),
       refund_requested: item.refund_requested ?? false,
@@ -379,7 +368,7 @@ export const apiService = {
       user_id: item.user_id || null,
       student_id: item.student_id || null,
       target_group: item.target_group || 'ALL',
-      created_by_name: item.created_by_name || 'System Admin',
+      created_by_name: item.created_by_name || 'N/A',
       approved_by_name: item.approved_by_name || item.approved_by || null,
       receipt_url: item.receipt_url || item.receipt || item.image_url || null,
       receipt_photo_link: item.receipt_photo_link || null,
@@ -391,10 +380,41 @@ export const apiService = {
   createUserForEntity: async (payload: any): Promise<string> => {
     try {
       const authHeaders = await getAuthHeader();
+      const email = payload.email || '';
+
+      if (email) {
+        const cleanEmail = email.trim().toLowerCase();
+        let foundUserId = null;
+        
+        for (let skip = 0; skip <= 1000; skip += 100) {
+          const usersRes = await fetch(`${BASE_URL}/api/v1/users/?skip=${skip}&limit=100`, {
+            headers: authHeaders
+          });
+          
+          if (usersRes.ok) {
+            const users = await usersRes.json();
+            if (Array.isArray(users) && users.length > 0) {
+              const existingUser = users.find((u: any) => u.user_email?.trim().toLowerCase() === cleanEmail);
+              if (existingUser && existingUser.user_id) {
+                foundUserId = existingUser.user_id;
+                break;
+              }
+            } else {
+              break;
+            }
+          } else {
+            console.warn("User duplicate check failed:", await usersRes.text());
+            break;
+          }
+        }
+        
+        if (foundUserId) return foundUserId;
+      }
+
       const name = payload.donor_name || payload.student_name || payload.parent_name || payload.full_name || payload.organization_name || 'Unknown';
       const userPayload = {
         user_name: name,
-        user_email: payload.email || '',
+        user_email: email,
         user_phone: payload.phone || payload.father_contact_number || payload.emergency_contact || '',
         password_hash: "default_hash",
         is_active: 1,
@@ -430,6 +450,10 @@ export const apiService = {
       delete cleanPayload.email;
       delete cleanPayload.phone;
       delete cleanPayload.name;
+
+      const existing = await apiService.getStudents();
+      const alreadyExists = existing.find((s: any) => s.user_id === userId);
+      if (alreadyExists) return alreadyExists;
 
       const res = await fetch(`${BASE_URL}/api/v1/students/`, {
         method: 'POST',
@@ -472,6 +496,10 @@ export const apiService = {
         joined_date: payload.joined_date || new Date().toISOString().split('T')[0]
       };
 
+      const existing = await apiService.getVolunteers();
+      const alreadyExists = existing.find((v: any) => v.user_id === userId);
+      if (alreadyExists) return alreadyExists;
+
       const res = await fetch(`${BASE_URL}/api/v1/volunteers/`, {
         method: 'POST',
         headers: {
@@ -512,6 +540,12 @@ export const apiService = {
         is_deleted: payload.is_deleted || 0
       };
 
+      // Parents can be linked to multiple students, so we don't strictly block by user_id alone here
+      // But we can check if a parent with this exact user_id AND student_id exists
+      const existing = await apiFetch<any[]>('/api/v1/parents/', []);
+      const alreadyExists = existing?.find((p: any) => p.user_id === userId && p.student_id === cleanPayload.student_id);
+      if (alreadyExists) return alreadyExists;
+
       const res = await fetch(`${BASE_URL}/api/v1/parents/`, {
         method: 'POST',
         headers: {
@@ -550,6 +584,10 @@ export const apiService = {
         organization_name: payload.organization_name || null,
         profile_photo_link: payload.profile_photo_link || null
       };
+
+      const existing = await apiService.getDonors();
+      const alreadyExists = existing.find((d: any) => d.user_id === userId);
+      if (alreadyExists) return alreadyExists;
 
       const res = await fetch(`${BASE_URL}/api/v1/donors/`, {
         method: 'POST',

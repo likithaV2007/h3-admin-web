@@ -3794,7 +3794,6 @@ function App() {
                             <ProfileAvatar url={donor.profile_photo_link || donor.avatar} name={donor.name || (donor as any).donor_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName={`w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0`} />
                             <div>
                               <span className="font-bold text-black dark:text-white block hover:text-black dark:text-white transition-colors">{donor.name}</span>
-                              <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{donor.email}</span>
                             </div>
                           </div>
                         </td>
