@@ -358,7 +358,7 @@ export const apiService = {
         profile_photo_link: formatAvatarUrl(item.profile_photo_link || user.profile_photo_link),
         joined_date: item.created_at ? item.created_at.split('T')[0] : '2026-05-30'
       };
-    }).filter(donor => !donor.name.toLowerCase().includes('donor'));
+    });
   },
 
   // Fetch Expenses List
@@ -388,26 +388,65 @@ export const apiService = {
     }));
   },
 
+  createUserForEntity: async (payload: any): Promise<string> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const name = payload.donor_name || payload.student_name || payload.parent_name || payload.full_name || payload.organization_name || 'Unknown';
+      const userPayload = {
+        user_name: name,
+        user_email: payload.email || '',
+        user_phone: payload.phone || payload.father_contact_number || payload.emergency_contact || '',
+        password_hash: "default_hash",
+        is_active: 1,
+        is_deleted: 0,
+        fcm_token: "",
+        apple_account: null
+      };
+      const res = await fetch(`${BASE_URL}/api/v1/users/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(userPayload)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.user_id;
+      } else {
+        console.warn("User creation failed:", await res.text());
+      }
+    } catch (e) {
+      console.error("User creation error:", e);
+    }
+    return "00000000-0000-0000-0000-000000000000";
+  },
+
+
   // Create Student via FastAPI Backend
   createStudent: async (payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
+      const userId = await apiService.createUserForEntity(payload);
+      
+      const cleanPayload = { ...payload, user_id: userId };
+      delete cleanPayload.email;
+      delete cleanPayload.phone;
+      delete cleanPayload.name;
+
       const res = await fetch(`${BASE_URL}/api/v1/students/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(cleanPayload),
       });
 
       if (res.ok) {
         return await res.json();
       }
 
-      if (res.status === 422) {
-        const errDetail = await res.json();
-        console.warn("FastAPI 422 Validation Error details:", errDetail);
+      if (res.status === 422 || res.status === 400) {
+        const errDetail = await res.text();
+        console.warn("FastAPI Error details:", errDetail);
       }
 
       return null;
@@ -421,22 +460,34 @@ export const apiService = {
   createVolunteer: async (payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
+      const userId = await apiService.createUserForEntity(payload);
+      
+      const cleanPayload = {
+        user_id: userId,
+        is_deleted: 0,
+        availability: payload.availability || 'Flexible',
+        specialization: payload.specialization || 'General',
+        profile_photo_link: payload.profile_photo_link || null,
+        bio: payload.bio || '',
+        joined_date: payload.joined_date || new Date().toISOString().split('T')[0]
+      };
+
       const res = await fetch(`${BASE_URL}/api/v1/volunteers/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(cleanPayload),
       });
 
       if (res.ok) {
         return await res.json();
       }
 
-      if (res.status === 422) {
-        const errDetail = await res.json();
-        console.warn("FastAPI 422 Validation Error details:", errDetail);
+      if (res.status === 422 || res.status === 400) {
+        const errDetail = await res.text();
+        console.warn("FastAPI Error details:", errDetail);
       }
 
       return null;
@@ -450,22 +501,33 @@ export const apiService = {
   createParent: async (payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
+      const userId = await apiService.createUserForEntity(payload);
+      
+      const cleanPayload = {
+        user_id: userId,
+        student_id: payload.student_id || "00000000-0000-0000-0000-000000000000",
+        relation: payload.relation || 'Guardian',
+        is_primary: payload.is_primary || 1,
+        fcm_token: payload.fcm_token || null,
+        is_deleted: payload.is_deleted || 0
+      };
+
       const res = await fetch(`${BASE_URL}/api/v1/parents/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(cleanPayload),
       });
 
       if (res.ok) {
         return await res.json();
       }
 
-      if (res.status === 422) {
-        const errDetail = await res.json();
-        console.warn("FastAPI 422 Validation Error details:", errDetail);
+      if (res.status === 422 || res.status === 400) {
+        const errDetail = await res.text();
+        console.warn("FastAPI Error details:", errDetail);
       }
 
       return null;
@@ -478,15 +540,30 @@ export const apiService = {
   createDonor: async (payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
+      const userId = await apiService.createUserForEntity(payload);
+      
+      const cleanPayload = {
+        user_id: userId,
+        donor_type: payload.donor_type || 'individual',
+        total_donated: payload.total_donated || "0",
+        is_deleted: 0,
+        organization_name: payload.organization_name || null,
+        profile_photo_link: payload.profile_photo_link || null
+      };
+
       const res = await fetch(`${BASE_URL}/api/v1/donors/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...authHeaders,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(cleanPayload),
       });
       if (res.ok) return await res.json();
+      
+      if (res.status === 422 || res.status === 400) {
+        console.warn("FastAPI Error details:", await res.text());
+      }
       return null;
     } catch (err) {
       console.error("Error creating donor:", err);

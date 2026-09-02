@@ -10,7 +10,7 @@ interface EntityCreationModalProps {
   initialData?: any;
 }
 
-const CustomInput = ({ name, placeholder, type = "text", onChange, required, value }: any) => (
+const CustomInput = ({ name, placeholder, type = "text", onChange, required, value, maxLength }: any) => (
   <div className="space-y-1.5">
     <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">{placeholder}</label>
     <input
@@ -19,6 +19,7 @@ const CustomInput = ({ name, placeholder, type = "text", onChange, required, val
       name={name}
       onChange={onChange}
       value={value || ''}
+      maxLength={maxLength}
       placeholder={`Enter ${placeholder.toLowerCase()}`}
       className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm`}
     />
@@ -100,16 +101,17 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <CustomInput required name="title" placeholder="Activity Title" onChange={handleChange} />
+              <CustomInput required name="title" placeholder="Activity Title" value={formData.title} onChange={handleChange} />
             </div>
             <CustomSelect
               required
               name="activity_type"
               placeholder="Activity Type"
+              value={formData.activity_type}
               onChange={handleChange}
               options={["General", "Academic", "Event", "Workshop", "Other"]}
             />
-            <CustomInput required name="audience" placeholder="Audience (e.g., Everyone)" onChange={handleChange} />
+            <CustomInput required name="audience" placeholder="Audience (e.g., Everyone)" value={formData.audience} onChange={handleChange} />
             <div className="md:col-span-2 space-y-1.5">
               <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Activity Image</label>
               <input
@@ -134,6 +136,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
               <textarea
                 required
                 name="description"
+                value={formData.description || ''}
                 onChange={handleChange as any}
                 placeholder="Enter activity description"
                 className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-sm min-h-[100px]`}
@@ -176,7 +179,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
               onChange={handleChange}
               options={['Father', 'Mother', 'Legal Guardian', 'Other']}
             />
-            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} maxLength={10} />
             <CustomInput required name="childId" placeholder="Child's Student ID" value={formData.childId} onChange={handleChange} />
             <CustomInput required name="occupation" placeholder="Occupation" value={formData.occupation} onChange={handleChange} />
           </div>
@@ -186,7 +189,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
           <div className="space-y-4">
             <CustomInput required name="name" placeholder="Donor Organization / Name" value={formData.name} onChange={handleChange} />
             <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
-            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} maxLength={10} />
             <CustomInput required name="address" placeholder="Address" value={formData.address} onChange={handleChange} />
             <CustomInput required type="number" name="contribution" placeholder="Contribution Amount" value={formData.contribution} onChange={handleChange} />
           </div>
@@ -198,7 +201,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
               <CustomInput required name="name" placeholder="Volunteer Name" value={formData.name} onChange={handleChange} />
             </div>
             <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
-            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
+            <CustomInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} maxLength={10} />
             <CustomInput required name="specialization" placeholder="Specialization (e.g., Mentorship, IT)" value={formData.specialization} onChange={handleChange} />
             <CustomSelect
               required

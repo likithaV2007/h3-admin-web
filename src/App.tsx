@@ -1485,15 +1485,73 @@ function App() {
   const handleEntitySubmit = async (type: string, data: any, isEdit: boolean = false, editId: string | null = null) => {
     if (type === 'Student') {
       const payload = {
-        student_name: data.name,
-        rollNo: data.rollNo || `STU_${Date.now()}`,
-        age: parseInt(data.age) || 19,
-        batch: data.batch || 'Batch 2026',
-        year: data.grade || '2nd Year',
-        grade: data.grade || '2nd Year',
-        college: data.college || 'Government College',
+        student_name: data.name || 'New Student',
+        student_code: data.rollNo || `STU_${Date.now()}`,
         school_name: data.college || 'Government College',
-        location_status: 'In Hostel'
+        college: data.college || 'Government College',
+        date_of_birth: "2000-01-01",
+        gender: "Not specified",
+        address: "Not specified",
+        city: "Not specified",
+        state: "Not specified",
+        pincode: "000000",
+        is_tracking_active: 0,
+        is_deleted: 0,
+        emergency_contact: "0000000000",
+        profile_photo_link: "",
+        hostel_room: "",
+        batch: data.batch || 'Batch 2026',
+        blood_group: "Unknown",
+        landmark: "",
+        area: "",
+        district: "",
+        documents_collected: "",
+        year: data.grade || '2nd Year',
+        current_year: data.grade || '2nd Year',
+        mode: "",
+        area_type: "",
+        parent_status: "",
+        father_name: "Not specified",
+        father_occupation: "",
+        father_contact_number: "",
+        mother_name: "Not specified",
+        mother_occupation: "",
+        mother_contact_number: "",
+        guardian_name: "Not specified",
+        guardian_occupation: "",
+        guardian_contact_number: "",
+        number_of_siblings: 0,
+        religion: "",
+        community: "",
+        physically_challenged: 0,
+        course: data.grade || 'Unknown',
+        major: data.grade || 'Unknown',
+        college_address: "",
+        hostel_or_dayscholar: "",
+        hostel_address: "",
+        bank_name: "",
+        bank_account_number: "",
+        bank_ifsc: "",
+        parent_account_number: "",
+        parent_ifsc: "",
+        other_notes: "",
+        academic_funding_maturity: "",
+        funding_percentage: "0",
+        amount_approx: "0",
+        funders: "",
+        remarks: "",
+        folder_link: "",
+        currently_working: 0,
+        location: "",
+        designation: "",
+        is_married: 0,
+        are_you_on_track: 0,
+        willing_to_do_volunteering: 0,
+        school_name_10th: "",
+        school_name_12th: "",
+        is_document_uploaded: 0,
+        individual_amount: "0",
+        user_id: "00000000-0000-0000-0000-000000000000"
       };
       if (isEdit && editId) {
         await apiService.updateStudent(editId, payload);
@@ -1506,11 +1564,15 @@ function App() {
       await loadDataFromApi();
     } else if (type === 'Parent') {
       const payload = {
-        parent_name: data.name,
-        relation: data.relationship,
-        phone: data.phone,
-        occupation: data.occupation,
-        student_id: data.childId
+        parent_name: data.name || 'Unknown',
+        relation: data.relationship || 'Guardian',
+        phone: data.phone || '0000000000',
+        occupation: data.occupation || 'Unknown',
+        student_id: data.childId || "00000000-0000-0000-0000-000000000000",
+        user_id: "00000000-0000-0000-0000-000000000000",
+        is_primary: 1,
+        fcm_token: "",
+        is_deleted: 0
       };
       if (isEdit && editId) {
         await apiService.updateParent(editId, payload);
@@ -1523,8 +1585,13 @@ function App() {
         full_name: data.name,
         email: data.email,
         phone: data.phone,
-        specialization: data.specialization,
-        availability: data.availability
+        specialization: data.specialization || 'General',
+        availability: data.availability || 'Flexible',
+        bio: data.specialization || '',
+        joined_date: new Date().toISOString().split('T')[0],
+        user_id: "00000000-0000-0000-0000-000000000000",
+        is_deleted: 0,
+        profile_photo_link: ""
       };
       if (isEdit && editId) {
         await apiService.updateVolunteer(editId, payload);
@@ -1537,11 +1604,17 @@ function App() {
       await loadDataFromApi();
     } else if (type === 'Donor') {
       const payload = {
-        organization_name: data.name,
+        donor_name: data.name || 'Unknown',
+        organization_name: data.name || 'Unknown',
         email: data.email,
         phone: data.phone,
-        address: data.address,
+        address: data.address || '',
+        total_donated: String(data.contribution || "0"),
         contribution: Number(data.contribution) || 0,
+        donor_type: "individual",
+        user_id: "00000000-0000-0000-0000-000000000000",
+        is_deleted: 0,
+        profile_photo_link: ""
       };
       if (isEdit && editId) {
         await apiService.updateDonor(editId, payload);
@@ -1739,9 +1812,16 @@ function App() {
     (vol.program && vol.program.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const filteredDonors = donors.filter(donor =>
-    donor.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredDonors = donors.filter(donor => {
+    let match = true;
+    if (searchQuery) match = match && donor.name.toLowerCase().includes(searchQuery.toLowerCase());
+    if (donorColFilters.name) match = match && donor.name.toLowerCase().includes(donorColFilters.name.toLowerCase());
+    if (donorColFilters.category) match = match && (donor.donorType || '').toLowerCase().includes(donorColFilters.category.toLowerCase());
+    if (donorColFilters.contribution) match = match && (donor.formattedAmount || '').toLowerCase().includes(donorColFilters.contribution.toLowerCase());
+    if (donorColFilters.phone) match = match && (donor.phone || '').toLowerCase().includes(donorColFilters.phone.toLowerCase());
+    if (donorColFilters.status) match = match && (donor.status || '').toLowerCase().includes(donorColFilters.status.toLowerCase());
+    return match;
+  });
 
 
 
@@ -2569,7 +2649,7 @@ function App() {
                             className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25 transition-colors cursor-pointer"
                           >
                             <td className="p-4 flex items-center gap-3">
-                              <ProfileAvatar url={student.avatar || student.profile_photo_link} name={student.name || (student as any).student_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0" />
+                              <ProfileAvatar url={student.avatar || student.profile_photo_link} name={student.name || (student as any).student_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName={`w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0`} />
                               <div>
                                 <span className="font-bold text-slate-900 dark:text-white block">{student.name}</span>
                               </div>
@@ -2653,7 +2733,7 @@ function App() {
                     </div>
 
                     <div className="flex items-center gap-5">
-                      <ProfileAvatar url={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} name={selectedStudent.name || (selectedStudent as any).student_name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" fallbackClassName="w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md ${themeClasses.bgGradientMain} text-white font-black text-3xl shrink-0" />
+                      <ProfileAvatar url={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} name={selectedStudent.name || (selectedStudent as any).student_name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" fallbackClassName={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md ${themeClasses.bgGradientMain} text-white font-black text-3xl shrink-0`} />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">{selectedStudent.name}</h3>
@@ -3309,7 +3389,7 @@ function App() {
                                   <AchievementImage 
                                     url={ach.photo_drive_link || ach.badge_image_url} 
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                                    fallbackClassName="w-full h-full ${themeClasses.bgPrimaryLight}/10 flex items-center justify-center shrink-0" 
+                                    fallbackClassName={`w-full h-full ${themeClasses.bgPrimaryLight}/10 flex items-center justify-center shrink-0`} 
                                   />
                                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                 </div>
@@ -3449,7 +3529,7 @@ function App() {
                       <tr key={par.id} className="border-b border-slate-150 dark:border-slate-850 hover:bg-slate-100/30 dark:hover:bg-slate-800/25">
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <ProfileAvatar url={par.profile_photo_link || par.avatar} name={par.name || (par as any).parent_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0" />
+                            <ProfileAvatar url={par.profile_photo_link || par.avatar} name={par.name || (par as any).parent_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName={`w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0`} />
                             <div>
                               <span className="font-bold text-black dark:text-white block">{par.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{par.email || 'parent@hope3.org'}</span>
@@ -3556,7 +3636,7 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <ProfileAvatar url={vol.profile_photo_link || vol.avatar} name={vol.name || (vol as any).volunteer_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0" />
+                            <ProfileAvatar url={vol.profile_photo_link || vol.avatar} name={vol.name || (vol as any).volunteer_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName={`w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0`} />
                             <div>
                               <span className="font-bold text-black dark:text-white block hover:text-black dark:text-white transition-colors">{vol.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{vol.email}</span>
@@ -3688,15 +3768,6 @@ function App() {
                   <h4 className="font-bold text-base">Donors & Financial Benefactors</h4>
                   <p className="text-xs text-slate-400">Tracking contributions, CSR sponsors, and individual education funds</p>
                 </div>
-
-                {/* Search / Filter */}
-                <input
-                  type="text"
-                  placeholder="Filter by donor name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-purple-500/20 w-full sm:w-64 transition-all shadow-sm"
-                />
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
@@ -3706,8 +3777,8 @@ function App() {
                       <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Donor Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
                       <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Donor Category</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'category': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
                       <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Total Contribution</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'contribution': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Phone Number</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'phone': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'status': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Phone Number</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'phone': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                      <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'status': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
                       <th className="p-4 text-right align-top">Actions</th>
                     </tr>
                   </thead>
@@ -3720,7 +3791,7 @@ function App() {
                       >
                         <td className="p-4">
                           <div className="flex items-center gap-3">
-                            <ProfileAvatar url={donor.profile_photo_link || donor.avatar} name={donor.name || (donor as any).donor_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName="w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0" />
+                            <ProfileAvatar url={donor.profile_photo_link || donor.avatar} name={donor.name || (donor as any).donor_name} className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-sm bg-slate-100 shrink-0" fallbackClassName={`w-10 h-10 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-800 shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-lg shrink-0`} />
                             <div>
                               <span className="font-bold text-black dark:text-white block hover:text-black dark:text-white transition-colors">{donor.name}</span>
                               <span className="text-[10px] text-black/70 dark:text-white/70 font-mono">{donor.email}</span>
@@ -5000,9 +5071,9 @@ function App() {
 
               {/* Highlight Contribution Box */}
               <div className="glass-panel p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-purple-500/10 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-[#cbb4d4]/10 to-[#cbb4d4]/20 pointer-events-none"></div>
                 <div className="relative z-10">
-                  <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider block">Total Financial Contribution</span>
+                  <span className="text-[10px] font-bold text-[#20002c] dark:text-[#cbb4d4] uppercase tracking-wider block">Total Financial Contribution</span>
                   <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">{selectedDonor.formattedAmount}</span>
                 </div>
                 <span className={`relative z-10 ${themeClasses.bgGradientRight} text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm`}>
@@ -5029,6 +5100,13 @@ function App() {
                   <span className="font-mono font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.phone}</span>
                 </div>
 
+                {selectedDonor.address && (
+                  <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1 sm:col-span-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Address</span>
+                    <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.address}</span>
+                  </div>
+                )}
+
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Joined Date</span>
                   <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.joined_date || '2026-05-30'}</span>
@@ -5047,17 +5125,7 @@ function App() {
         </div>
       )}
 
-      <EntityCreationModal
-        type={creationModal.type}
-        isOpen={creationModal.isOpen}
-        initialData={creationModal.initialData}
-        onClose={() => setCreationModal({ type: '', isOpen: false })}
-        onSubmit={(type, data) => {
-          const editId = creationModal.initialData?.id || creationModal.initialData?.student_id || creationModal.initialData?.donor_id || creationModal.initialData?.volunteer_id;
-          handleEntitySubmit(type, data, creationModal.isEdit, editId);
-          setCreationModal({ type: '', isOpen: false });
-        }}
-      />
+
 
       {/* CREATE EXPENSE MODAL */}
       {showExpenseModal && (
