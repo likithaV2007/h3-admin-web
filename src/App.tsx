@@ -4087,10 +4087,6 @@ function App() {
                                     <h5 className={`font-bold text-[15px] text-slate-900 dark:text-white leading-snug group-hover:${themeClasses.textPrimaryLight} dark:group-hover:text-violet-400 transition-colors`}>
                                       {item.title}
                                     </h5>
-                                    {item.uploaded_by && (
-                                      <p className="text-[10px] text-slate-500 dark:text-slate-400" style={{wordBreak: "break-all", whiteSpace: "normal"}}>By {item.uploaded_by} | P: {String(item.receipt_photo_link).substring(0, 30)}... | D: {String(item.receipt_drive_link).substring(0, 10)}</p>
-                                    )}
-
                                     <div className="flex flex-wrap items-center gap-2 pt-0.5">
                                       <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-emerald-50 text-emerald-600 tracking-wider">
                                         {item.category}
@@ -4132,7 +4128,7 @@ function App() {
                                   <div className="flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                                     <div className="flex items-center gap-1.5">
                                       <User size={13} className="text-slate-400 dark:text-slate-500 shrink-0" />
-                                      <span>By: <strong className="text-slate-700 dark:text-slate-300">{item.created_by_name || 'System Admin'}</strong></span>
+                                      <span>By: <strong className="text-slate-700 dark:text-slate-300">{item.uploaded_by || item.created_by_name || 'System Admin'}</strong></span>
                                       <span className="text-slate-300 dark:text-slate-600">|</span>
                                       <span>For: <strong className="text-slate-700 dark:text-slate-200 font-bold">{item.target_group || 'ALL'}</strong></span>
                                     </div>
@@ -5352,7 +5348,7 @@ function App() {
               <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Submitted By</span>
-                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block">{selectedExpense.created_by_name || 'System Admin'}</span>
+                  <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block">{selectedExpense.uploaded_by || selectedExpense.created_by_name || 'System Admin'}</span>
                 </div>
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Status</span>
