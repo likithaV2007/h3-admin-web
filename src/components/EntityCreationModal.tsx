@@ -97,7 +97,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
       }
 
       if (type === 'Student') {
-        setFormData({ ...initialData, countryCode: pCode, phone: pPhone, name: initialData.name || initialData.student_name });
+        setFormData({ ...initialData, countryCode: pCode, phone: pPhone, name: initialData.name || initialData.student_name, rollNo: initialData.rollNo || initialData.student_code, grade: initialData.grade || initialData.course || initialData.year, college: initialData.college || initialData.school_name });
       } else if (type === 'Parent') {
         setFormData({ ...initialData, countryCode: pCode, phone: pPhone, name: initialData.name || initialData.parent_name, relationship: initialData.guardianName || initialData.relationship || initialData.relation, childId: initialData.childId || initialData.student_id });
       } else if (type === 'Volunteer') {
@@ -194,24 +194,120 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
         );
       case 'Student':
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="md:col-span-2">
-              <CustomInput required name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
+          <div className="space-y-6 overflow-y-auto pr-2 max-h-[60vh] custom-scrollbar">
+            {/* Basic Info */}
+            <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><UserPlus size={16} className="text-purple-500" /> Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput required name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
+                <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
+                <CustomInput required name="rollNo" placeholder="Roll Number / Student Code" value={formData.rollNo} onChange={handleChange} />
+                <CustomInput name="date_of_birth" type="date" placeholder="Date of Birth" value={formData.date_of_birth} onChange={handleChange} />
+                <CustomSelect required name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange} options={["male", "female", "other"]} />
+                <CustomInput name="blood_group" placeholder="Blood Group (e.g. O+)" value={formData.blood_group} onChange={handleChange} />
+                <CustomSelect name="physically_challenged" placeholder="Physically Challenged" value={formData.physically_challenged?.toString() || "0"} onChange={(e: any) => setFormData({...formData, physically_challenged: parseInt(e.target.value)})} options={["0", "1"]} />
+                <CustomInput name="religion" placeholder="Religion" value={formData.religion} onChange={handleChange} />
+                <CustomInput name="community" placeholder="Community" value={formData.community} onChange={handleChange} />
+              </div>
             </div>
-            <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
-            <CustomInput required name="rollNo" placeholder="Roll Number" value={formData.rollNo} onChange={handleChange} />
-            <CustomInput required type="number" name="age" placeholder="Age" value={formData.age} onChange={handleChange} />
-            <CustomSelect
-              required
-              name="batch"
-              placeholder="Allocated Batch"
-              value={formData.batch}
-              onChange={handleChange}
-              options={["Batch 2026", "Batch 2025", "Batch 2024", "Batch 2023"]}
-            />
-            <CustomInput required name="grade" placeholder="Course & Year" value={formData.grade} onChange={handleChange} />
-            <div className="md:col-span-2">
-              <CustomInput required name="college" placeholder="College / University" value={formData.college} onChange={handleChange} />
+
+            {/* Academic Info */}
+            <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><BookOpen size={16} className="text-blue-500" /> Academic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <CustomInput required name="college" placeholder="College / University" value={formData.college} onChange={handleChange} />
+                </div>
+                <CustomInput required name="grade" placeholder="Course & Year (e.g. B.Tech 2nd Year)" value={formData.grade} onChange={handleChange} />
+                <CustomInput name="major" placeholder="Major / Specialization" value={formData.major} onChange={handleChange} />
+                <CustomInput name="college_address" placeholder="College Address" value={formData.college_address} onChange={handleChange} />
+                <CustomSelect required name="batch" placeholder="Allocated Batch" value={formData.batch} onChange={handleChange} options={["Batch 2026", "Batch 2025", "Batch 2024", "Batch 2023", "Rcd-1", "Rcd-2", "Rcd-3"]} />
+                <CustomInput name="school_name" placeholder="School Name" value={formData.school_name} onChange={handleChange} />
+                <CustomInput name="school_name_10th" placeholder="10th School Name" value={formData.school_name_10th} onChange={handleChange} />
+                <CustomInput name="school_name_12th" placeholder="12th School Name" value={formData.school_name_12th} onChange={handleChange} />
+              </div>
+            </div>
+
+            {/* Address & Contact */}
+            <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><Heart size={16} className="text-rose-500" /> Contact & Address</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomPhoneInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} onCountryCodeChange={(e: any) => setFormData({...formData, countryCode: e.target.value})} countryCodeValue={formData.countryCode} />
+                <CustomInput name="emergency_contact" placeholder="Emergency Contact" value={formData.emergency_contact} onChange={handleChange} />
+                <div className="md:col-span-2">
+                  <CustomInput name="address" placeholder="Street Address" value={formData.address} onChange={handleChange} />
+                </div>
+                <CustomInput name="landmark" placeholder="Landmark" value={formData.landmark} onChange={handleChange} />
+                <CustomInput name="area" placeholder="Area" value={formData.area} onChange={handleChange} />
+                <CustomInput name="city" placeholder="City" value={formData.city} onChange={handleChange} />
+                <CustomInput name="district" placeholder="District" value={formData.district} onChange={handleChange} />
+                <CustomInput name="state" placeholder="State" value={formData.state} onChange={handleChange} />
+                <CustomInput name="pincode" placeholder="Pincode" value={formData.pincode} onChange={handleChange} />
+                <CustomSelect name="hostel_or_dayscholar" placeholder="Mode (Hostel / Day Scholar)" value={formData.hostel_or_dayscholar} onChange={handleChange} options={["Hostel", "Day-Scholar", "Other"]} />
+                <CustomInput name="hostel_room" placeholder="Hostel Room / Details" value={formData.hostel_room} onChange={handleChange} />
+              </div>
+            </div>
+
+            {/* Family Details */}
+            <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><Users size={16} className="text-orange-500" /> Family Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <CustomInput name="parent_status" placeholder="Parent Status (e.g. Both alive)" value={formData.parent_status} onChange={handleChange} />
+                </div>
+                <CustomInput name="father_name" placeholder="Father's Name" value={formData.father_name} onChange={handleChange} />
+                <CustomInput name="father_occupation" placeholder="Father's Occupation" value={formData.father_occupation} onChange={handleChange} />
+                <CustomInput name="father_contact_number" placeholder="Father's Contact" value={formData.father_contact_number} onChange={handleChange} />
+                
+                <CustomInput name="mother_name" placeholder="Mother's Name" value={formData.mother_name} onChange={handleChange} />
+                <CustomInput name="mother_occupation" placeholder="Mother's Occupation" value={formData.mother_occupation} onChange={handleChange} />
+                <CustomInput name="mother_contact_number" placeholder="Mother's Contact" value={formData.mother_contact_number} onChange={handleChange} />
+
+                <CustomInput name="guardian_name" placeholder="Guardian's Name" value={formData.guardian_name} onChange={handleChange} />
+                <CustomInput name="guardian_occupation" placeholder="Guardian's Occupation" value={formData.guardian_occupation} onChange={handleChange} />
+                <CustomInput name="guardian_contact_number" placeholder="Guardian's Contact" value={formData.guardian_contact_number} onChange={handleChange} />
+                
+                <CustomInput type="number" name="number_of_siblings" placeholder="Number of Siblings" value={formData.number_of_siblings} onChange={handleChange} />
+              </div>
+            </div>
+
+            {/* Bank Details */}
+            <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><Briefcase size={16} className="text-green-500" /> Financial & Bank Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput name="bank_name" placeholder="Student Bank Name" value={formData.bank_name} onChange={handleChange} />
+                <CustomInput name="bank_account_number" placeholder="Student Acc Number" value={formData.bank_account_number} onChange={handleChange} />
+                <CustomInput name="bank_ifsc" placeholder="Student IFSC" value={formData.bank_ifsc} onChange={handleChange} />
+                <CustomInput name="parent_account_number" placeholder="Parent Acc Number" value={formData.parent_account_number} onChange={handleChange} />
+                <CustomInput name="parent_ifsc" placeholder="Parent IFSC" value={formData.parent_ifsc} onChange={handleChange} />
+                <CustomInput name="funders" placeholder="Funders" value={formData.funders} onChange={handleChange} />
+              </div>
+            </div>
+
+            {/* Additional Details */}
+            <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><GraduationCap size={16} className="text-indigo-500" /> Additional Details</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CustomInput name="profile_photo_link" placeholder="Profile Photo Link" value={formData.profile_photo_link} onChange={handleChange} />
+                <CustomInput name="folder_link" placeholder="Drive Folder Link" value={formData.folder_link} onChange={handleChange} />
+                <CustomInput name="documents_collected" placeholder="Documents Collected" value={formData.documents_collected} onChange={handleChange} />
+                <CustomSelect name="is_document_uploaded" placeholder="Documents Uploaded" value={formData.is_document_uploaded?.toString() || "0"} onChange={(e: any) => setFormData({...formData, is_document_uploaded: parseInt(e.target.value)})} options={["0", "1"]} />
+                
+                <CustomSelect name="currently_working" placeholder="Currently Working?" value={formData.currently_working?.toString() || "0"} onChange={(e: any) => setFormData({...formData, currently_working: parseInt(e.target.value)})} options={["0", "1"]} />
+                <CustomInput name="designation" placeholder="Job Designation" value={formData.designation} onChange={handleChange} />
+                <CustomInput name="location" placeholder="Work Location" value={formData.location} onChange={handleChange} />
+                
+                <CustomSelect name="is_married" placeholder="Married?" value={formData.is_married?.toString() || "0"} onChange={(e: any) => setFormData({...formData, is_married: parseInt(e.target.value)})} options={["0", "1"]} />
+                <CustomSelect name="are_you_on_track" placeholder="On Track?" value={formData.are_you_on_track?.toString() || "0"} onChange={(e: any) => setFormData({...formData, are_you_on_track: parseInt(e.target.value)})} options={["0", "1"]} />
+                <CustomSelect name="willing_to_do_volunteering" placeholder="Willing to Volunteer?" value={formData.willing_to_do_volunteering?.toString() || "0"} onChange={(e: any) => setFormData({...formData, willing_to_do_volunteering: parseInt(e.target.value)})} options={["0", "1"]} />
+                
+                <div className="md:col-span-2">
+                  <CustomInput name="remarks" placeholder="Remarks" value={formData.remarks} onChange={handleChange} />
+                  <div className="mt-4">
+                    <CustomInput name="other_notes" placeholder="Other Notes" value={formData.other_notes} onChange={handleChange} />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
