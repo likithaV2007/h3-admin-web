@@ -2758,10 +2758,10 @@ function App() {
                         {/* Basic badges */}
                         <div className="flex gap-2 mt-3 flex-wrap">
                           <span className="text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/20 text-slate-800 dark:text-purple-400 px-2 py-0.5 rounded border border-purple-200/30">
-                            Hostel Room: {selectedStudent.hostelRoom}
+                            Hostel Room: {selectedStudent.hostelRoom || (selectedStudent as any).hostel_room || 'N/A'}
                           </span>
                           <span className="text-[10px] font-semibold bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 px-2 py-0.5 rounded border border-purple-200/30">
-                            GPA: {selectedStudent.academicProgress[selectedStudent.academicProgress.length - 1].gpa}
+                            GPA: {selectedStudent.academicProgress && selectedStudent.academicProgress.length > 0 ? selectedStudent.academicProgress[selectedStudent.academicProgress.length - 1]?.gpa ?? 'N/A' : 'N/A'}
                           </span>
                         </div>
                       </div>
