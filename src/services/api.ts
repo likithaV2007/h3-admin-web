@@ -353,24 +353,8 @@ export const apiService = {
 
   // Fetch Expenses List
   getExpenses: async (): Promise<Expense[]> => {
-    let allData: any[] = [];
-    let skip = 0;
-    const limit = 100;
-    
-    while (true) {
-      const data = await apiFetch<any[]>(`/api/v1/expenses/?skip=${skip}&limit=${limit}`, []);
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        break;
-      }
-      allData = [...allData, ...data];
-      if (data.length < limit) {
-        break;
-      }
-      skip += limit;
-    }
-    
-    const data = allData;
-    if (data.length === 0) return [];
+    const data = await apiFetch<any[]>(`/api/v1/expenses/?skip=0&limit=5000`, []);
+    if (!data || !Array.isArray(data) || data.length === 0) return [];
     
     return data.map((item: any) => ({
       id: item.id || item.expense_id,
@@ -1054,24 +1038,8 @@ export const apiService = {
 
   // Fetch Contributions List
   getContributions: async (): Promise<Contribution[]> => {
-    let allData: any[] = [];
-    let skip = 0;
-    const limit = 100;
-    
-    while (true) {
-      const data = await apiFetch<any[]>(`/api/v1/contributions/?skip=${skip}&limit=${limit}`, []);
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        break;
-      }
-      allData = [...allData, ...data];
-      if (data.length < limit) {
-        break;
-      }
-      skip += limit;
-    }
-    
-    const data = allData;
-    if (data.length === 0) return [];
+    const data = await apiFetch<any[]>(`/api/v1/contributions/?skip=0&limit=5000`, []);
+    if (!data || !Array.isArray(data) || data.length === 0) return [];
     
     return data.map((item: any) => ({
       id: item.contribution_id || item.id || `REC${Date.now()}`,

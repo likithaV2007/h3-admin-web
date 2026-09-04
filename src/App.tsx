@@ -1964,7 +1964,7 @@ function App() {
 
 
       {/* MAIN CONTAINER */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-y-auto max-h-screen">
+      <div className={`flex-1 flex flex-col min-w-0 max-h-screen ${activeTab === 'Dashboard' && !selectedStudent ? 'overflow-hidden' : 'overflow-y-auto'}`}>
 
 
 
@@ -1987,19 +1987,19 @@ function App() {
         </header>
 
         {/* PAGE CONTENT CONTAINER */}
-        <main className="flex-1 p-6 space-y-6">
+        <main className={`flex-1 p-6 ${activeTab === 'Dashboard' && !selectedStudent ? 'flex flex-col min-h-0' : 'space-y-6'}`}>
 
           {/* MODULE: DASHBOARD */}
           {activeTab === 'Dashboard' && !selectedStudent && (
-            <div className="space-y-6">
+            <div className="flex flex-col h-full space-y-4 min-h-0 max-w-[1500px] mx-auto w-full">
 
 
 
               {/* ANALYTICS METRIC CARDS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
 
                 {/* Metric 1 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2042,7 +2042,7 @@ function App() {
                 </div>
 
                 {/* Metric 2 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2094,7 +2094,7 @@ function App() {
                 </div>
 
                 {/* Metric 3 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2140,7 +2140,7 @@ function App() {
                 </div>
 
                 {/* Metric 4 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[25vh] min-h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2182,15 +2182,15 @@ function App() {
 
 
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 flex-1 min-h-0">
 
                 {/* Visual Chart Column */}
-                <div className="flex flex-col gap-3 w-full lg:col-span-2">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                <div className="flex flex-col gap-3 w-full lg:col-span-2 min-h-0">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3 shrink-0">
                     <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full ${themeClasses.bgGradientBottom}`}></div>
                     Monthly Expenses Chart
                   </h4>
-                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full">
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 min-h-0 flex flex-col">
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
@@ -2307,8 +2307,8 @@ function App() {
               </div>
 
               {/* Expense Distribution Donut Chart */}
-                <div className="flex flex-col gap-3 w-full lg:col-span-1">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                <div className="flex flex-col gap-3 w-full lg:col-span-1 min-h-0">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3 shrink-0">
                     <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full ${themeClasses.bgGradientBottom}`}></div>
                     Expense Distribution
                   </h4>
@@ -2360,10 +2360,10 @@ function App() {
                     }
 
                     return (
-                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col">
+                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col min-h-0">
 
-                      <div className="flex-1 flex flex-col items-center justify-center pt-2">
-                        <div className="relative w-[26vh] h-[26vh] min-w-[180px] min-h-[180px] mb-6">
+                      <div className="flex-1 flex flex-col items-center justify-center pt-2 min-h-0">
+                        <div className="relative w-[18vh] h-[18vh] min-w-[120px] min-h-[120px] mb-4 shrink-0">
                           {/* SVG Donut Chart */}
                           <svg viewBox="-50 -50 100 100" className="absolute inset-0 w-full h-full overflow-visible drop-shadow-sm">
                             <g transform="rotate(-90)">
@@ -2431,9 +2431,9 @@ function App() {
                           </div>
                         </div>
 
-                        <div className="w-full bg-white dark:bg-slate-950 rounded-2xl p-4 shadow-sm space-y-3 mt-auto border border-slate-100 dark:border-slate-800">
+                        <div className="w-full bg-white dark:bg-slate-950 rounded-2xl p-4 shadow-sm space-y-3 mt-auto border border-slate-100 dark:border-slate-800 overflow-y-auto flex-1 min-h-[80px] custom-scrollbar">
                           {calculatedData.map((cat, i) => (
-                            <div key={i} className="flex items-center justify-between">
+                            <div key={i} className="flex items-center justify-between shrink-0">
                               <div className="flex items-center gap-3">
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }}></div>
                                 <div className={`w-6 h-6 rounded-md flex items-center justify-center ${cat.bg}`}>
@@ -3932,17 +3932,29 @@ function App() {
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
                   <div className={`grid ${expenseCategoryFilter === 'ALL' ? 'grid-cols-1' : 'grid-cols-2'} gap-6 flex-1 h-full transition-all`}>
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center">
-                      <span className="text-[13px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Total Records</span>
-                      <strong className="text-5xl text-slate-900 dark:text-white font-bold">{expenses.length}</strong>
+                    <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
+                      <div className="absolute -right-10 -top-10 w-32 h-32 bg-slate-100 dark:bg-slate-800 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                      <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center mb-4 relative z-10 shadow-sm border border-slate-200/50 dark:border-slate-700/50">
+                        <FileText size={24} strokeWidth={2} />
+                      </div>
+                      <div className="relative z-10">
+                        <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1 block">Total Records</span>
+                        <strong className="text-5xl text-slate-900 dark:text-white font-extrabold tracking-tight">{expenses.length}</strong>
+                      </div>
                     </div>
                     
                     {expenseCategoryFilter !== 'ALL' && (
-                      <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800/50 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center animate-fade-in">
-                        <span className="text-[13px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400 mb-3">{expenseCategoryFilter} Records</span>
-                        <strong className="text-5xl text-teal-700 dark:text-teal-400 font-bold">
-                          {expenses.filter(e => e.category.toLowerCase() === expenseCategoryFilter.toLowerCase()).length}
-                        </strong>
+                      <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group animate-fade-in h-full">
+                        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
+                          <Filter size={24} strokeWidth={2} />
+                        </div>
+                        <div className="relative z-10">
+                          <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">{expenseCategoryFilter} Records</span>
+                          <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
+                            {expenses.filter(e => e.category && e.category.toLowerCase() === expenseCategoryFilter.toLowerCase()).length}
+                          </strong>
+                        </div>
                       </div>
                     )}
                   </div>
