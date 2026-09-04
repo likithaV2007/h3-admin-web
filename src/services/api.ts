@@ -353,7 +353,7 @@ export const apiService = {
 
   // Fetch Expenses List
   getExpenses: async (): Promise<Expense[]> => {
-    const data = await apiFetch<any[]>('/api/v1/expenses/', []);
+    const data = await apiFetch<any[]>('/api/v1/expenses/?limit=10000', []);
     if (!data || !Array.isArray(data)) return [];
     
     return data.map((item: any) => ({

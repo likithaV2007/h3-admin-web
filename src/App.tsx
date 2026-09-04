@@ -315,7 +315,7 @@ function App() {
   const [showExpenseModal, setShowExpenseModal] = useState<boolean>(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [newExpenseTitle, setNewExpenseTitle] = useState<string>('');
-  const [newExpenseCategory, setNewExpenseCategory] = useState<string>('snacks');
+  const [newExpenseCategory, setNewExpenseCategory] = useState<string>('Other');
   const [newExpenseAmount, setNewExpenseAmount] = useState<string>('');
   const [newExpenseTargetGroup, setNewExpenseTargetGroup] = useState<string>('ALL');
   const [newExpenseRefund, setNewExpenseRefund] = useState<boolean>(true);
@@ -3907,14 +3907,10 @@ function App() {
                 {/* Mini Stats - Right Side */}
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
-                  <div className="grid grid-cols-2 gap-6 flex-1 h-full">
+                  <div className="grid grid-cols-1 gap-6 flex-1 h-full">
                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center">
-                      <span className="text-[13px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Pending Approvals</span>
-                      <strong className="text-5xl text-slate-900 dark:text-white font-bold">{expenses.filter(e => e.status === 'PENDING').length}</strong>
-                    </div>
-                    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center">
-                      <span className="text-[13px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Refund Requests</span>
-                      <strong className="text-5xl text-slate-900 dark:text-white font-bold">{expenses.filter(e => e.refund_requested).length}</strong>
+                      <span className="text-[13px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Total Records</span>
+                      <strong className="text-5xl text-slate-900 dark:text-white font-bold">{expenses.length}</strong>
                     </div>
                   </div>
                 </div>
@@ -3950,7 +3946,7 @@ function App() {
                   <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
                     {/* Category Filter Pills (Transport, Classes, Food, Sports, Medical...) */}
                     <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none">
-                      {['ALL', 'snacks', 'groceries', 'sports', 'travel', 'medical', 'stationary'].map((cat) => {
+                      {['ALL', 'Electricals', 'H3 Services', 'Sports expenses', 'Snacks / Fruits', 'Stationaries', 'Food', 'Academic', 'Internet', 'Transport', 'Toilateries', 'Basic Essentials', 'Medical', 'Water', 'Electronics', 'Other'].map((cat) => {
                         const isActive = expenseCategoryFilter === cat;
                         return (
                           <button
@@ -4048,12 +4044,14 @@ function App() {
                           // Pick icon based on category
                           const catLower = item.category.toLowerCase();
                           const CategoryIcon =
-                            catLower.includes('snack') || catLower.includes('food') ? Coffee :
+                            catLower.includes('snack') || catLower.includes('food') || catLower.includes('water') ? Coffee :
                               catLower.includes('sport') ? Trophy :
-                                catLower.includes('travel') || catLower.includes('transport') ? Bus :
+                                catLower.includes('transport') ? Bus :
                                   catLower.includes('med') ? Stethoscope :
-                                    catLower.includes('station') ? BookOpen :
-                                      catLower.includes('groc') ? ShoppingBag : Receipt;
+                                    catLower.includes('station') || catLower.includes('academic') ? BookOpen :
+                                      catLower.includes('toilateries') || catLower.includes('essential') ? ShoppingBag :
+                                        catLower.includes('electr') || catLower.includes('internet') ? Radio :
+                                          catLower.includes('h3') ? HeartHandshake : Receipt;
 
                           // Format Date e.g. "23 Jul 2026"
                           let formattedDate = item.date;
@@ -5175,12 +5173,21 @@ function App() {
                     onChange={(e) => setNewExpenseCategory(e.target.value)}
                     className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold focus:outline-none focus:border-teal-500"
                   >
-                    <option value="snacks">Snacks / Food</option>
-                    <option value="groceries">Groceries</option>
-                    <option value="sports">Sports</option>
-                    <option value="travel">Travel / Transport</option>
-                    <option value="medical">Medical</option>
-                    <option value="stationary">Stationery</option>
+                    <option value="Electricals">Electricals</option>
+                    <option value="H3 Services">H3 Services</option>
+                    <option value="Sports expenses">Sports expenses</option>
+                    <option value="Snacks / Fruits">Snacks / Fruits</option>
+                    <option value="Stationaries">Stationaries</option>
+                    <option value="Food">Food</option>
+                    <option value="Academic">Academic</option>
+                    <option value="Internet">Internet</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Toilateries">Toilateries</option>
+                    <option value="Basic Essentials">Basic Essentials</option>
+                    <option value="Medical">Medical</option>
+                    <option value="Water">Water</option>
+                    <option value="Electronics">Electronics</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 
