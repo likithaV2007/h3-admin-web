@@ -65,7 +65,16 @@ import {
   Mail,
   Undo,
   Save,
-  Download
+  Download,
+  Zap,
+  Briefcase,
+  Utensils,
+  Globe,
+  Droplet,
+  Package,
+  Droplets,
+  Laptop,
+  MoreHorizontal
 } from 'lucide-react';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { ContributionModal } from './components/ContributionModal';
@@ -2305,12 +2314,21 @@ function App() {
                   </h4>
                   {(() => {
                     const distributionData = [
-                      { name: 'snacks', icon: <Coffee size={14} />, color: '#cbb4d4', bg: '${themeClasses.bgPrimaryLight}/10 ${themeClasses.textPrimaryLight}' },
-                      { name: 'groceries', icon: <BookOpen size={14} />, color: '#573f64', bg: 'bg-[#573f64]/10 text-[#573f64]' },
-                      { name: 'sports', icon: <Heart size={14} />, color: '#745c80', bg: 'bg-[#745c80]/10 text-[#745c80]' },
-                      { name: 'medical', icon: <Users size={14} />, color: '#91799c', bg: 'bg-[#91799c]/10 text-[#91799c]' },
-                      { name: 'travel', icon: <Bus size={14} />, color: '#ae96b8', bg: 'bg-[#ae96b8]/10 text-[#ae96b8]' },
-                      { name: 'stationary', icon: <Pencil size={14} />, color: '#cbb4d4', bg: '${themeClasses.bgPrimaryLight}/20 ${themeClasses.textPrimaryLight}' }
+                      { name: 'electricals', icon: <Zap size={14} />, color: '#f59e0b', bg: 'bg-[#f59e0b]/10 text-[#f59e0b]' },
+                      { name: 'h3 services', icon: <Briefcase size={14} />, color: '#3b82f6', bg: 'bg-[#3b82f6]/10 text-[#3b82f6]' },
+                      { name: 'sports expenses', icon: <Trophy size={14} />, color: '#ef4444', bg: 'bg-[#ef4444]/10 text-[#ef4444]' },
+                      { name: 'snacks / fruits', icon: <Coffee size={14} />, color: '#8b5cf6', bg: 'bg-[#8b5cf6]/10 text-[#8b5cf6]' },
+                      { name: 'stationaries', icon: <Pencil size={14} />, color: '#10b981', bg: 'bg-[#10b981]/10 text-[#10b981]' },
+                      { name: 'food', icon: <Utensils size={14} />, color: '#f97316', bg: 'bg-[#f97316]/10 text-[#f97316]' },
+                      { name: 'academic', icon: <BookOpen size={14} />, color: '#6366f1', bg: 'bg-[#6366f1]/10 text-[#6366f1]' },
+                      { name: 'internet', icon: <Globe size={14} />, color: '#06b6d4', bg: 'bg-[#06b6d4]/10 text-[#06b6d4]' },
+                      { name: 'transport', icon: <Bus size={14} />, color: '#64748b', bg: 'bg-[#64748b]/10 text-[#64748b]' },
+                      { name: 'toilateries', icon: <Droplet size={14} />, color: '#14b8a6', bg: 'bg-[#14b8a6]/10 text-[#14b8a6]' },
+                      { name: 'basic essentials', icon: <Package size={14} />, color: '#84cc16', bg: 'bg-[#84cc16]/10 text-[#84cc16]' },
+                      { name: 'medical', icon: <Stethoscope size={14} />, color: '#ec4899', bg: 'bg-[#ec4899]/10 text-[#ec4899]' },
+                      { name: 'water', icon: <Droplets size={14} />, color: '#0ea5e9', bg: 'bg-[#0ea5e9]/10 text-[#0ea5e9]' },
+                      { name: 'electronics', icon: <Laptop size={14} />, color: '#a855f7', bg: 'bg-[#a855f7]/10 text-[#a855f7]' },
+                      { name: 'other', icon: <MoreHorizontal size={14} />, color: '#9ca3af', bg: 'bg-[#9ca3af]/10 text-[#9ca3af]' }
                     ];
 
                     let calculatedData: any[] = distributionData.map(cat => {
@@ -4378,12 +4396,21 @@ function App() {
                   </h4>
                   {(() => {
                     const distributionData = [
-                      { name: 'snacks', icon: <Coffee size={14} />, color: '#cbb4d4', bg: '${themeClasses.bgPrimaryLight}/10 ${themeClasses.textPrimaryLight}' },
-                      { name: 'groceries', icon: <BookOpen size={14} />, color: '#573f64', bg: 'bg-[#573f64]/10 text-[#573f64]' },
-                      { name: 'sports', icon: <Heart size={14} />, color: '#745c80', bg: 'bg-[#745c80]/10 text-[#745c80]' },
-                      { name: 'medical', icon: <Users size={14} />, color: '#91799c', bg: 'bg-[#91799c]/10 text-[#91799c]' },
-                      { name: 'travel', icon: <Bus size={14} />, color: '#ae96b8', bg: 'bg-[#ae96b8]/10 text-[#ae96b8]' },
-                      { name: 'stationary', icon: <Pencil size={14} />, color: '#cbb4d4', bg: '${themeClasses.bgPrimaryLight}/20 ${themeClasses.textPrimaryLight}' }
+                      { name: 'electricals', icon: <Zap size={14} />, color: '#f59e0b', bg: 'bg-[#f59e0b]/10 text-[#f59e0b]' },
+                      { name: 'h3 services', icon: <Briefcase size={14} />, color: '#3b82f6', bg: 'bg-[#3b82f6]/10 text-[#3b82f6]' },
+                      { name: 'sports expenses', icon: <Trophy size={14} />, color: '#ef4444', bg: 'bg-[#ef4444]/10 text-[#ef4444]' },
+                      { name: 'snacks / fruits', icon: <Coffee size={14} />, color: '#8b5cf6', bg: 'bg-[#8b5cf6]/10 text-[#8b5cf6]' },
+                      { name: 'stationaries', icon: <Pencil size={14} />, color: '#10b981', bg: 'bg-[#10b981]/10 text-[#10b981]' },
+                      { name: 'food', icon: <Utensils size={14} />, color: '#f97316', bg: 'bg-[#f97316]/10 text-[#f97316]' },
+                      { name: 'academic', icon: <BookOpen size={14} />, color: '#6366f1', bg: 'bg-[#6366f1]/10 text-[#6366f1]' },
+                      { name: 'internet', icon: <Globe size={14} />, color: '#06b6d4', bg: 'bg-[#06b6d4]/10 text-[#06b6d4]' },
+                      { name: 'transport', icon: <Bus size={14} />, color: '#64748b', bg: 'bg-[#64748b]/10 text-[#64748b]' },
+                      { name: 'toilateries', icon: <Droplet size={14} />, color: '#14b8a6', bg: 'bg-[#14b8a6]/10 text-[#14b8a6]' },
+                      { name: 'basic essentials', icon: <Package size={14} />, color: '#84cc16', bg: 'bg-[#84cc16]/10 text-[#84cc16]' },
+                      { name: 'medical', icon: <Stethoscope size={14} />, color: '#ec4899', bg: 'bg-[#ec4899]/10 text-[#ec4899]' },
+                      { name: 'water', icon: <Droplets size={14} />, color: '#0ea5e9', bg: 'bg-[#0ea5e9]/10 text-[#0ea5e9]' },
+                      { name: 'electronics', icon: <Laptop size={14} />, color: '#a855f7', bg: 'bg-[#a855f7]/10 text-[#a855f7]' },
+                      { name: 'other', icon: <MoreHorizontal size={14} />, color: '#9ca3af', bg: 'bg-[#9ca3af]/10 text-[#9ca3af]' }
                     ];
 
                     let calculatedData: any[] = distributionData.map(cat => {
