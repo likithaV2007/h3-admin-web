@@ -23,6 +23,7 @@ import {
   Key,
   RefreshCw,
   CheckCircle2,
+  PieChart,
   AlertCircle,
   Phone,
   PhoneCall,
@@ -76,6 +77,7 @@ import {
   Laptop,
   MoreHorizontal
 } from 'lucide-react';
+import CountUp from './components/CountUp';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { ContributionModal } from './components/ContributionModal';
 import { generateContributionReceipt } from './services/pdfGenerator';
@@ -2044,7 +2046,7 @@ function App() {
                         Total Students
                       </h4>
                       <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        {dashboardStats?.total_students ?? students.length}
+                        <CountUp to={dashboardStats?.total_students ?? students.length} duration={1} />
                       </div>
                     </div>
                   </div>
@@ -2087,7 +2089,7 @@ function App() {
                         {activeRole === 'Student' ? 'My Attendance' : 'Total Volunteers'}
                       </h4>
                       <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        {activeRole === 'Student' ? '94.5%' : (dashboardStats?.total_volunteers ?? volunteers.length)}
+                        {activeRole === 'Student' ? '94.5%' : <CountUp to={dashboardStats?.total_volunteers ?? volunteers.length} duration={1} />}
                       </div>
                     </div>
                   </div>
@@ -2139,7 +2141,7 @@ function App() {
                         {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
                       </h4>
                       <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        {activeRole === 'Student' ? 'Hope3 Foundation' : (dashboardStats?.total_donors ?? donors.length)}
+                        {activeRole === 'Student' ? 'Hope3 Foundation' : <CountUp to={dashboardStats?.total_donors ?? donors.length} duration={1} />}
                       </div>
                     </div>
                   </div>
@@ -2185,7 +2187,7 @@ function App() {
                         Total Contributions
                       </h4>
                       <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        {contributions.length}
+                        <CountUp to={contributions.length} duration={1} />
                       </div>
                     </div>
                   </div>
@@ -2444,7 +2446,7 @@ function App() {
                             <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
                               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
                               <span className="text-sm lg:text-[13px] xl:text-[15px] font-extrabold text-slate-800 dark:text-slate-100 leading-none truncate w-full text-center px-1" title={`₹${totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}`}>
-                                ₹{totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}
+                                ₹<CountUp to={totalExpenses === 0 ? 181 : totalExpenses} duration={1} separator="," />
                               </span>
                             </div>
                           </div>
@@ -3906,38 +3908,39 @@ function App() {
               {/* TOP HERO BANNER & STATS CARD (MATCHING MOBILE SCREENSHOT) */}
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Total Spend Card - Left Side */}
-                <div className="w-full lg:w-1/2 relative overflow-hidden bg-white dark:bg-slate-900 rounded-[2rem] p-8 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between min-h-[160px]">
-                  {/* Decorative wavy background */}
-                  <svg className="absolute bottom-0 left-0 w-full h-full pointer-events-none opacity-60" preserveAspectRatio="none" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" fillOpacity="0.1" d="M0,192L48,181.3C96,171,192,149,288,154.7C384,160,480,192,576,197.3C672,203,768,181,864,154.7C960,128,1056,96,1152,96C1248,96,1344,128,1392,144L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
-
-                  {/* Decorative Wallet Icon */}
-                  <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-100 pointer-events-none hidden sm:block">
-                    <div className="w-[120px] h-[100px] flex items-center justify-center">
-                      <Wallet size={80} className={`${themeClasses.textPrimaryLight}/40 stroke-[1.5]`} />
-                    </div>
-                  </div>
+                <div className={`w-full lg:w-1/2 relative overflow-hidden rounded-[2rem] p-8 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
+                  {/* Glassmorphism Abstract Shape */}
+                  <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>
+                  <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-black/10 rounded-full blur-2xl mix-blend-overlay"></div>
 
                   <div className="space-y-1 relative z-10">
-                    <span className="text-slate-500 dark:text-slate-400 text-[12px] font-bold uppercase tracking-widest inline-block mb-1">
+                    <span className="text-white/80 text-[12px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       TOTAL SPEND
                     </span>
 
                     <div className="flex items-baseline gap-2 pt-1">
-                      <span className="text-3xl font-semibold text-slate-700 dark:text-slate-200">₹</span>
-                      <h3 className="text-[2.75rem] leading-none font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
-                        {filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
+                      <span className="text-3xl font-semibold text-white/90">₹</span>
+                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                        <CountUp to={filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0)} duration={1.5} separator="," />
                       </h3>
                     </div>
                   </div>
                   
-                  <div className="mt-8 relative z-10">
+                  <div className="mt-8 relative z-10 flex items-center justify-between">
                     <button
                       onClick={() => setShowExpenseModal(true)}
-                      className="gradient-btn-tab hover:brightness-110 font-semibold px-6 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.02] active:scale-95 w-max"
+                      className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/30 font-semibold px-6 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-95"
                     >
                       <Plus size={18} className="text-white" />
                       Add Record
                     </button>
+                    
+                    {/* Decorative mini chart */}
+                    <div className="flex gap-1.5 items-end h-8 opacity-60">
+                      {[4, 7, 5, 8, 10, 6].map((h, i) => (
+                        <div key={i} className="w-1.5 bg-white rounded-t-sm animate-pulse" style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -3983,12 +3986,12 @@ function App() {
                         <div className="relative z-10">
                           <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">{expenseMonthFilter} Records</span>
                           <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
-                            {expenses.filter(e => {
+                            <CountUp to={expenses.filter(e => {
                               try {
                                 const d = new Date(e.date);
                                 return !isNaN(d.getTime()) && d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
                               } catch { return false; }
-                            }).length}
+                            }).length} duration={1} />
                           </strong>
                         </div>
                       </div>
@@ -4512,7 +4515,7 @@ function App() {
                             <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
                               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
                               <span className="text-sm lg:text-[13px] xl:text-[15px] font-extrabold text-slate-800 dark:text-slate-100 leading-none truncate w-full text-center px-1" title={`₹${totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}`}>
-                                ₹{totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}
+                                ₹<CountUp to={totalExpenses === 0 ? 181 : totalExpenses} duration={1} separator="," />
                               </span>
                             </div>
                           </div>
