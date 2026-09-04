@@ -158,23 +158,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
-            <div className="flex items-center gap-2 mb-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-              <input 
-                type="checkbox" 
-                id="anonymous" 
-                checked={isAnonymous} 
-                onChange={(e) => {
-                  setIsAnonymous(e.target.checked);
-                  if (e.target.checked) {
-                    setFormData(prev => ({ ...prev, donorId: '' }));
-                  }
-                }}
-                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-              />
-              <label htmlFor="anonymous" className="text-sm font-bold text-slate-700 dark:text-slate-300 select-none cursor-pointer">
-                Anonymous Donation (No donor info required, no receipt sent)
-              </label>
-            </div>
+
 
             <div className={`space-y-1.5 transition-opacity ${isAnonymous ? 'opacity-40 pointer-events-none' : ''}`}>
               <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Select Donor</label>
@@ -245,6 +229,24 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
                 placeholder="Any special remarks for this donation..."
                 className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white min-h-[80px]`}
               />
+            </div>
+            
+            <div className="flex items-center gap-2 mt-4 mb-2 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+              <input 
+                type="checkbox" 
+                id="anonymous" 
+                checked={isAnonymous} 
+                onChange={(e) => {
+                  setIsAnonymous(e.target.checked);
+                  if (e.target.checked) {
+                    setFormData(prev => ({ ...prev, donorId: '' }));
+                  }
+                }}
+                className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+              />
+              <label htmlFor="anonymous" className="text-sm font-bold text-slate-700 dark:text-slate-300 select-none cursor-pointer">
+                Anonymous Donation (No donor info required, no receipt sent)
+              </label>
             </div>
             
             {!isAnonymous && selectedDonor && (

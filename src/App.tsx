@@ -1847,7 +1847,27 @@ function App() {
     if (donorColFilters.status) match = match && (donor.status || '').toLowerCase().includes(donorColFilters.status.toLowerCase());
     return match;
   });
+  const filteredFinanceExpenses = expenses.filter(e => {
+    const catMatch = expenseCategoryFilter === 'ALL' || (e.category && e.category.toLowerCase() === expenseCategoryFilter.toLowerCase());
+    
+    let monthMatch = true;
+    if (expenseMonthFilter !== 'ALL') {
+      try {
+        const d = new Date(e.date);
+        if (!isNaN(d.getTime())) {
+          monthMatch = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
+        }
+      } catch {}
+    }
 
+    const query = expenseSearchQuery.trim().toLowerCase();
+    const searchMatch = !query ||
+      (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
+      (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
+      (e.title && e.title.toLowerCase().includes(query)) ||
+      (e.category && e.category.toLowerCase().includes(query));
+    return catMatch && monthMatch && searchMatch;
+  });
 
 
   // Main UI Render helper
@@ -2272,7 +2292,7 @@ function App() {
                             <path d={costPolygonPath} fill="url(#costsGrad)" />
 
                             {/* Chart Lines */}
-                            <path d={costPath} fill="none" stroke="#20002c" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
+                            <path d={costPath} fill="none" stroke="#cbb4d4" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
 
                             {/* Data Points */}
                             {costPoints.map((p, i) => (
@@ -2423,7 +2443,7 @@ function App() {
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
                               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
-                              <span className="text-lg font-extrabold text-slate-800 dark:text-slate-100 leading-none">
+                              <span className="text-sm lg:text-[13px] xl:text-[15px] font-extrabold text-slate-800 dark:text-slate-100 leading-none truncate w-full text-center px-1" title={`₹${totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}`}>
                                 ₹{totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}
                               </span>
                             </div>
@@ -3851,29 +3871,23 @@ function App() {
                         </td>
                         <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex items-center justify-end gap-2">
-                            <button 
-                              onClick={() => setSelectedDonor(donor)}
-                              className={`text-xs ${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.bgPrimaryLight}/50 hover:${themeClasses.bgPrimaryLight}/20 text-black dark:text-white  font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#cbb4d4]/20 dark:border-[#cbb4d4]/60`}
-                            >
-                              View Profile
-                            </button>
                             <a 
                               href={getWhatsAppLink(donor.phone)} 
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${donor.name} via WhatsApp (${donor.phone})`}
-                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center`}
+                              className="p-2 gradient-btn-tab text-white rounded-xl transition-all hover:scale-105 active:scale-95 shadow-sm flex items-center justify-center"
                             >
-                              <PhoneCall size={14} />
+                              <PhoneCall size={14} className="text-white" />
                             </a>
                             <a 
                               href={getWhatsAppLink(donor.phone, `Hello ${donor.name}, thank you for supporting Hope3 NGO scholars.`)} 
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${donor.name} on WhatsApp (${donor.phone})`}
-                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center`}
+                              className="p-2 gradient-btn-tab text-white rounded-xl transition-all hover:scale-105 active:scale-95 shadow-sm flex items-center justify-center"
                             >
-                              <MessageSquare size={14} />
+                              <MessageSquare size={14} className="text-white" />
                             </a>
                           </div>
                         </td>
@@ -3911,7 +3925,7 @@ function App() {
                     <div className="flex items-baseline gap-2 pt-1">
                       <span className="text-3xl font-semibold text-slate-700 dark:text-slate-200">₹</span>
                       <h3 className="text-[2.75rem] leading-none font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
-                        {expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
+                        {filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString('en-IN')}
                       </h3>
                     </div>
                   </div>
@@ -3930,7 +3944,10 @@ function App() {
                 {/* Mini Stats - Right Side */}
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
-                  <div className={`grid ${expenseCategoryFilter === 'ALL' ? 'grid-cols-1' : 'grid-cols-2'} gap-6 flex-1 h-full transition-all`}>
+                  <div className={`grid ${
+                    (expenseCategoryFilter !== 'ALL' && expenseMonthFilter !== 'ALL') ? 'grid-cols-1 md:grid-cols-3' : 
+                    (expenseCategoryFilter === 'ALL' && expenseMonthFilter === 'ALL') ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'
+                  } gap-6 flex-1 h-full transition-all`}>
                     <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
                       <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                       <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
@@ -3952,6 +3969,26 @@ function App() {
                           <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">{expenseCategoryFilter} Records</span>
                           <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
                             {expenses.filter(e => e.category && e.category.toLowerCase() === expenseCategoryFilter.toLowerCase()).length}
+                          </strong>
+                        </div>
+                      </div>
+                    )}
+
+                    {expenseMonthFilter !== 'ALL' && (
+                      <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group animate-fade-in h-full">
+                        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
+                        <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
+                          <Calendar size={24} strokeWidth={2} />
+                        </div>
+                        <div className="relative z-10">
+                          <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">{expenseMonthFilter} Records</span>
+                          <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
+                            {expenses.filter(e => {
+                              try {
+                                const d = new Date(e.date);
+                                return !isNaN(d.getTime()) && d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
+                              } catch { return false; }
+                            }).length}
                           </strong>
                         </div>
                       </div>
@@ -4008,7 +4045,7 @@ function App() {
                     </div>
 
                     {/* Category Filter Pills */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none">
+                    <div className="flex flex-wrap items-center gap-2 max-w-full pb-1 lg:pb-0">
                       {['ALL', 'Electricals', 'H3 Services', 'Sports expenses', 'Snacks / Fruits', 'Stationaries', 'Food', 'Academic', 'Internet', 'Transport', 'Toilateries', 'Basic Essentials', 'Medical', 'Water', 'Electronics', 'Other'].map((cat) => {
                         const isActive = expenseCategoryFilter === cat;
                         return (
@@ -4074,56 +4111,13 @@ function App() {
                   <div className="space-y-4 pt-2">
                     <div className="flex justify-between items-center px-1">
                       <span className="text-xs font-bold text-slate-500">
-                        Showing {
-                          expenses.filter(e => {
-                            const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
-                            
-                            let monthMatch = true;
-                            if (expenseMonthFilter !== 'ALL') {
-                              try {
-                                const d = new Date(e.date);
-                                if (!isNaN(d.getTime())) {
-                                  monthMatch = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
-                                }
-                              } catch {}
-                            }
-
-                            const query = expenseSearchQuery.trim().toLowerCase();
-                            const searchMatch = !query ||
-                              (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
-                              (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
-                              (e.title && e.title.toLowerCase().includes(query)) ||
-                              (e.category && e.category.toLowerCase().includes(query));
-                            return catMatch && monthMatch && searchMatch;
-                          }).length
-                        } of {expenses.length} Expense Logs
+                        Showing {filteredFinanceExpenses.length} of {expenses.length} Expense Logs
                         {expenseSearchQuery && <span className="text-slate-800 dark:text-teal-400 font-semibold ml-1.5">(Filtered by "{expenseSearchQuery}")</span>}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {expenses
-                        .filter(e => {
-                          const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
-                          
-                          let monthMatch = true;
-                          if (expenseMonthFilter !== 'ALL') {
-                            try {
-                              const d = new Date(e.date);
-                              if (!isNaN(d.getTime())) {
-                                monthMatch = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
-                              }
-                            } catch {}
-                          }
-
-                          const query = expenseSearchQuery.trim().toLowerCase();
-                          const searchMatch = !query ||
-                            (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
-                            (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
-                            (e.title && e.title.toLowerCase().includes(query)) ||
-                            (e.category && e.category.toLowerCase().includes(query));
-                          return catMatch && monthMatch && searchMatch;
-                        })
+                      {filteredFinanceExpenses
                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                         .map(item => {
                           // Pick icon based on category
@@ -4275,15 +4269,15 @@ function App() {
                 {expenseSubTab === 'analytics' && (
                   <div className="space-y-6 pt-2">
               {/* DOUBLE CHART & MAP SECTION */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
 
                 {/* Visual Chart Column */}
-                <div className="flex flex-col gap-3 w-full lg:col-span-2">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                <div className="flex flex-col gap-3 w-full lg:col-span-2 min-h-0">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3 shrink-0">
                     <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full ${themeClasses.bgGradientBottom}`}></div>
                     Monthly Expenses Chart
                   </h4>
-                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full">
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 min-h-0 flex flex-col">
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
@@ -4366,7 +4360,7 @@ function App() {
                             <path d={costPolygonPath} fill="url(#costsGrad)" />
 
                             {/* Chart Lines */}
-                            <path d={costPath} fill="none" stroke="#20002c" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
+                            <path d={costPath} fill="none" stroke="#cbb4d4" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
 
                             {/* Data Points */}
                             {costPoints.map((p, i) => (
@@ -4400,8 +4394,8 @@ function App() {
               </div>
 
               {/* Expense Distribution Donut Chart */}
-                <div className="flex flex-col gap-3 w-full lg:col-span-1">
-                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3">
+                <div className="flex flex-col gap-3 w-full lg:col-span-1 min-h-0">
+                  <h4 className="font-bold text-lg text-slate-800 dark:text-slate-100 flex items-center gap-2 relative pl-3 shrink-0">
                     <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full ${themeClasses.bgGradientBottom}`}></div>
                     Expense Distribution
                   </h4>
@@ -4453,10 +4447,10 @@ function App() {
                     }
 
                     return (
-                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col">
+                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col min-h-0">
 
-                      <div className="flex-1 flex flex-col items-center justify-center pt-2">
-                        <div className="relative w-[26vh] h-[26vh] min-w-[180px] min-h-[180px] mb-6">
+                      <div className="flex-1 flex flex-col items-center justify-center pt-2 min-h-0">
+                        <div className="relative w-[18vh] h-[18vh] min-w-[120px] min-h-[120px] mb-4 shrink-0">
                           {/* SVG Donut Chart */}
                           <svg viewBox="-50 -50 100 100" className="absolute inset-0 w-full h-full overflow-visible drop-shadow-sm">
                             <g transform="rotate(-90)">
@@ -4517,7 +4511,7 @@ function App() {
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
                               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
-                              <span className="text-lg font-extrabold text-slate-800 dark:text-slate-100 leading-none">
+                              <span className="text-sm lg:text-[13px] xl:text-[15px] font-extrabold text-slate-800 dark:text-slate-100 leading-none truncate w-full text-center px-1" title={`₹${totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}`}>
                                 ₹{totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}
                               </span>
                             </div>
