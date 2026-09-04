@@ -1333,7 +1333,6 @@ function App() {
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
     { name: 'Students', icon: Users },
-    { name: 'Parents', icon: User },
     { name: 'Admins', icon: Award },
     { name: 'Donors', icon: HeartHandshake },
     { name: 'Contributions', icon: Receipt },
@@ -1999,7 +1998,7 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
 
                 {/* Metric 1 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2042,7 +2041,7 @@ function App() {
                 </div>
 
                 {/* Metric 2 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2094,7 +2093,7 @@ function App() {
                 </div>
 
                 {/* Metric 3 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2140,7 +2139,7 @@ function App() {
                 </div>
 
                 {/* Metric 4 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[160px]">
+                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
                   
                   {/* Decorative Static Wave */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
@@ -2182,7 +2181,7 @@ function App() {
 
 
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4 flex-1 min-h-0">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2 min-h-0">
@@ -2260,8 +2259,8 @@ function App() {
                             {/* Grid lines */}
                             <defs>
                               <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
-                                <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                                <stop offset="0%" stopColor="#cbb4d4" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#cbb4d4" stopOpacity="0" />
                               </linearGradient>
                             </defs>
                             {[0, 50, 100, 150, 200, 250, 300, 350, 400, 450].map(offset => (
@@ -3932,14 +3931,14 @@ function App() {
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
                   <div className={`grid ${expenseCategoryFilter === 'ALL' ? 'grid-cols-1' : 'grid-cols-2'} gap-6 flex-1 h-full transition-all`}>
-                    <div className="relative overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
-                      <div className="absolute -right-10 -top-10 w-32 h-32 bg-slate-100 dark:bg-slate-800 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center mb-4 relative z-10 shadow-sm border border-slate-200/50 dark:border-slate-700/50">
+                    <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
+                      <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                      <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
                         <FileText size={24} strokeWidth={2} />
                       </div>
                       <div className="relative z-10">
-                        <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1 block">Total Records</span>
-                        <strong className="text-5xl text-slate-900 dark:text-white font-extrabold tracking-tight">{expenses.length}</strong>
+                        <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">Total Records</span>
+                        <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">{expenses.length}</strong>
                       </div>
                     </div>
                     
@@ -4354,8 +4353,8 @@ function App() {
                             {/* Grid lines */}
                             <defs>
                               <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
-                                <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                                <stop offset="0%" stopColor="#cbb4d4" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#cbb4d4" stopOpacity="0" />
                               </linearGradient>
                             </defs>
                             {[0, 50, 100, 150, 200, 250, 300, 350, 400, 450].map(offset => (
