@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import toast, { Toaster } from 'react-hot-toast';
 import { themeClasses, colors } from './theme';
 import {
@@ -2284,6 +2285,9 @@ function App() {
                                 <stop offset="0%" stopColor="#cbb4d4" stopOpacity="0.4" />
                                 <stop offset="100%" stopColor="#cbb4d4" stopOpacity="0" />
                               </linearGradient>
+                              <clipPath id="chart-sweep-dashboard">
+                                <motion.rect x="0" y="0" width="600" height="580" initial={{ width: 0 }} animate={{ width: 600 }} transition={{ duration: 1.5, ease: "easeOut" }} />
+                              </clipPath>
                             </defs>
                             {[0, 50, 100, 150, 200, 250, 300, 350, 400, 450].map(offset => (
                               <line key={`grid-${offset}`} x1="40" y1={50 + offset} x2="580" y2={50 + offset} stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
@@ -2291,14 +2295,16 @@ function App() {
                             <line x1="40" y1="550" x2="580" y2="550" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
 
                             {/* Chart Areas */}
-                            <path d={costPolygonPath} fill="url(#costsGrad)" />
+                            <path d={costPolygonPath} fill="url(#costsGrad)" clipPath="url(#chart-sweep-dashboard)" />
 
                             {/* Chart Lines */}
-                            <path d={costPath} fill="none" stroke="#cbb4d4" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
+                            <path d={costPath} fill="none" stroke="#cbb4d4" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" clipPath="url(#chart-sweep-dashboard)" />
 
                             {/* Data Points */}
                             {costPoints.map((p, i) => (
-                              <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#20002c" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                              <motion.circle key={`c-${i}`} cx={p.x} cy={p.y} r="6" fill="#20002c" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" className="cursor-pointer hover:stroke-[3px] transition-all" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, delay: (i * 0.1), type: 'spring' }}>
+                                <title>{monthLabels[i]}: ₹{monthlyCosts[i].toLocaleString('en-IN')}</title>
+                              </motion.circle>
                             ))}
 
                             {/* X Axis line */}
@@ -2446,7 +2452,7 @@ function App() {
                             <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
                               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
                               <span className="text-sm lg:text-[13px] xl:text-[15px] font-extrabold text-slate-800 dark:text-slate-100 leading-none truncate w-full text-center px-1" title={`₹${totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}`}>
-                                ₹<CountUp to={totalExpenses === 0 ? 181 : totalExpenses} duration={1} separator="," />
+                                ₹<CountUp to={Math.round(totalExpenses === 0 ? 181 : totalExpenses)} duration={1} separator="," />
                               </span>
                             </div>
                           </div>
@@ -3921,7 +3927,7 @@ function App() {
                     <div className="flex items-baseline gap-2 pt-1">
                       <span className="text-3xl font-semibold text-white/90">₹</span>
                       <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
-                        <CountUp to={filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0)} duration={1.5} separator="," />
+                        {Math.round(filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0)).toLocaleString('en-IN')}
                       </h3>
                     </div>
                   </div>
@@ -3948,8 +3954,7 @@ function App() {
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
                   <div className={`grid ${
-                    (expenseCategoryFilter !== 'ALL' && expenseMonthFilter !== 'ALL') ? 'grid-cols-1 md:grid-cols-3' : 
-                    (expenseCategoryFilter === 'ALL' && expenseMonthFilter === 'ALL') ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'
+                    expenseCategoryFilter !== 'ALL' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
                   } gap-6 flex-1 h-full transition-all`}>
                     <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
                       <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
@@ -3959,6 +3964,38 @@ function App() {
                       <div className="relative z-10">
                         <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">Total Records</span>
                         <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">{expenses.length}</strong>
+                      </div>
+                    </div>
+
+                    {/* Month Filter Card */}
+                    <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
+                      <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
+                      <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
+                        <Calendar size={24} strokeWidth={2} />
+                      </div>
+                      <div className="relative z-10 w-full flex flex-col items-center">
+                        <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-2 block">Month Filter</span>
+                        <div className="relative w-full max-w-[140px]">
+                          <select
+                            value={expenseMonthFilter}
+                            onChange={(e) => setExpenseMonthFilter(e.target.value)}
+                            className="bg-white/80 backdrop-blur-md dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[#20002c] dark:text-slate-200 text-sm font-bold rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 shadow-sm transition-all appearance-none cursor-pointer"
+                            style={{ textAlignLast: 'center' }}
+                          >
+                            <option value="ALL">All Months</option>
+                            {Array.from(new Set(expenses.map(e => {
+                              try {
+                                const d = new Date(e.date);
+                                return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+                              } catch { return ''; }
+                            }).filter(Boolean))).map(m => (
+                              <option key={m} value={m}>{m}</option>
+                            ))}
+                          </select>
+                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#20002c] dark:text-slate-400">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
@@ -3972,26 +4009,6 @@ function App() {
                           <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">{expenseCategoryFilter} Records</span>
                           <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
                             {expenses.filter(e => e.category && e.category.toLowerCase() === expenseCategoryFilter.toLowerCase()).length}
-                          </strong>
-                        </div>
-                      </div>
-                    )}
-
-                    {expenseMonthFilter !== 'ALL' && (
-                      <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group animate-fade-in h-full">
-                        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
-                        <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
-                          <Calendar size={24} strokeWidth={2} />
-                        </div>
-                        <div className="relative z-10">
-                          <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">{expenseMonthFilter} Records</span>
-                          <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
-                            <CountUp to={expenses.filter(e => {
-                              try {
-                                const d = new Date(e.date);
-                                return !isNaN(d.getTime()) && d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
-                              } catch { return false; }
-                            }).length} duration={1} />
                           </strong>
                         </div>
                       </div>
@@ -4026,28 +4043,8 @@ function App() {
                     </button>
                   </div>
 
-                  {/* Category Filter Pills, Month Filter & Expandable Search Bar */}
-                  <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-                    {/* Month Filter Dropdown */}
-                    <div className="shrink-0">
-                      <select
-                        value={expenseMonthFilter}
-                        onChange={(e) => setExpenseMonthFilter(e.target.value)}
-                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-xl px-3 py-1.5 h-[30px] focus:outline-none focus:ring-2 focus:ring-teal-500/30"
-                      >
-                        <option value="ALL">All Months</option>
-                        {Array.from(new Set(expenses.map(e => {
-                          try {
-                            const d = new Date(e.date);
-                            return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-                          } catch { return ''; }
-                        }).filter(Boolean))).map(m => (
-                          <option key={m} value={m}>{m}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Category Filter Pills */}
+                  {/* Category Filter Pills & Expandable Search Bar */}
+                  <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">                    {/* Category Filter Pills */}
                     <div className="flex flex-wrap items-center gap-2 max-w-full pb-1 lg:pb-0">
                       {['ALL', 'Electricals', 'H3 Services', 'Sports expenses', 'Snacks / Fruits', 'Stationaries', 'Food', 'Academic', 'Internet', 'Transport', 'Toilateries', 'Basic Essentials', 'Medical', 'Water', 'Electronics', 'Other'].map((cat) => {
                         const isActive = expenseCategoryFilter === cat;
@@ -4349,10 +4346,13 @@ function App() {
                           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 580" preserveAspectRatio="none">
                             {/* Grid lines */}
                             <defs>
-                              <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
+                              <linearGradient id="costsGradFinance" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0%" stopColor="#cbb4d4" stopOpacity="0.4" />
                                 <stop offset="100%" stopColor="#cbb4d4" stopOpacity="0" />
                               </linearGradient>
+                              <clipPath id="chart-sweep-finance">
+                                <motion.rect x="0" y="0" width="600" height="580" initial={{ width: 0 }} animate={{ width: 600 }} transition={{ duration: 1.5, ease: "easeOut" }} />
+                              </clipPath>
                             </defs>
                             {[0, 50, 100, 150, 200, 250, 300, 350, 400, 450].map(offset => (
                               <line key={`grid-${offset}`} x1="40" y1={50 + offset} x2="580" y2={50 + offset} stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
@@ -4360,14 +4360,16 @@ function App() {
                             <line x1="40" y1="550" x2="580" y2="550" stroke="rgba(148, 163, 184, 0.15)" strokeDasharray="4" />
 
                             {/* Chart Areas */}
-                            <path d={costPolygonPath} fill="url(#costsGrad)" />
+                            <path d={costPolygonPath} fill="url(#costsGradFinance)" clipPath="url(#chart-sweep-finance)" />
 
                             {/* Chart Lines */}
-                            <path d={costPath} fill="none" stroke="#cbb4d4" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" />
+                            <path d={costPath} fill="none" stroke="#cbb4d4" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" clipPath="url(#chart-sweep-finance)" />
 
                             {/* Data Points */}
                             {costPoints.map((p, i) => (
-                              <circle key={`c-${i}`} cx={p.x} cy={p.y} r="4" fill="#20002c" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                              <motion.circle key={`c-${i}`} cx={p.x} cy={p.y} r="6" fill="#20002c" stroke="#fff" strokeWidth="2" vectorEffect="non-scaling-stroke" className="cursor-pointer hover:stroke-[3px] transition-all" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, delay: (i * 0.1), type: 'spring' }}>
+                                <title>{monthLabels[i]}: ₹{monthlyCosts[i].toLocaleString('en-IN')}</title>
+                              </motion.circle>
                             ))}
 
                             {/* X Axis line */}
@@ -4515,7 +4517,7 @@ function App() {
                             <div className="w-[60%] h-[60%] bg-[#f4f8f4] dark:bg-slate-900 rounded-full flex flex-col items-center justify-center shadow-inner relative z-10 pointer-events-auto border border-slate-200/50 dark:border-slate-700/50">
                               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Total</span>
                               <span className="text-sm lg:text-[13px] xl:text-[15px] font-extrabold text-slate-800 dark:text-slate-100 leading-none truncate w-full text-center px-1" title={`₹${totalExpenses === 0 ? 181 : totalExpenses.toLocaleString('en-IN')}`}>
-                                ₹<CountUp to={totalExpenses === 0 ? 181 : totalExpenses} duration={1} separator="," />
+                                ₹<CountUp to={Math.round(totalExpenses === 0 ? 181 : totalExpenses)} duration={1} separator="," />
                               </span>
                             </div>
                           </div>

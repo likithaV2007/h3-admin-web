@@ -26,8 +26,10 @@ export default function CountUp({
   onStart,
   onEnd
 }: CountUpProps) {
+  const isLargeNumber = Math.abs(to) > 999;
+  const actualFrom = isLargeNumber ? to : from;
   const ref = useRef<HTMLSpanElement>(null);
-  const motionValue = useMotionValue(direction === 'down' ? to : from);
+  const motionValue = useMotionValue(direction === 'down' ? to : actualFrom);
 
   const damping = 20 + 40 * (1 / duration);
   const stiffness = 100 * (1 / duration);
@@ -66,7 +68,7 @@ export default function CountUp({
         maximumFractionDigits: hasDecimals ? maxDecimals : 0
       };
 
-      const formattedNumber = Intl.NumberFormat('en-US', options).format(latest);
+      const formattedNumber = Intl.NumberFormat('en-IN', options).format(latest);
 
       return separator ? formattedNumber.replace(/,/g, separator) : formattedNumber;
     },
@@ -75,16 +77,16 @@ export default function CountUp({
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.textContent = formatValue(direction === 'down' ? to : from);
+      ref.current.textContent = formatValue(direction === 'down' ? to : actualFrom);
     }
-  }, [from, to, direction, formatValue]);
+  }, [actualFrom, to, direction, formatValue]);
 
   useEffect(() => {
     if (isInView && startWhen) {
       if (typeof onStart === 'function') onStart();
 
       const timeoutId = setTimeout(() => {
-        motionValue.set(direction === 'down' ? from : to);
+        motionValue.set(direction === 'down' ? actualFrom : to);
       }, delay * 1000);
 
       const durationTimeoutId = setTimeout(
