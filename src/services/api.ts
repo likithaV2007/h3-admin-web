@@ -1054,8 +1054,24 @@ export const apiService = {
 
   // Fetch Contributions List
   getContributions: async (): Promise<Contribution[]> => {
-    const data = await apiFetch<any[]>('/api/v1/contributions/?skip=0&limit=100', []);
-    if (!data || !Array.isArray(data)) return [];
+    let allData: any[] = [];
+    let skip = 0;
+    const limit = 100;
+    
+    while (true) {
+      const data = await apiFetch<any[]>(`/api/v1/contributions/?skip=${skip}&limit=${limit}`, []);
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        break;
+      }
+      allData = [...allData, ...data];
+      if (data.length < limit) {
+        break;
+      }
+      skip += limit;
+    }
+    
+    const data = allData;
+    if (data.length === 0) return [];
     
     return data.map((item: any) => ({
       id: item.contribution_id || item.id || `REC${Date.now()}`,

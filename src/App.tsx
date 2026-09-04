@@ -3910,11 +3910,20 @@ function App() {
                 {/* Mini Stats - Right Side */}
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
-                  <div className="grid grid-cols-1 gap-6 flex-1 h-full">
+                  <div className={`grid ${expenseCategoryFilter === 'ALL' ? 'grid-cols-1' : 'grid-cols-2'} gap-6 flex-1 h-full transition-all`}>
                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center">
                       <span className="text-[13px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">Total Records</span>
                       <strong className="text-5xl text-slate-900 dark:text-white font-bold">{expenses.length}</strong>
                     </div>
+                    
+                    {expenseCategoryFilter !== 'ALL' && (
+                      <div className="bg-teal-50 dark:bg-teal-900/20 border border-teal-100 dark:border-teal-800/50 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center animate-fade-in">
+                        <span className="text-[13px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-400 mb-3">{expenseCategoryFilter} Records</span>
+                        <strong className="text-5xl text-teal-700 dark:text-teal-400 font-bold">
+                          {expenses.filter(e => e.category.toLowerCase() === expenseCategoryFilter.toLowerCase()).length}
+                        </strong>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

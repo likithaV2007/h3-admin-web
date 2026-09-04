@@ -106,6 +106,10 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
         notes: formData.notes
       });
       
+      if (isAnonymous) {
+        toast.success('Anonymous contribution saved successfully!', { id: loadingToast });
+      }
+      
       setShowSuccess(true);
       
       setTimeout(() => {
