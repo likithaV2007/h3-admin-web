@@ -308,6 +308,7 @@ function App() {
   const [dashboardStats, setDashboardStats] = useState<any>(null);
   const [expenseSubTab, setExpenseSubTab] = useState<'records' | 'analytics'>('records');
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('ALL');
+  const [expenseMonthFilter, setExpenseMonthFilter] = useState<string>('ALL');
   const [expenseSearchQuery, setExpenseSearchQuery] = useState<string>('');
 
 
@@ -3756,13 +3757,15 @@ function App() {
                               <span className={`px-2 py-1 rounded text-[10px] font-bold ${themeClasses.bgPrimaryLight}/20 text-black dark:text-white`}>{c.paymentMethod}</span>
                             </td>
                             <td className="p-4 text-right">
-                              <button
-                                onClick={() => donorObj && generateContributionReceipt(c, donorObj, true)}
-                                className={`px-3 py-1.5 rounded-lg text-white ${themeClasses.bgGradientMain} hover:opacity-90 shadow-sm transition-colors inline-flex items-center gap-1.5 font-bold text-xs`}
-                                title="Download PDF Receipt"
-                              >
-                                <Download size={14} /> Download
-                              </button>
+                              {c.donorName && c.donorName.toLowerCase() !== 'anonymous' && (
+                                <button
+                                  onClick={() => donorObj && generateContributionReceipt(c, donorObj, true)}
+                                  className={`px-3 py-1.5 rounded-lg text-white ${themeClasses.bgGradientMain} hover:opacity-90 shadow-sm transition-colors inline-flex items-center gap-1.5 font-bold text-xs`}
+                                  title="Download PDF Receipt"
+                                >
+                                  <Download size={14} /> Download
+                                </button>
+                              )}
                             </td>
                           </tr>
                         );
@@ -3942,9 +3945,28 @@ function App() {
                     </button>
                   </div>
 
-                  {/* Category Filter Pills & Expandable Search Bar */}
+                  {/* Category Filter Pills, Month Filter & Expandable Search Bar */}
                   <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-                    {/* Category Filter Pills (Transport, Classes, Food, Sports, Medical...) */}
+                    {/* Month Filter Dropdown */}
+                    <div className="shrink-0">
+                      <select
+                        value={expenseMonthFilter}
+                        onChange={(e) => setExpenseMonthFilter(e.target.value)}
+                        className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold rounded-xl px-3 py-1.5 h-[30px] focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                      >
+                        <option value="ALL">All Months</option>
+                        {Array.from(new Set(expenses.map(e => {
+                          try {
+                            const d = new Date(e.date);
+                            return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+                          } catch { return ''; }
+                        }).filter(Boolean))).map(m => (
+                          <option key={m} value={m}>{m}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Category Filter Pills */}
                     <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 lg:pb-0 scrollbar-none">
                       {['ALL', 'Electricals', 'H3 Services', 'Sports expenses', 'Snacks / Fruits', 'Stationaries', 'Food', 'Academic', 'Internet', 'Transport', 'Toilateries', 'Basic Essentials', 'Medical', 'Water', 'Electronics', 'Other'].map((cat) => {
                         const isActive = expenseCategoryFilter === cat;
@@ -4014,13 +4036,24 @@ function App() {
                         Showing {
                           expenses.filter(e => {
                             const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
+                            
+                            let monthMatch = true;
+                            if (expenseMonthFilter !== 'ALL') {
+                              try {
+                                const d = new Date(e.date);
+                                if (!isNaN(d.getTime())) {
+                                  monthMatch = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
+                                }
+                              } catch {}
+                            }
+
                             const query = expenseSearchQuery.trim().toLowerCase();
                             const searchMatch = !query ||
                               (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
                               (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
                               (e.title && e.title.toLowerCase().includes(query)) ||
                               (e.category && e.category.toLowerCase().includes(query));
-                            return catMatch && searchMatch;
+                            return catMatch && monthMatch && searchMatch;
                           }).length
                         } of {expenses.length} Expense Logs
                         {expenseSearchQuery && <span className="text-slate-800 dark:text-teal-400 font-semibold ml-1.5">(Filtered by "{expenseSearchQuery}")</span>}
@@ -4031,13 +4064,24 @@ function App() {
                       {expenses
                         .filter(e => {
                           const catMatch = expenseCategoryFilter === 'ALL' || e.category.toLowerCase() === expenseCategoryFilter.toLowerCase();
+                          
+                          let monthMatch = true;
+                          if (expenseMonthFilter !== 'ALL') {
+                            try {
+                              const d = new Date(e.date);
+                              if (!isNaN(d.getTime())) {
+                                monthMatch = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) === expenseMonthFilter;
+                              }
+                            } catch {}
+                          }
+
                           const query = expenseSearchQuery.trim().toLowerCase();
                           const searchMatch = !query ||
                             (e.created_by_name && e.created_by_name.toLowerCase().includes(query)) ||
                             (e.target_group && e.target_group.toLowerCase().replace(/_/g, ' ').includes(query)) ||
                             (e.title && e.title.toLowerCase().includes(query)) ||
                             (e.category && e.category.toLowerCase().includes(query));
-                          return catMatch && searchMatch;
+                          return catMatch && monthMatch && searchMatch;
                         })
                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                         .map(item => {

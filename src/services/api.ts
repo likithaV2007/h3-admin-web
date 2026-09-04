@@ -353,8 +353,24 @@ export const apiService = {
 
   // Fetch Expenses List
   getExpenses: async (): Promise<Expense[]> => {
-    const data = await apiFetch<any[]>('/api/v1/expenses/?limit=10000', []);
-    if (!data || !Array.isArray(data)) return [];
+    let allData: any[] = [];
+    let skip = 0;
+    const limit = 100;
+    
+    while (true) {
+      const data = await apiFetch<any[]>(`/api/v1/expenses/?skip=${skip}&limit=${limit}`, []);
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        break;
+      }
+      allData = [...allData, ...data];
+      if (data.length < limit) {
+        break;
+      }
+      skip += limit;
+    }
+    
+    const data = allData;
+    if (data.length === 0) return [];
     
     return data.map((item: any) => ({
       id: item.id || item.expense_id,
