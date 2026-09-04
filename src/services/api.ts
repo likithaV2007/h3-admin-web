@@ -1116,6 +1116,17 @@ export const apiService = {
     }
   },
 
+  // Fetch Expense Analytics
+  getExpenseAnalytics: async (): Promise<any> => {
+    try {
+      const data = await apiFetch<any>('/api/v1/stats/expenses-analytics', null);
+      return data;
+    } catch (error) {
+      console.error("Failed to fetch expense analytics:", error);
+      return null;
+    }
+  },
+
   // Send Receipt Email
   sendReceiptEmail: async (email: string, donorName: string, fileBlob: Blob): Promise<boolean> => {
     try {

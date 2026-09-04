@@ -304,8 +304,9 @@ function App() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [viewingActivityImages, setViewingActivityImages] = useState<string[] | null>(null);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
-  const [adminCount, setAdminCount] = useState<number>(3);
+  const [adminCount, setAdminCount] = useState<number>(0);
   const [dashboardStats, setDashboardStats] = useState<any>(null);
+  const [expenseAnalytics, setExpenseAnalytics] = useState<any>(null);
   const [expenseSubTab, setExpenseSubTab] = useState<'records' | 'analytics'>('records');
   const [expenseCategoryFilter, setExpenseCategoryFilter] = useState<string>('ALL');
   const [expenseMonthFilter, setExpenseMonthFilter] = useState<string>('ALL');
@@ -536,7 +537,7 @@ function App() {
 
       const fetchedStudents = await apiService.getStudents();
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities, fetchedClasses, fetchedStudentRequests, fetchedLeaveRequests, fetchedContributions] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities, fetchedClasses, fetchedStudentRequests, fetchedLeaveRequests, fetchedContributions, fetchedExpenseAnalytics] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
@@ -549,11 +550,13 @@ function App() {
         apiService.getClasses(),
         apiService.getStudentRequests(),
         apiService.getLeaveRequests(),
-        apiService.getContributions()
+        apiService.getContributions(),
+        apiService.getExpenseAnalytics()
       ]);
 
       setAdminCount(fetchedAdminCount);
       setDashboardStats(fetchedDashboardStats);
+      setExpenseAnalytics(fetchedExpenseAnalytics);
       setActivities(fetchedActivities);
 
       let studentsWithLiveLocations = fetchedStudents || [];
@@ -2010,7 +2013,7 @@ function App() {
                     </div>
                     <div className="pt-1">
                       <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
-                        Total Enrolled
+                        Total Students
                       </h4>
                       <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
                         {dashboardStats?.total_students ?? students.length}
@@ -2147,21 +2150,21 @@ function App() {
                   
                   <div className="flex items-start gap-4 z-10">
                     <div className={`w-14 h-14 rounded-full ${themeClasses.bgPrimaryLight} text-white flex items-center justify-center shadow-inner shrink-0`}>
-                      <MapPin size={26} strokeWidth={2} />
+                      <Receipt size={26} strokeWidth={2} />
                     </div>
                     <div className="pt-1">
                       <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
-                        Out of Fence
+                        Total Contributions
                       </h4>
                       <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        {students.filter(s => s.location.status === 'Out of Bounds').length}
+                        {contributions.length}
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 mt-4 z-10">
                     <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">
-                      Requires urgent review
+                      Total contributions recorded
                     </span>
                   </div>
                 </div>
@@ -2196,9 +2199,9 @@ function App() {
                       monthLabels.push(monthNames[d.getMonth()]);
                     }
 
-                    if (dashboardStats?.monthly_expenses) {
+                    if (expenseAnalytics?.monthly_expenses) {
                       monthlyCosts = monthLabels.map(label => {
-                        const found = dashboardStats.monthly_expenses.find((m: any) => m.month === label);
+                        const found = expenseAnalytics.monthly_expenses.find((m: any) => m.month === label);
                         return found ? found.amount : 0;
                       });
                     } else {
@@ -2311,8 +2314,8 @@ function App() {
                     ];
 
                     let calculatedData: any[] = distributionData.map(cat => {
-                      if (dashboardStats?.expense_distribution) {
-                        const stat = dashboardStats.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
+                      if (expenseAnalytics?.expense_distribution) {
+                        const stat = expenseAnalytics.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
                         return { ...cat, amount: stat ? stat.amount : 0 };
                       }
                       return {
@@ -4269,9 +4272,9 @@ function App() {
                       monthLabels.push(monthNames[d.getMonth()]);
                     }
 
-                    if (dashboardStats?.monthly_expenses) {
+                    if (expenseAnalytics?.monthly_expenses) {
                       monthlyCosts = monthLabels.map(label => {
-                        const found = dashboardStats.monthly_expenses.find((m: any) => m.month === label);
+                        const found = expenseAnalytics.monthly_expenses.find((m: any) => m.month === label);
                         return found ? found.amount : 0;
                       });
                     } else {
@@ -4384,8 +4387,8 @@ function App() {
                     ];
 
                     let calculatedData: any[] = distributionData.map(cat => {
-                      if (dashboardStats?.expense_distribution) {
-                        const stat = dashboardStats.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
+                      if (expenseAnalytics?.expense_distribution) {
+                        const stat = expenseAnalytics.expense_distribution.find((e: any) => e.category.toLowerCase() === cat.name);
                         return { ...cat, amount: stat ? stat.amount : 0 };
                       }
                       return {

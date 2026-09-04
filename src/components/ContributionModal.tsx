@@ -105,9 +105,9 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
         paymentMethod: formData.paymentMethod,
         notes: formData.notes
       });
-      
       if (isAnonymous) {
-        toast.success('Anonymous contribution saved successfully!', { id: loadingToast });
+        toast.dismiss(loadingToast);
+        toast.success('Anonymous contribution saved successfully!');
       }
       
       setShowSuccess(true);
