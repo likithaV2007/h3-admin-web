@@ -4116,151 +4116,134 @@ function App() {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredFinanceExpenses
-                        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                        .map(item => {
-                          // Pick icon based on category
-                          const catLower = item.category.toLowerCase();
-                          const CategoryIcon =
-                            catLower.includes('snack') || catLower.includes('food') || catLower.includes('water') ? Coffee :
-                              catLower.includes('sport') ? Trophy :
-                                catLower.includes('transport') ? Bus :
-                                  catLower.includes('med') ? Stethoscope :
-                                    catLower.includes('station') || catLower.includes('academic') ? BookOpen :
-                                      catLower.includes('toilateries') || catLower.includes('essential') ? ShoppingBag :
-                                        catLower.includes('electr') || catLower.includes('internet') ? Radio :
-                                          catLower.includes('h3') ? HeartHandshake : Receipt;
+                    <div className="overflow-x-auto w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm">
+                      <table className="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                          <tr className="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/50">
+                            <th className="px-5 py-4 font-semibold">Expense</th>
+                            <th className="px-5 py-4 font-semibold">Date</th>
+                            <th className="px-5 py-4 font-semibold">Category</th>
+                            <th className="px-5 py-4 font-semibold">By / For</th>
+                            <th className="px-5 py-4 font-semibold">Status</th>
+                            <th className="px-5 py-4 font-semibold text-right">Amount</th>
+                            <th className="px-5 py-4 font-semibold text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                          {filteredFinanceExpenses
+                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                            .map(item => {
+                              // Pick icon based on category
+                              const catLower = item.category.toLowerCase();
+                              const CategoryIcon =
+                                catLower.includes('snack') || catLower.includes('food') || catLower.includes('water') ? Coffee :
+                                  catLower.includes('sport') ? Trophy :
+                                    catLower.includes('transport') ? Bus :
+                                      catLower.includes('med') ? Stethoscope :
+                                        catLower.includes('station') || catLower.includes('academic') ? BookOpen :
+                                          catLower.includes('toilateries') || catLower.includes('essential') ? ShoppingBag :
+                                            catLower.includes('electr') || catLower.includes('internet') ? Radio :
+                                              catLower.includes('h3') ? HeartHandshake : Receipt;
 
-                          // Format Date e.g. "23 Jul 2026"
-                          let formattedDate = item.date;
-                          try {
-                            const d = new Date(item.date);
-                            if (!isNaN(d.getTime())) {
-                              formattedDate = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-                            }
-                          } catch { }
+                              // Format Date e.g. "23 Jul 2026"
+                              let formattedDate = item.date;
+                              try {
+                                const d = new Date(item.date);
+                                if (!isNaN(d.getTime())) {
+                                  formattedDate = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                                }
+                              } catch { }
 
-                          return (
-                            <div
-                              key={item.id}
-                              onClick={() => setSelectedExpense(item)}
-                              className="p-5 border border-slate-200 dark:border-slate-800 rounded-[1.5rem] bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 hover:shadow-md transition-all flex flex-col justify-between gap-5 group relative overflow-hidden cursor-pointer animate-fade-in"
-                            >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex items-start gap-3.5">
-                                  {/* Icon/Image Thumbnail */}
-                                  {(item.receipt_photo_link || item.receipt_drive_link) ? (
-                                    <div className="w-11 h-11 rounded-2xl shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
-                                      <img referrerPolicy="no-referrer" src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) || "https://placehold.co/44"} alt="Receipt" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-[8px] font-bold text-slate-400 p-1 text-center leading-tight">Private Image</span>'; }} />
-                                    </div>
-                                  ) : (
-                                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 border shadow-sm ${themeClasses.bgPrimaryLight}/10 ${themeClasses.textPrimaryLight} border-[#cbb4d4]/20`}>
-                                      <CategoryIcon size={20} />
-                                    </div>
-                                  )}
-
-                                  <div className="space-y-1.5 w-full">
-                                    <h5 className={`font-bold text-[15px] text-slate-900 dark:text-white leading-snug group-hover:${themeClasses.textPrimaryLight} dark:group-hover:text-violet-400 transition-colors`}>
-                                      {item.title}
-                                    </h5>
-                                    <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-emerald-50 text-emerald-600 tracking-wider">
-                                        {item.category}
-                                      </span>
-                                      <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
-                                        🗓 {formattedDate}
-                                      </span>
-
-                                      {/* Extra badges to make card richer */}
-                                      {item.refund_requested && (
-                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 tracking-wider flex items-center gap-1">
-                                          <RefreshCw size={10} /> Refund
-                                        </span>
-                                      )}
-                                      {item.is_foundation_paid ? (
-                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400 tracking-wider flex items-center gap-1">
-                                          🏦 H3 Paid
-                                        </span>
-                                      ) : (
-                                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-[4px] bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400 tracking-wider flex items-center gap-1">
-                                          👤 Self Paid
-                                        </span>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Status Badge (e.g. PENDING in amber/orange) */}
-                                <span className={`px-2.5 py-1 rounded-full font-bold text-[9px] tracking-widest uppercase shrink-0
-                                  ${item.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : item.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' : 'bg-orange-50 text-orange-500 dark:bg-orange-950/40 dark:text-orange-400'}`}
+                              return (
+                                <tr
+                                  key={item.id}
+                                  onClick={() => setSelectedExpense(item)}
+                                  className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group cursor-pointer animate-fade-in"
                                 >
-                                  {item.status}
-                                </span>
-                              </div>
-
-                              {/* Footer: Creator & Amount */}
-                              <div className="flex flex-col pt-4 border-t border-dashed border-slate-200 dark:border-slate-700 mt-1 gap-4">
-                                <div className="flex items-end justify-between">
-                                  <div className="flex flex-col gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                                    <div className="flex items-center gap-1.5">
-                                      <User size={13} className="text-slate-400 dark:text-slate-500 shrink-0" />
-                                      <span>By: <strong className="text-slate-700 dark:text-slate-300">{item.uploaded_by || item.created_by_name || 'System Admin'}</strong></span>
-                                      <span className="text-slate-300 dark:text-slate-600">|</span>
-                                      <span>For: <strong className="text-slate-700 dark:text-slate-200 font-bold">{item.target_group || 'ALL'}</strong></span>
+                                  <td className="px-5 py-4">
+                                    <div className="flex items-center gap-3.5">
+                                      {(item.receipt_photo_link || item.receipt_drive_link) ? (
+                                        <div className="w-10 h-10 rounded-xl shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                                          <img referrerPolicy="no-referrer" src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) || "https://placehold.co/40"} alt="Receipt" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-[8px] font-bold text-slate-400 p-1 text-center leading-tight">Private</span>'; }} />
+                                        </div>
+                                      ) : (
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-sm ${themeClasses.bgPrimaryLight}/10 ${themeClasses.textPrimaryLight} border-[#cbb4d4]/20`}>
+                                          <CategoryIcon size={18} />
+                                        </div>
+                                      )}
+                                      <div className="flex flex-col gap-1">
+                                        <span className={`font-bold text-[14px] text-slate-900 dark:text-white leading-tight group-hover:${themeClasses.textPrimaryLight} dark:group-hover:text-violet-400 transition-colors`}>
+                                          {item.title}
+                                        </span>
+                                        <div className="flex gap-2 items-center">
+                                          {item.refund_requested && (
+                                            <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400 flex items-center gap-0.5" title="Refund Requested">
+                                              <RefreshCw size={8} /> Refund
+                                            </span>
+                                          )}
+                                          {item.is_foundation_paid ? (
+                                            <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400 flex items-center gap-0.5">
+                                              🏦 H3 Paid
+                                            </span>
+                                          ) : (
+                                            <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 flex items-center gap-0.5">
+                                              👤 Self Paid
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
                                     </div>
-                                    <div className="flex items-center gap-1.5 pl-[19px]">
-                                      <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest">Approved By:</span>
-                                      <span className={`text-[10px] font-bold ${item.status === 'APPROVED'
-                                        ? 'text-emerald-600 dark:text-emerald-400'
-                                        : item.status === 'REJECTED'
-                                          ? 'text-rose-600 dark:text-rose-400'
-                                          : 'text-orange-500 dark:text-amber-500 bg-orange-50 dark:bg-orange-950/30 px-1.5 rounded'
-                                        }`}>
-                                        {item.status === 'APPROVED' ? (item.approved_by_name || 'System Admin') : item.status === 'REJECTED' ? 'Rejected' : 'Pending'}
-                                      </span>
+                                  </td>
+                                  <td className="px-5 py-4">
+                                    <span className="text-[12px] text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">
+                                      🗓 {formattedDate}
+                                    </span>
+                                  </td>
+                                  <td className="px-5 py-4">
+                                    <span className="text-[10px] font-bold uppercase px-2.5 py-1 rounded-[6px] bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 tracking-wider">
+                                      {item.category}
+                                    </span>
+                                  </td>
+                                  <td className="px-5 py-4">
+                                    <div className="flex flex-col gap-1 text-[11px] text-slate-600 dark:text-slate-400 font-medium">
+                                      <div className="flex items-center gap-1.5">
+                                        <User size={12} className="text-slate-400" />
+                                        <span className="truncate max-w-[120px]"><strong className="text-slate-800 dark:text-slate-200">{item.uploaded_by || item.created_by_name || 'Admin'}</strong></span>
+                                      </div>
+                                      <div className="pl-4 text-[10px] text-slate-500">
+                                        For: <strong className="text-slate-700 dark:text-slate-300">{item.target_group || 'ALL'}</strong>
+                                      </div>
                                     </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-4">
-                                    <span className="text-lg font-black text-emerald-600 dark:text-purple-400 font-mono">
+                                  </td>
+                                  <td className="px-5 py-4">
+                                    <span className={`px-2.5 py-1 rounded-full font-bold text-[10px] tracking-widest uppercase whitespace-nowrap
+                                      ${item.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : item.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' : 'bg-orange-50 text-orange-500 dark:bg-orange-950/40 dark:text-orange-400'}`}
+                                    >
+                                      {item.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-5 py-4 text-right">
+                                    <span className="text-[15px] font-black text-emerald-600 dark:text-emerald-400 font-mono whitespace-nowrap">
                                       ₹ {item.amount.toLocaleString('en-IN')}
                                     </span>
-
+                                  </td>
+                                  <td className="px-5 py-4 text-right">
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleDeleteExpense(item.id);
                                       }}
                                       title="Delete expense entry"
-                                      className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
+                                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl transition-colors"
                                     >
-                                      <Trash2 size={15} strokeWidth={2} />
+                                      <Trash2 size={16} strokeWidth={2} />
                                     </button>
-                                  </div>
-                                </div>
-
-                                {/* Uploaded Receipt Display */}
-                                {(item.receipt_photo_link || item.receipt_drive_link) && (
-                                  <div className="w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-2">
-                                    <div className="flex items-center justify-between mb-2 px-1">
-                                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Attached Receipt</span>
-                                    </div>
-                                    {getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) ? (
-                                      <a href={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                        <img referrerPolicy="no-referrer" src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link)!} alt="Receipt thumbnail" className="w-full h-auto max-h-48 object-cover rounded-lg bg-white dark:bg-slate-950" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<div class="py-4 text-center border-2 border-dashed border-red-200 rounded-lg text-xs font-bold text-red-500">Image is Private or Blocked. Click to open in Drive.</div>'; }} />
-                                      </a>
-                                    ) : (
-                                      <a href={item.receipt_drive_link!} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="block w-full py-3 text-center border-2 border-dashed border-purple-200 dark:border-purple-900/50 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20">
-                                        <span className="text-xs font-bold text-purple-600 dark:text-purple-400">Open Document</span>
-                                      </a>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 )}
