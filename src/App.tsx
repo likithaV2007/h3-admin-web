@@ -4048,7 +4048,7 @@ function App() {
                         </h3>
                       </div>
                     </div>
-                    <div className="mt-6 relative z-10">
+                    <div className="mt-6 relative z-10 flex items-center justify-between">
                       <button
                         onClick={() => setShowExpenseModal(true)}
                         className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/30 font-semibold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-95"
@@ -4056,6 +4056,13 @@ function App() {
                         <Plus size={16} className="text-white" />
                         Add Record
                       </button>
+                      
+                      {/* Decorative mini chart */}
+                      <div className="flex gap-1.5 items-end h-8 opacity-60">
+                        {[5, 8, 4, 9, 7, 10].map((h, i) => (
+                          <div key={i} className="w-1.5 bg-white rounded-t-sm animate-pulse" style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -4100,6 +4107,13 @@ function App() {
                       <div className="relative z-10">
                         <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-1 block">Total Records</span>
                         <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">{expenses.length}</strong>
+                      </div>
+                      
+                      {/* Decorative mini chart */}
+                      <div className="absolute bottom-6 right-6 flex gap-1.5 items-end h-8 opacity-30">
+                        {[6, 4, 8, 5, 10, 7].map((h, i) => (
+                          <div key={i} className="w-1.5 bg-[#20002c] dark:bg-[#cbb4d4] rounded-t-sm animate-pulse" style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
+                        ))}
                       </div>
                     </div>
 
