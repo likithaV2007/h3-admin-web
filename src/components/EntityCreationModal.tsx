@@ -338,6 +338,16 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
             <CustomInput required type="number" name="contribution" placeholder="Contribution Amount" value={formData.contribution} onChange={handleChange} />
           </div>
         );
+      case 'Admin':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <CustomInput required name="name" placeholder="Admin Name" value={formData.name} onChange={handleChange} />
+            </div>
+            <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
+            <CustomPhoneInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} onCountryCodeChange={(e: any) => setFormData({...formData, countryCode: e.target.value})} countryCodeValue={formData.countryCode} />
+          </div>
+        );
       case 'Volunteer':
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

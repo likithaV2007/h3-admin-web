@@ -1599,6 +1599,28 @@ function App() {
         await apiService.createParent(payload);
       }
       await loadDataFromApi();
+    } else if (type === 'Admin') {
+      const payload = {
+        full_name: data.name,
+        email: data.email,
+        phone: data.phone,
+        specialization: 'Admin', // default for Admin
+        availability: 'Flexible', // default for Admin
+        bio: 'Administrator',
+        joined_date: new Date().toISOString().split('T')[0],
+        user_id: "00000000-0000-0000-0000-000000000000",
+        is_deleted: 0,
+        profile_photo_link: ""
+      };
+      if (isEdit && editId) {
+        await apiService.updateVolunteer(editId, payload);
+        if (selectedVolunteer && (selectedVolunteer.id === editId || (selectedVolunteer as any).volunteer_id === editId)) {
+          setSelectedVolunteer({ ...selectedVolunteer, name: data.name, email: data.email, phone: data.phone, specialization: 'Admin', availability: 'Flexible' } as any);
+        }
+      } else {
+        await apiService.createVolunteer(payload);
+      }
+      await loadDataFromApi();
     } else if (type === 'Volunteer') {
       const payload = {
         full_name: data.name,
@@ -3686,7 +3708,76 @@ function App() {
           )}
 
           {/* MODULE: VOLUNTEERS (ADMINS) */}
-          {(activeTab === 'Admins' || activeTab === 'Volunteers') && (
+          {activeTab === 'Admins' && (
+            <div className="glass-panel rounded-2xl p-5 space-y-4 animate-fade-in">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h4 className="font-bold text-base">Active Admin Network</h4>
+                  <p className="text-xs text-slate-400">Coordinating operations, student mentoring, and program administration</p>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Filter by admin name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-500/20 w-full sm:w-64 transition-all shadow-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-4">
+                {filteredVolunteers.map(vol => (
+                  <div key={vol.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 flex flex-col gap-5 relative group overflow-hidden">
+                    {/* Top Right Status Badge */}
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-bold text-[10px] shadow-sm
+                        ${vol.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800/50'}`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${vol.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
+                        {vol.status}
+                      </span>
+                    </div>
+
+                    {/* Avatar & Info */}
+                    <div className="flex items-center gap-4 relative z-10 mt-2">
+                      <ProfileAvatar url={vol.profile_photo_link || vol.avatar} name={vol.name || (vol as any).volunteer_name} className="w-16 h-16 rounded-2xl object-cover shadow-sm bg-slate-100 shrink-0 border-2 border-white dark:border-slate-800" fallbackClassName={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm ${themeClasses.bgGradientMain} text-white font-black text-2xl shrink-0 border-2 border-white dark:border-slate-800`} />
+                      <div className="overflow-hidden">
+                        <h3 className="font-black text-lg text-slate-900 dark:text-white leading-tight truncate" title={vol.name}>{vol.name}</h3>
+                        <p className="text-xs font-semibold text-slate-500 mt-0.5 font-mono truncate" title={vol.email}>{vol.email}</p>
+                      </div>
+                    </div>
+
+                    {/* Contact & Actions Footer */}
+                    <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between relative z-10">
+                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                        <PhoneCall size={12} className="opacity-50" />
+                        <span className="text-xs font-mono font-medium">{vol.phone}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => setSelectedVolunteer(vol)}
+                          className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-purple-100 dark:hover:bg-purple-900/30 hover:text-purple-700 dark:hover:text-purple-400 rounded-lg transition-colors"
+                        >
+                          Profile
+                        </button>
+                        <a 
+                          href={getWhatsAppLink(vol.phone)} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          title="Message on WhatsApp"
+                          className="p-1.5 bg-green-50 dark:bg-green-900/20 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg transition-colors"
+                        >
+                          <MessageSquare size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'Volunteers' && (
             <div className="glass-panel rounded-2xl p-5 space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
@@ -6334,7 +6425,7 @@ function App() {
             if (activeTab === 'Location') {
               setShowAddLocationModal(true);
             } else {
-              const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : (activeTab === 'Admins' || activeTab === 'Volunteers') ? 'Volunteer' : 'Donor';
+              const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : activeTab === 'Admins' ? 'Admin' : activeTab === 'Volunteers' ? 'Volunteer' : 'Donor';
               setCreationModal({ type, isOpen: true });
             }
           }}
