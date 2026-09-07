@@ -19,20 +19,19 @@ export const generateContributionReceipt = async (contribution: Contribution, do
     const logoImg = await loadImage('/hope3_logo-removebg-preview.png');
     
     // Draw the "H O PE" logo manually since the image is just the swirl (O)
-    // H in red, swirl image, PE in dark blue
-    doc.setFontSize(42);
-    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(28);
+    doc.setFont('helvetica', 'normal');
     
     // H
-    doc.setTextColor(211, 47, 47); // Red
-    doc.text('H', 130, 26);
+    doc.setTextColor(93, 156, 236); // Light blue
+    doc.text('H', 155, 22);
     
-    // O (swirl image) - The image is 1:1, draw as 16x16
-    doc.addImage(logoImg, 'PNG', 142, 12, 16, 16); 
+    // O (swirl image) - The image is 1:1, draw as 10x10
+    doc.addImage(logoImg, 'PNG', 164, 13, 10, 10); 
     
-    // PE
-    doc.setTextColor(31, 78, 121); // Dark blue
-    doc.text('PE', 159, 26);
+    // PE3
+    doc.setTextColor(93, 156, 236); // Light blue
+    doc.text('PE3', 175, 22);
     
   } catch (e) {
     console.error('Failed to load logo', e);
