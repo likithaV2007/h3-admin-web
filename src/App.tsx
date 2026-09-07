@@ -2720,7 +2720,7 @@ function App() {
                               <span>Course</span>
                               <select onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'course': e.target.value === 'ALL' ? '' : e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200">
                                 <option value="ALL">All</option>
-                                {Array.from(new Set(students.map(s => s.course || (s.grade ? s.grade.replace(/\s*-\s*\d+[a-zA-Z]{2}\s*Year\s*/i, ' ').trim() : '')).filter(Boolean))).sort().map(c => <option key={c} value={c}>{c}</option>)}
+                                {Array.from(new Set(students.map(s => (s.course && s.course !== 'N/A') ? s.course : (s.grade && s.grade !== 'N/A' ? s.grade.replace(/\s*-\s*\d+[a-zA-Z]{2}\s*Year\s*/i, ' ').trim() : '')).filter(c => Boolean(c) && c !== 'N/A'))).sort().map(c => <option key={c} value={c}>{c}</option>)}
                               </select>
                             </div>
                           </th>
@@ -2772,7 +2772,11 @@ function App() {
                               </span>
                             </td>
                             <td className="p-4">
-                              <span className="block font-medium text-slate-700 dark:text-slate-350">{student.grade ? student.grade.replace(/\s*-\s*\d+[a-zA-Z]{2}\s*Year\s*/i, ' ').trim() : ''}</span>
+                              <span className="block font-medium text-slate-700 dark:text-slate-350">
+                                {student.course && student.course !== 'N/A' 
+                                  ? student.course 
+                                  : (student.grade && student.grade !== 'N/A' ? student.grade.replace(/\s*-\s*\d+[a-zA-Z]{2}\s*Year\s*/i, ' ').trim() : 'N/A')}
+                              </span>
                             </td>
                             <td className="p-4">
                               <span className="block font-medium text-slate-700 dark:text-slate-350 max-w-[180px] truncate" title={student.college}>{student.college}</span>
@@ -4082,9 +4086,9 @@ function App() {
                         </h3>
                       </div>
                     </div>
-                    <div className="mt-6 relative z-10 flex items-end justify-end opacity-60 h-8">
+                    <div className="mt-6 relative z-10 flex items-center justify-end opacity-60 h-[34px]">
                       {/* Decorative mini chart */}
-                      <div className="flex gap-1.5 items-end h-full">
+                      <div className="flex gap-1.5 items-end h-8">
                         {[4, 7, 5, 8, 10, 6].map((h, i) => (
                           <div key={i} className="w-1.5 bg-white rounded-t-sm animate-pulse" style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
                         ))}
@@ -4096,9 +4100,7 @@ function App() {
                 {/* Mini Stats - Right Side */}
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
-                  <div className={`grid ${
-                    expenseCategoryFilter !== 'ALL' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'
-                  } gap-6 flex-1 h-full transition-all`}>
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1 h-full transition-all`}>
                     <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
                       <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
                       <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
@@ -4112,7 +4114,7 @@ function App() {
                       {/* Decorative mini chart */}
                       <div className="absolute bottom-6 right-6 flex gap-1.5 items-end h-8 opacity-30">
                         {[6, 4, 8, 5, 10, 7].map((h, i) => (
-                          <div key={i} className="w-1.5 bg-[#20002c] dark:bg-[#cbb4d4] rounded-t-sm animate-pulse" style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
+                          <div key={i} className={`w-1.5 ${themeClasses.bgGradientMain} rounded-t-sm animate-pulse`} style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
                         ))}
                       </div>
                     </div>
@@ -4130,6 +4132,13 @@ function App() {
                           <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
                             {expenses.filter(e => e.category && e.category.toLowerCase() === expenseCategoryFilter.toLowerCase()).length}
                           </strong>
+                        </div>
+                        
+                        {/* Decorative mini chart */}
+                        <div className="absolute bottom-6 right-6 flex gap-1.5 items-end h-8 opacity-30">
+                          {[3, 7, 4, 8, 5, 9].map((h, i) => (
+                            <div key={i} className={`w-1.5 ${themeClasses.bgGradientMain} rounded-t-sm animate-pulse`} style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -5090,21 +5099,24 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-white dark:bg-slate-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-slate-200 dark:border-slate-800">
-              <div className="flex justify-between items-center w-full mb-3">
-                <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
-                  Admin Profile
+            <div className={`relative ${themeClasses.bgGradientMain} rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between overflow-hidden`}>
+              <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>
+              <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-black/10 rounded-full blur-2xl mix-blend-overlay"></div>
+              
+              <div className="relative z-10 flex justify-between items-center w-full mb-4">
+                <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-extrabold uppercase tracking-widest px-3 py-1.5 rounded-full border border-white/20 shadow-sm">
+                  {activeTab === 'Admins' ? 'Admin Profile' : 'Volunteer Profile'}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setCreationModal({ type: 'Volunteer', isOpen: true, isEdit: true, initialData: selectedVolunteer })}
-                    className="px-3 py-1 bg-black/20 hover:bg-black/40 text-slate-900 rounded-lg transition-colors text-[10px] font-bold uppercase"
+                    onClick={() => setCreationModal({ type: activeTab === 'Admins' ? 'Admin' : 'Volunteer', isOpen: true, isEdit: true, initialData: selectedVolunteer })}
+                    className="px-4 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 rounded-xl transition-all hover:scale-105 active:scale-95 text-[10px] font-bold uppercase tracking-wider shadow-sm"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => setSelectedVolunteer(null)}
-                    className="p-1.5 bg-black/20 hover:bg-black/40 text-slate-900 rounded-full transition-colors"
+                    className="p-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 rounded-full transition-all hover:scale-105 active:scale-95 shadow-sm"
                   >
                     <X size={16} />
                   </button>
@@ -5112,27 +5124,27 @@ function App() {
               </div>
 
               {/* Avatar & Profile Title inside Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
+              <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     {selectedVolunteer.profile_photo_link && formatAvatarUrl(selectedVolunteer.profile_photo_link) ? (
                       <img
                         src={formatAvatarUrl(selectedVolunteer.profile_photo_link)}
                         alt={selectedVolunteer.name}
-                        className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
+                        className="w-20 h-20 rounded-2xl object-cover border-[3px] border-white/90 shadow-xl bg-white/20 backdrop-blur-sm"
                       />
                     ) : (
-                      <div className={`w-20 h-20 rounded-2xl border-2 border-white/80 shadow-xl ${themeClasses.bgPrimaryLight} flex items-center justify-center text-white text-3xl font-bold`}>
+                      <div className={`w-20 h-20 rounded-2xl border-[3px] border-white/90 shadow-xl bg-white/20 flex items-center justify-center text-white text-3xl font-black backdrop-blur-sm`}>
                         {selectedVolunteer.name.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className={`absolute bottom-0 right-0 w-3.5 h-3.5 ${themeClasses.bgPrimaryLight} border-2 border-white rounded-full`}></span>
+                    <span className={`absolute -bottom-1 -right-1 w-4 h-4 ${selectedVolunteer.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'} border-2 border-white rounded-full shadow-sm`}></span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <h3 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
                       {selectedVolunteer.name}
                     </h3>
-                    <p className="text-xs text-slate-500 font-medium">{selectedVolunteer.email}</p>
+                    <p className="text-sm text-white/80 font-medium font-mono mt-0.5">{selectedVolunteer.email}</p>
                   </div>
                 </div>
 
@@ -5141,7 +5153,7 @@ function App() {
                     href={getWhatsAppLink(selectedVolunteer.phone)}
                     target="_blank"
                     rel="noreferrer"
-                    className={`px-3.5 py-2 ${themeClasses.bgPrimaryLight} hover:${themeClasses.bgPrimaryLight}/90 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md`}
+                    className={`px-4 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm transition-all hover:scale-105 active:scale-95`}
                   >
                     <PhoneCall size={14} />
                     <span>Call</span>
@@ -5150,7 +5162,7 @@ function App() {
                     href={getWhatsAppLink(selectedVolunteer.phone, `Hello ${selectedVolunteer.name}, greetings from Hope3 NGO.`)}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md border border-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:border-slate-700 dark:text-white"
+                    className="px-4 py-2.5 bg-white text-[#20002c] hover:bg-white/90 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg transition-all hover:scale-105 active:scale-95"
                   >
                     <MessageSquare size={14} />
                     <span>Message</span>
@@ -5160,13 +5172,13 @@ function App() {
             </div>
 
             {/* Profile Overview */}
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-6 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-3xl">
 
               {/* Bio */}
               {selectedVolunteer.bio && (
-                <div className="glass-panel p-4 rounded-2xl space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Biography</span>
-                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
+                <div className="p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-950/40 shadow-sm space-y-2">
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1.5"><FileText size={12}/> Biography</span>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                     {selectedVolunteer.bio}
                   </p>
                 </div>
@@ -5174,35 +5186,39 @@ function App() {
 
               {/* Details Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Specialization / Department</span>
-                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.specialization || selectedVolunteer.program}</span>
+                {activeTab !== 'Admins' && (
+                  <>
+                    <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
+                      <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Specialization / Department</span>
+                      <span className="font-black text-sm block text-slate-800 dark:text-slate-200">{selectedVolunteer.specialization || selectedVolunteer.program}</span>
+                    </div>
+
+                    <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
+                      <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Availability Schedule</span>
+                      <span className="font-black text-sm block text-slate-800 dark:text-slate-200">{selectedVolunteer.availability || 'Weekends'}</span>
+                    </div>
+
+                    <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
+                      <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Total Service Hours</span>
+                      <span className="font-mono font-black text-sm text-[#20002c] dark:text-[#cbb4d4] block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
+                    </div>
+                  </>
+                )}
+
+                <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Contact Phone Number</span>
+                  <span className="font-mono font-black text-sm block text-slate-800 dark:text-slate-200">{selectedVolunteer.phone}</span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Availability Schedule</span>
-                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.availability || 'Weekends'}</span>
+                <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Joined Date</span>
+                  <span className="font-black text-sm block text-slate-800 dark:text-slate-200">{selectedVolunteer.joined_date || '2026-06-01'}</span>
                 </div>
 
-                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Contact Phone Number</span>
-                  <span className="font-mono font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.phone}</span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Total Service Hours</span>
-                  <span className="font-mono font-bold text-xs text-slate-800 dark:text-purple-400 block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Joined Date</span>
-                  <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedVolunteer.joined_date || '2026-06-01'}</span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">Account Status</span>
-                  <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-bold text-[10px] ${themeClasses.bgPrimaryLight}/20 text-slate-800 dark:${themeClasses.textPrimaryLight}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${themeClasses.bgPrimaryLight}`}></span>
+                <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Account Status</span>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-bold text-xs mt-1 ${selectedVolunteer.status === 'Active' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${selectedVolunteer.status === 'Active' ? 'bg-green-500' : 'bg-amber-500'}`}></span>
                     {selectedVolunteer.status}
                   </span>
                 </div>
