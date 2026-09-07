@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { X, Receipt, Download, Mail, CheckCircle2, Eye } from 'lucide-react';
+import { X, Receipt, Download, Mail, CheckCircle2, Eye, Calendar } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { generateContributionReceipt } from '../services/pdfGenerator';
 import { apiService } from '../services/api';
 import toast from 'react-hot-toast';
@@ -209,17 +211,23 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
                   />
                 </div>
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 flex flex-col">
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Date</label>
-                <input
-                  required
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  max={new Date().toISOString().split('T')[0]}
-                  className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white accent-[#cbb4d4]`}
-                />
+                <div className="relative flex-1">
+                  <DatePicker
+                    selected={new Date(formData.date)}
+                    onChange={(date: Date | null) => {
+                      if (date) {
+                        setFormData(prev => ({ ...prev, date: date.toISOString().split('T')[0] }));
+                      }
+                    }}
+                    maxDate={new Date()}
+                    dateFormat="MM/dd/yyyy"
+                    className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white`}
+                    wrapperClassName="w-full"
+                  />
+                  <Calendar size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                </div>
               </div>
             </div>
 

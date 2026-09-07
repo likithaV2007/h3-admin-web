@@ -76,7 +76,8 @@ import {
   Package,
   Droplets,
   Laptop,
-  MoreHorizontal
+  MoreHorizontal,
+  BarChart3
 } from 'lucide-react';
 import CountUp from './components/CountUp';
 import { EntityCreationModal } from './components/EntityCreationModal';
@@ -2043,182 +2044,62 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
 
                 {/* Metric 1 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
-                  
-                  {/* Decorative Static Wave */}
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
-                      </svg>
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
+                  <div className="z-10 relative mt-2">
+                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                      Total Students
+                    </h4>
+                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
+                      <CountUp to={dashboardStats?.total_students ?? students.length} duration={1} />
                     </div>
                   </div>
-
-                  
-                  <div className="flex items-start gap-4 z-10">
-                    <div className={`w-14 h-14 rounded-full ${themeClasses.bgPrimaryLight} text-white flex items-center justify-center shadow-inner shrink-0`}>
-                      <Users size={26} strokeWidth={2} />
-                    </div>
-                    <div className="pt-1">
-                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
-                        Total Students
-                      </h4>
-                      <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        <CountUp to={dashboardStats?.total_students ?? students.length} duration={1} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 mt-4 z-10">
-                    <span className={`inline-flex items-center gap-1 ${themeClasses.bgPrimaryLight}/15 dark:${themeClasses.bgPrimaryLight}/30 ${themeClasses.textPrimaryLight} dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold`}>
-                      <ArrowUp size={12} strokeWidth={3} />
-                      12%
-                    </span>
-                    <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">
-                      vs last semester
-                    </span>
+                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
+                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
                   </div>
                 </div>
 
                 {/* Metric 2 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
-                  
-                  {/* Decorative Static Wave */}
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
-                      </svg>
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
+                  <div className="z-10 relative mt-2">
+                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                      {activeRole === 'Student' ? 'My Attendance' : 'Total Volunteers'}
+                    </h4>
+                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
+                      {activeRole === 'Student' ? '94.5%' : <CountUp to={dashboardStats?.total_volunteers ?? volunteers.length} duration={1} />}
                     </div>
                   </div>
-
-                  
-                  <div className="flex items-start gap-4 z-10">
-                    <div className={`w-14 h-14 rounded-full ${themeClasses.bgPrimaryLight} text-white flex items-center justify-center shadow-inner shrink-0`}>
-                      {activeRole === 'Student' ? <Calendar size={26} strokeWidth={2} /> : <ShieldCheck size={26} strokeWidth={2} />}
-                    </div>
-                    <div className="pt-1">
-                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
-                        {activeRole === 'Student' ? 'My Attendance' : 'Total Volunteers'}
-                      </h4>
-                      <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        {activeRole === 'Student' ? '94.5%' : <CountUp to={dashboardStats?.total_volunteers ?? volunteers.length} duration={1} />}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 mt-4 z-10">
-                    {activeRole === 'Student' ? (
-                      <>
-                        <span className={`inline-flex items-center gap-1 ${themeClasses.bgPrimaryLight}/15 dark:${themeClasses.bgPrimaryLight}/30 ${themeClasses.textPrimaryLight} dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold`}>
-                          <ArrowUp size={12} strokeWidth={3} />
-                          Target 90%
-                        </span>
-                        <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">met successfully</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className={`inline-flex items-center gap-1 ${themeClasses.bgPrimaryLight}/15 dark:${themeClasses.bgPrimaryLight}/30 ${themeClasses.textPrimaryLight} dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold`}>
-                          Active
-                        </span>
-                        <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Managing operations</span>
-                      </>
-                    )}
+                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
+                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
                   </div>
                 </div>
 
                 {/* Metric 3 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
-                  
-                  {/* Decorative Static Wave */}
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
-                      </svg>
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
+                  <div className="z-10 relative mt-2">
+                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                      {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
+                    </h4>
+                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
+                      {activeRole === 'Student' ? <span className="text-2xl mt-2">Hope3 Foundation</span> : <CountUp to={dashboardStats?.total_donors ?? donors.length} duration={1} />}
                     </div>
                   </div>
-
-                  
-                  <div className="flex items-start gap-4 z-10">
-                    <div className={`w-14 h-14 rounded-full ${themeClasses.bgPrimaryLight} text-white flex items-center justify-center shadow-inner shrink-0`}>
-                      <Heart size={26} strokeWidth={2} />
-                    </div>
-                    <div className="pt-1">
-                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
-                        {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
-                      </h4>
-                      <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        {activeRole === 'Student' ? 'Hope3 Foundation' : <CountUp to={dashboardStats?.total_donors ?? donors.length} duration={1} />}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 mt-4 z-10">
-                    {activeRole === 'Student' ? (
-                      <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Full tuition & hostel covered</span>
-                    ) : (
-                      <>
-                        <span className={`inline-flex items-center gap-1 ${themeClasses.bgPrimaryLight}/15 dark:${themeClasses.bgPrimaryLight}/30 ${themeClasses.textPrimaryLight} dark:text-white px-2.5 py-1 rounded-full text-[11px] font-bold`}>
-                          Active
-                        </span>
-                        <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">Sponsoring education</span>
-                      </>
-                    )}
+                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
+                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
                   </div>
                 </div>
 
                 {/* Metric 4 */}
-                <div className="relative overflow-hidden rounded-[1.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] p-6 flex flex-col justify-between h-[190px]">
-                  
-                  {/* Decorative Static Wave */}
-                  <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[1.5rem]">
-                    <div className="absolute -bottom-[20%] -right-[10%] w-[120%] h-[120%] origin-bottom-right">
-                      {/* Secondary Wave */}
-                      <svg className="absolute bottom-0 right-0 w-[110%] h-[110%] text-[#bcacc4] opacity-100" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 150,300 200,200 400,250 L 400,400 Z" />
-                      </svg>
-                      {/* Base Wave */}
-                      <svg className="absolute bottom-0 right-0 w-full h-full text-[#573f64] opacity-60" viewBox="0 0 400 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                        <path fill="currentColor" d="M 0,400 C 100,250 250,350 400,200 L 400,400 Z" />
-                      </svg>
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
+                  <div className="z-10 relative mt-2">
+                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                      Total Contributions
+                    </h4>
+                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
+                      <CountUp to={contributions.length} duration={1} />
                     </div>
                   </div>
-
-                  
-                  <div className="flex items-start gap-4 z-10">
-                    <div className={`w-14 h-14 rounded-full ${themeClasses.bgPrimaryLight} text-white flex items-center justify-center shadow-inner shrink-0`}>
-                      <Receipt size={26} strokeWidth={2} />
-                    </div>
-                    <div className="pt-1">
-                      <h4 className="text-[13px] font-bold text-slate-500 dark:text-slate-400 tracking-wide">
-                        Total Contributions
-                      </h4>
-                      <div className={`text-[2.25rem] leading-none font-extrabold mt-1 ${themeClasses.textPrimaryDark} tracking-tight`}>
-                        <CountUp to={contributions.length} duration={1} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 mt-4 z-10">
-                    <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">
-                      Total contributions recorded
-                    </span>
+                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
+                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
                   </div>
                 </div>
 
@@ -3748,6 +3629,22 @@ function App() {
                         <h3 className="font-black text-lg text-slate-900 dark:text-white leading-tight truncate" title={vol.name}>{vol.name}</h3>
                         <p className="text-xs font-semibold text-slate-500 mt-0.5 font-mono truncate" title={vol.email}>{vol.email}</p>
                       </div>
+                    </div>
+
+                    <div className="mt-4 space-y-2.5 text-xs text-slate-600 dark:text-slate-400 relative z-10">
+                      {vol.bio && <p className="line-clamp-2 italic">"{vol.bio}"</p>}
+                      {vol.address && vol.address !== 'N/A' && vol.address !== 'string' && (
+                        <div className="flex items-start gap-2">
+                          <MapPin size={14} className="shrink-0 mt-0.5 opacity-60" />
+                          <span className="line-clamp-1" title={vol.address}>{vol.address}</span>
+                        </div>
+                      )}
+                      {vol.joined_date && vol.joined_date !== 'N/A' && (
+                        <div className="flex items-center gap-2">
+                          <Calendar size={14} className="opacity-60" />
+                          <span>Joined {new Date(vol.joined_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Contact & Actions Footer */}

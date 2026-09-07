@@ -231,6 +231,7 @@ export const apiService = {
         specialization: item.specialization || 'N/A',
         availability: item.availability || 'N/A',
         bio: item.bio || '',
+        address: item.address || '',
         profile_photo_link: formatAvatarUrl(item.profile_photo_link),
         joined_date: item.joined_date || 'N/A',
         fcm_token: item.fcm_token || '',
