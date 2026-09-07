@@ -2661,32 +2661,7 @@ function App() {
                       <p className="text-xs text-slate-400">Total {students.length} students enrolled in active programs</p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                      {/* Batch Filter Dropdown */}
-                      <div className="flex items-center gap-2 bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-sm">
-                        <Filter size={14} className="text-purple-500" />
-                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Batch:</span>
-                        <select
-                          value={studentBatchFilter}
-                          onChange={(e) => setStudentBatchFilter(e.target.value)}
-                          className="bg-transparent font-bold text-xs text-slate-800 dark:text-white focus:outline-none cursor-pointer"
-                        >
-                          <option value="ALL" className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">All Batches (Overall)</option>
-                          {availableBatches.map(b => (
-                            <option key={b} value={b} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-white">Batch {b} Scholars</option>
-                          ))}
-                        </select>
-                      </div>
 
-                      {/* Search */}
-                      <input
-                        type="text"
-                        placeholder="Search student, college, ID..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="px-4 py-2 text-xs rounded-xl border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-violet-600 focus:ring-2 focus:ring-purple-500/20 w-full sm:w-64 transition-all shadow-sm"
-                      />
-                    </div>
                   </div>
 
                   {/* DATA TABLE */}
@@ -2694,13 +2669,64 @@ function App() {
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
                         <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
-                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Student</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Roll ID</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'rollNo': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Batch</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'batch': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Course</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'course': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>College Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'college': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'status': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
-                          <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Location Status</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'location': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
+                          <th className="p-4 align-top">
+                            <div className="flex flex-col gap-1.5">
+                              <span>Student</span>
+                              <select onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'name': e.target.value === 'ALL' ? '' : e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200">
+                                <option value="ALL">All</option>
+                                {Array.from(new Set(students.map(s => s.name).filter(Boolean))).sort().map(n => <option key={n} value={n}>{n}</option>)}
+                              </select>
+                            </div>
+                          </th>
+                          <th className="p-4 align-top">
+                            <div className="flex flex-col gap-1.5">
+                              <span>Roll ID</span>
+                              {/* Filter removed as requested */}
+                            </div>
+                          </th>
+                          <th className="p-4 align-top">
+                            <div className="flex flex-col gap-1.5">
+                              <span>Batch</span>
+                              <select onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'batch': e.target.value === 'ALL' ? '' : e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200">
+                                <option value="ALL">All</option>
+                                {availableBatches.map(b => <option key={b} value={b}>Batch {b}</option>)}
+                              </select>
+                            </div>
+                          </th>
+                          <th className="p-4 align-top">
+                            <div className="flex flex-col gap-1.5">
+                              <span>Course</span>
+                              <select onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'course': e.target.value === 'ALL' ? '' : e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200">
+                                <option value="ALL">All</option>
+                                {Array.from(new Set(students.map(s => s.course || (s.grade ? s.grade.replace(/\s*-\s*\d+[a-zA-Z]{2}\s*Year\s*/i, ' ').trim() : '')).filter(Boolean))).sort().map(c => <option key={c} value={c}>{c}</option>)}
+                              </select>
+                            </div>
+                          </th>
+                          <th className="p-4 align-top">
+                            <div className="flex flex-col gap-1.5">
+                              <span>College Name</span>
+                              <select onClick={(e)=>e.stopPropagation()} onChange={(e) => setStudentColFilters(prev => ({...prev, 'college': e.target.value === 'ALL' ? '' : e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200">
+                                <option value="ALL">All</option>
+                                {Array.from(new Set(students.map(s => s.college).filter(Boolean))).sort().map(c => <option key={c} value={c}>{c}</option>)}
+                              </select>
+                            </div>
+                          </th>
+                          <th className="p-4 align-top">
+                            <div className="flex flex-col gap-1.5">
+                              <span>Status</span>
+                              <select onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'status': e.target.value === 'ALL' ? '' : e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200">
+                                <option value="ALL">All</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                              </select>
+                            </div>
+                          </th>
+                          <th className="p-4 align-top">
+                            <div className="flex flex-col gap-1.5">
+                              <span>Location Status</span>
+                              {/* Filter removed as requested */}
+                            </div>
+                          </th>
                           <th className="p-4 text-right align-top">Actions</th>
                         </tr>
                       </thead>
@@ -3913,48 +3939,58 @@ function App() {
 
               {/* TOP HERO BANNER & STATS CARD (MATCHING MOBILE SCREENSHOT) */}
               <div className="flex flex-col lg:flex-row gap-6">
-                {/* Total Spend Card - Left Side */}
-                <div className={`w-full lg:w-1/2 relative overflow-hidden rounded-[2rem] p-8 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
-                  {/* Glassmorphism Abstract Shape */}
-                  <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>
-                  <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-black/10 rounded-full blur-2xl mix-blend-overlay"></div>
-
-                  <div className="space-y-1 relative z-10">
-                    <span className="text-white/80 text-[12px] font-extrabold uppercase tracking-widest inline-block mb-1">
-                      TOTAL SPEND
-                    </span>
-
-                    <div className="flex flex-col gap-0.5 pt-1">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-semibold text-white/90">₹</span>
-                        <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                {/* Total Spend Cards - Left Side */}
+                <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* INR Card */}
+                  <div className={`relative overflow-hidden rounded-[2rem] p-6 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
+                    <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
+                    <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
+                    
+                    <div className="space-y-1 relative z-10">
+                      <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
+                        TOTAL SPEND (INR)
+                      </span>
+                      <div className="flex items-baseline gap-1.5 pt-1">
+                        <span className="text-2xl font-semibold text-white/90">₹</span>
+                        <h3 className="text-4xl leading-none font-black tracking-tight font-sans text-white">
                           {Math.round(filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0)).toLocaleString('en-IN')}
                         </h3>
                       </div>
-                      <div className="flex items-center gap-1.5 text-white/80 font-medium ml-1 bg-white/10 w-fit px-2.5 py-1 rounded-lg backdrop-blur-sm mt-1">
-                        <span className="text-sm font-bold">$</span>
-                        <span className="text-sm font-bold tracking-wide">
-                          {(filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0) / 83).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </span>
-                        <span className="text-[9px] uppercase tracking-widest opacity-70 ml-0.5">USD</span>
-                      </div>
+                    </div>
+                    <div className="mt-6 relative z-10">
+                      <button
+                        onClick={() => setShowExpenseModal(true)}
+                        className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/30 font-semibold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-95"
+                      >
+                        <Plus size={16} className="text-white" />
+                        Add Record
+                      </button>
                     </div>
                   </div>
-                  
-                  <div className="mt-8 relative z-10 flex items-center justify-between">
-                    <button
-                      onClick={() => setShowExpenseModal(true)}
-                      className="bg-white/20 hover:bg-white/30 text-white backdrop-blur-md border border-white/30 font-semibold px-6 py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-95"
-                    >
-                      <Plus size={18} className="text-white" />
-                      Add Record
-                    </button>
+
+                  {/* USD Card */}
+                  <div className={`relative overflow-hidden rounded-[2rem] p-6 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
+                    <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
+                    <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
                     
-                    {/* Decorative mini chart */}
-                    <div className="flex gap-1.5 items-end h-8 opacity-60">
-                      {[4, 7, 5, 8, 10, 6].map((h, i) => (
-                        <div key={i} className="w-1.5 bg-white rounded-t-sm animate-pulse" style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
-                      ))}
+                    <div className="space-y-1 relative z-10">
+                      <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
+                        EST. SPEND (USD)
+                      </span>
+                      <div className="flex items-baseline gap-1.5 pt-1">
+                        <span className="text-2xl font-semibold text-white/90">$</span>
+                        <h3 className="text-4xl leading-none font-black tracking-tight font-sans text-white">
+                          {(filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0) / 83).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </h3>
+                      </div>
+                    </div>
+                    <div className="mt-6 relative z-10 flex items-end justify-end opacity-60 h-8">
+                      {/* Decorative mini chart */}
+                      <div className="flex gap-1.5 items-end h-full">
+                        {[4, 7, 5, 8, 10, 6].map((h, i) => (
+                          <div key={i} className="w-1.5 bg-white rounded-t-sm animate-pulse" style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}></div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3976,37 +4012,7 @@ function App() {
                       </div>
                     </div>
 
-                    {/* Month Filter Card */}
-                    <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
-                      <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#cbb4d4]/30 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
-                      <div className="w-12 h-12 rounded-2xl bg-[#cbb4d4]/30 text-[#20002c] dark:text-[#cbb4d4] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#cbb4d4]/40">
-                        <Calendar size={24} strokeWidth={2} />
-                      </div>
-                      <div className="relative z-10 w-full flex flex-col items-center">
-                        <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#cbb4d4]/80 mb-2 block">Month Filter</span>
-                        <div className="relative w-full max-w-[140px]">
-                          <select
-                            value={expenseMonthFilter}
-                            onChange={(e) => setExpenseMonthFilter(e.target.value)}
-                            className="bg-white/80 backdrop-blur-md dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[#20002c] dark:text-slate-200 text-sm font-bold rounded-xl px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 shadow-sm transition-all appearance-none cursor-pointer"
-                            style={{ textAlignLast: 'center' }}
-                          >
-                            <option value="ALL">All Months</option>
-                            {Array.from(new Set(expenses.map(e => {
-                              try {
-                                const d = new Date(e.date);
-                                return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-                              } catch { return ''; }
-                            }).filter(Boolean))).map(m => (
-                              <option key={m} value={m}>{m}</option>
-                            ))}
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#20002c] dark:text-slate-400">
-                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+
                     
                     {expenseCategoryFilter !== 'ALL' && (
                       <div className="relative overflow-hidden bg-gradient-to-br from-[#cbb4d4]/20 to-[#cbb4d4]/5 dark:from-[#cbb4d4]/10 dark:to-[#cbb4d4]/5 border border-[#cbb4d4]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group animate-fade-in h-full">
@@ -4130,7 +4136,26 @@ function App() {
                         <thead>
                           <tr className="border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/50">
                             <th className="px-5 py-4 font-semibold">Expense</th>
-                            <th className="px-5 py-4 font-semibold">Date</th>
+                            <th className="px-5 py-4 font-semibold">
+                              <div className="flex items-center gap-2">
+                                Date
+                                <select
+                                  value={expenseMonthFilter}
+                                  onChange={(e) => setExpenseMonthFilter(e.target.value)}
+                                  className="bg-slate-100/50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 rounded px-1.5 py-0.5 cursor-pointer focus:outline-none"
+                                >
+                                  <option value="ALL">All</option>
+                                  {Array.from(new Set(expenses.map(e => {
+                                    try {
+                                      const d = new Date(e.date);
+                                      return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+                                    } catch { return ''; }
+                                  }).filter(Boolean))).map(m => (
+                                    <option key={m} value={m}>{m}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </th>
                             <th className="px-5 py-4 font-semibold">Category</th>
                             <th className="px-5 py-4 font-semibold">By / For</th>
                             <th className="px-5 py-4 font-semibold">Status</th>
