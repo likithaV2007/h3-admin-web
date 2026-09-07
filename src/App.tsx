@@ -2801,7 +2801,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center`}
+                                  className={`p-2.5 ${themeClasses.bgGradientMain} hover:opacity-90 text-white rounded-[1rem] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 flex items-center justify-center`}
                                 >
                                   <PhoneCall size={14} />
                                 </a>
@@ -2812,7 +2812,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 border-[#cbb4d4]/20 dark:border-none flex items-center justify-center`}
+                                  className={`p-2.5 ${themeClasses.bgGradientMain} hover:opacity-90 text-white rounded-[1rem] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-2 focus:ring-[#cbb4d4]/50 flex items-center justify-center`}
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -3921,7 +3921,7 @@ function App() {
                             <td className="p-4 font-mono font-semibold">{c.id}</td>
                             <td className="p-4 font-bold">{c.donorName}</td>
                             <td className="p-4">{c.date}</td>
-                            <td className="p-4 font-mono font-bold">₹{c.amount.toLocaleString('en-IN')}</td>
+                            <td className="p-4 font-mono font-bold">${c.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             <td className="p-4">
                               <span className={`px-2 py-1 rounded text-[10px] font-bold ${themeClasses.bgPrimaryLight}/20 text-black dark:text-white`}>{c.paymentMethod}</span>
                             </td>

@@ -74,9 +74,7 @@ export const generateContributionReceipt = async (contribution: Contribution, do
   
   // Contribution Details Table
   doc.setFont('helvetica', 'normal');
-  const amountStr = currency === 'USD' 
-    ? contribution.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-    : contribution.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+  const amountStr = contribution.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
   
   autoTable(doc, {
     startY: 105,
