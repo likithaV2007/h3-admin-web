@@ -26,6 +26,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [emailSentStatus, setEmailSentStatus] = useState(false);
+  const [currency, setCurrency] = useState<'USD' | 'INR'>('INR');
   
   const selectedDonor = donors.find(d => d.id === formData.donorId) || null;
 
@@ -49,7 +50,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
       receiptSent: false
     };
     
-    const doc = await generateContributionReceipt(previewContribution as any, selectedDonor, false);
+    const doc = await generateContributionReceipt(previewContribution as any, selectedDonor, false, currency);
     const blobUrl = doc.output('bloburl');
     window.open(blobUrl, '_blank');
   };
@@ -75,7 +76,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
         paymentMethod: formData.paymentMethod,
         receiptSent: true
       };
-      const doc = await generateContributionReceipt(previewContribution as any, selectedDonor, false);
+      const doc = await generateContributionReceipt(previewContribution as any, selectedDonor, false, currency);
       const pdfBlob = doc.output('blob');
       
       // 2. Send email via backend
@@ -96,11 +97,11 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
       }
       }
 
-      // 3. Save Contribution to DB
       await onSubmit({
         donorId: isAnonymous ? null : formData.donorId,
         donorName: isAnonymous ? 'Anonymous' : selectedDonor?.name,
         amount: parseFloat(formData.amount),
+        currency,
         date: formData.date,
         paymentMethod: formData.paymentMethod,
         notes: formData.notes
@@ -179,16 +180,31 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Amount (INR)</label>
-                <input
-                  required
-                  type="number"
-                  name="amount"
-                  value={formData.amount}
-                  onChange={handleChange}
-                  placeholder="e.g. 5000"
-                  className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-medium text-slate-900 dark:text-white`}
-                />
+                <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Amount</label>
+                <div className="relative flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-500/50">
+                  <div className="absolute left-0 inset-y-0 flex items-center">
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value as 'USD' | 'INR')}
+                      className="h-full py-0 pl-3 pr-7 bg-transparent text-slate-600 dark:text-slate-300 font-bold text-sm border-r border-slate-200 dark:border-slate-700/50 focus:ring-0 focus:outline-none cursor-pointer appearance-none rounded-l-xl"
+                    >
+                      <option value="INR">₹ INR</option>
+                      <option value="USD">$ USD</option>
+                    </select>
+                    <div className="pointer-events-none absolute right-2 flex items-center text-slate-400">
+                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                  </div>
+                  <input
+                    required
+                    type="number"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleChange}
+                    placeholder="e.g. 5000"
+                    className="w-full pl-[85px] pr-4 py-3 bg-transparent outline-none text-sm font-medium text-slate-900 dark:text-white"
+                  />
+                </div>
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1">Date</label>

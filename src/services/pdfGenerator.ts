@@ -12,7 +12,7 @@ const loadImage = (url: string): Promise<HTMLImageElement> => {
   });
 };
 
-export const generateContributionReceipt = async (contribution: Contribution, donor: Donor, download = false) => {
+export const generateContributionReceipt = async (contribution: Contribution, donor: Donor, download = false, currency: 'USD' | 'INR' = 'INR') => {
   const doc = new jsPDF();
   
   try {
@@ -74,7 +74,9 @@ export const generateContributionReceipt = async (contribution: Contribution, do
   
   // Contribution Details Table
   doc.setFont('helvetica', 'normal');
-  const amountStr = contribution.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const amountStr = currency === 'USD' 
+    ? contribution.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+    : contribution.amount.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
   
   autoTable(doc, {
     startY: 105,

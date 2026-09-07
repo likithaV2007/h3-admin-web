@@ -3924,11 +3924,20 @@ function App() {
                       TOTAL SPEND
                     </span>
 
-                    <div className="flex items-baseline gap-2 pt-1">
-                      <span className="text-3xl font-semibold text-white/90">₹</span>
-                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
-                        {Math.round(filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0)).toLocaleString('en-IN')}
-                      </h3>
+                    <div className="flex flex-col gap-0.5 pt-1">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-semibold text-white/90">₹</span>
+                        <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                          {Math.round(filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0)).toLocaleString('en-IN')}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-white/80 font-medium ml-1 bg-white/10 w-fit px-2.5 py-1 rounded-lg backdrop-blur-sm mt-1">
+                        <span className="text-sm font-bold">$</span>
+                        <span className="text-sm font-bold tracking-wide">
+                          {(filteredFinanceExpenses.reduce((sum, e) => sum + e.amount, 0) / 83).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                        <span className="text-[9px] uppercase tracking-widest opacity-70 ml-0.5">USD</span>
+                      </div>
                     </div>
                   </div>
                   
