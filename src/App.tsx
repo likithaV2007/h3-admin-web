@@ -76,10 +76,10 @@ import {
   Package,
   Droplets,
   Laptop,
-  MoreHorizontal,
-  BarChart3
+  MoreHorizontal
 } from 'lucide-react';
 import CountUp from './components/CountUp';
+import { CustomDashboardIcon } from './components/CustomDashboardIcon';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { ContributionModal } from './components/ContributionModal';
 import { generateContributionReceipt } from './services/pdfGenerator';
@@ -2054,7 +2054,7 @@ function App() {
                     </div>
                   </div>
                   <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
+                    <CustomDashboardIcon size={64} className="text-white" />
                   </div>
                 </div>
 
@@ -2069,7 +2069,7 @@ function App() {
                     </div>
                   </div>
                   <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
+                    <CustomDashboardIcon size={64} className="text-white" />
                   </div>
                 </div>
 
@@ -2084,7 +2084,7 @@ function App() {
                     </div>
                   </div>
                   <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
+                    <CustomDashboardIcon size={64} className="text-white" />
                   </div>
                 </div>
 
@@ -2099,7 +2099,7 @@ function App() {
                     </div>
                   </div>
                   <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <BarChart3 size={64} strokeWidth={1.5} className="text-white" />
+                    <CustomDashboardIcon size={64} className="text-white" />
                   </div>
                 </div>
 
