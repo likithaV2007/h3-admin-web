@@ -541,6 +541,9 @@ export const apiService = {
       });
 
       if (res.ok) {
+        if (payload.specialization === 'Admin') {
+          await apiService.assignUserRole(userId, ['Admin']);
+        }
         return await res.json();
       }
 
@@ -628,7 +631,10 @@ export const apiService = {
         },
         body: JSON.stringify(cleanPayload),
       });
-      if (res.ok) return await res.json();
+      if (res.ok) {
+        await apiService.assignUserRole(userId, ['Donor']);
+        return await res.json();
+      }
       
       if (res.status === 422 || res.status === 400) {
         console.warn("FastAPI Error details:", await res.text());
@@ -877,6 +883,35 @@ export const apiService = {
     } catch (err) {
       console.warn("Error deleting geofencezone via API:", err);
       return false;
+    }
+  // Fetch API Geofence Groups List
+  getGeofenceGroups: async (): Promise<any[]> => {
+    try {
+      const data = await apiFetch<any[]>('/api/v1/geofencegroups/', []);
+      return data || [];
+    } catch (err) {
+      console.warn("Could not fetch geofencegroups from API:", err);
+      return [];
+    }
+  },
+
+  // Create API Geofence Group
+  createGeofenceGroup: async (payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/geofencegroups/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.warn("Error posting geofencegroup to API:", err);
+      return null;
     }
   },
 

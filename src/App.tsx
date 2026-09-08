@@ -79,7 +79,6 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import CountUp from './components/CountUp';
-import { CustomDashboardIcon } from './components/CustomDashboardIcon';
 import { EntityCreationModal } from './components/EntityCreationModal';
 import { ContributionModal } from './components/ContributionModal';
 import { generateContributionReceipt } from './services/pdfGenerator';
@@ -550,7 +549,7 @@ function App() {
 
       const fetchedStudents = await apiService.getStudents();
 
-      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities, fetchedClasses, fetchedStudentRequests, fetchedLeaveRequests, fetchedContributions, fetchedExpenseAnalytics] = await Promise.all([
+      const [fetchedVolunteers, fetchedParents, fetchedDonors, fetchedExpenses, fetchedGeofences, fetchedSessions, fetchedAdminCount, fetchedDashboardStats, fetchedActivities, fetchedClasses, fetchedStudentRequests, fetchedLeaveRequests, fetchedContributions, fetchedExpenseAnalytics, fetchedGeofenceGroups] = await Promise.all([
         apiService.getVolunteers(),
         apiService.getParents(fetchedStudents),
         apiService.getDonors(),
@@ -564,7 +563,8 @@ function App() {
         apiService.getStudentRequests(),
         apiService.getLeaveRequests(),
         apiService.getContributions(),
-        apiService.getExpenseAnalytics()
+        apiService.getExpenseAnalytics(),
+        apiService.getGeofenceGroups()
       ]);
 
       setAdminCount(fetchedAdminCount);
@@ -701,6 +701,37 @@ function App() {
             description: gf.description || ''
           });
         });
+
+        if (fetchedGeofenceGroups && fetchedGeofenceGroups.length > 0) {
+          fetchedGeofenceGroups.forEach(group => {
+            const childZones = mappedGeofences.filter(gf => group.zone_ids && group.zone_ids.includes(gf.id));
+            if (childZones.length > 0) {
+              let combinedPolygons: any[] = [];
+              let combinedStudentIds: string[] = [];
+              childZones.forEach(cz => {
+                if (cz.polygons) combinedPolygons.push(...cz.polygons);
+                if (cz.studentIds) {
+                  cz.studentIds.forEach((id: string) => {
+                    if (!combinedStudentIds.includes(id)) combinedStudentIds.push(id);
+                  });
+                }
+              });
+              
+              mappedGeofences.unshift({
+                id: group.group_id,
+                name: group.group_name,
+                shape: 'polygon',
+                color: childZones[0].color,
+                targetBatch: 'ALL',
+                lat: childZones[0].lat,
+                lng: childZones[0].lng,
+                polygons: combinedPolygons,
+                studentIds: combinedStudentIds,
+                description: group.description
+              });
+            }
+          });
+        }
 
         if (mappedGeofences.length > 0) {
           setCustomGeofences(mappedGeofences);
@@ -2044,62 +2075,126 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
 
                 {/* Metric 1 */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
-                  <div className="z-10 relative mt-2">
-                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                <div className={`relative overflow-hidden rounded-[2rem] p-6 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
+                  <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
+                  <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
+                  
+                  <div className="space-y-1 relative z-10 mt-2">
+                    <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       Total Students
-                    </h4>
-                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
-                      <CountUp to={dashboardStats?.total_students ?? students.length} duration={1} />
+                    </span>
+                    <div className="flex items-baseline gap-1.5 pt-1">
+                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                        <CountUp to={dashboardStats?.total_students ?? students.length} duration={1} />
+                      </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <CustomDashboardIcon size={64} className="text-white" />
+                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
+                    <div className="flex gap-1.5 items-end h-10">
+                      {[4, 7, 5, 8, 10, 6].map((h, i) => (
+                        <div 
+                          key={i} 
+                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ 
+                            height: `${h * 10}%`, 
+                            animationDelay: `${i * 150}ms`
+                          }}
+                        ></div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
                 {/* Metric 2 */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
-                  <div className="z-10 relative mt-2">
-                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                <div className={`relative overflow-hidden rounded-[2rem] p-6 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
+                  <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
+                  <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
+                  
+                  <div className="space-y-1 relative z-10 mt-2">
+                    <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       {activeRole === 'Student' ? 'My Attendance' : 'Total Volunteers'}
-                    </h4>
-                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
-                      {activeRole === 'Student' ? '94.5%' : <CountUp to={dashboardStats?.total_volunteers ?? volunteers.length} duration={1} />}
+                    </span>
+                    <div className="flex items-baseline gap-1.5 pt-1">
+                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                        {activeRole === 'Student' ? '94.5%' : <CountUp to={dashboardStats?.total_volunteers ?? volunteers.length} duration={1} />}
+                      </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <CustomDashboardIcon size={64} className="text-white" />
+                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
+                    <div className="flex gap-1.5 items-end h-10">
+                      {[6, 8, 5, 9, 7, 10].map((h, i) => (
+                        <div 
+                          key={i} 
+                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ 
+                            height: `${h * 10}%`, 
+                            animationDelay: `${i * 150}ms`
+                          }}
+                        ></div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
                 {/* Metric 3 */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
-                  <div className="z-10 relative mt-2">
-                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                <div className={`relative overflow-hidden rounded-[2rem] p-6 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
+                  <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
+                  <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
+                  
+                  <div className="space-y-1 relative z-10 mt-2">
+                    <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
-                    </h4>
-                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
-                      {activeRole === 'Student' ? <span className="text-2xl mt-2">Hope3 Foundation</span> : <CountUp to={dashboardStats?.total_donors ?? donors.length} duration={1} />}
+                    </span>
+                    <div className="flex items-baseline gap-1.5 pt-1">
+                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                        {activeRole === 'Student' ? <span className="text-2xl mt-2">Hope3 Foundation</span> : <CountUp to={dashboardStats?.total_donors ?? donors.length} duration={1} />}
+                      </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <CustomDashboardIcon size={64} className="text-white" />
+                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
+                    <div className="flex gap-1.5 items-end h-10">
+                      {[5, 4, 7, 6, 9, 8].map((h, i) => (
+                        <div 
+                          key={i} 
+                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ 
+                            height: `${h * 10}%`, 
+                            animationDelay: `${i * 150}ms`
+                          }}
+                        ></div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
                 {/* Metric 4 */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#3b214f] to-[#a38ea8] shadow-lg p-6 flex flex-col justify-start h-[160px]">
-                  <div className="z-10 relative mt-2">
-                    <h4 className="text-[11px] font-bold text-white/70 uppercase tracking-widest mb-1.5">
+                <div className={`relative overflow-hidden rounded-[2rem] p-6 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
+                  <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
+                  <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
+                  
+                  <div className="space-y-1 relative z-10 mt-2">
+                    <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       Total Contributions
-                    </h4>
-                    <div className="text-[2.75rem] leading-none font-extrabold text-white tracking-tight flex items-center gap-2">
-                      <CountUp to={contributions.length} duration={1} />
+                    </span>
+                    <div className="flex items-baseline gap-1.5 pt-1">
+                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                        <CountUp to={contributions.length} duration={1} />
+                      </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-4 right-5 opacity-20 pointer-events-none">
-                    <CustomDashboardIcon size={64} className="text-white" />
+                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
+                    <div className="flex gap-1.5 items-end h-10">
+                      {[7, 5, 9, 8, 10, 6].map((h, i) => (
+                        <div 
+                          key={i} 
+                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ 
+                            height: `${h * 10}%`, 
+                            animationDelay: `${i * 150}ms`
+                          }}
+                        ></div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -5939,58 +6034,51 @@ function App() {
                   const fencesToMerge = customGeofences.filter(gf => selectedFencesToMerge.includes(gf.id));
                   if (fencesToMerge.length === 0) return;
 
-                  let mergedPolygons = fencesToMerge.map(gf => {
-                    const polyObj = gf.polygons && gf.polygons[0] ? gf.polygons[0] : null;
-                    const coords = polyObj ? (Array.isArray(polyObj) ? polyObj : (polyObj as any).coords) : [];
-                    return {
-                      name: gf.name,
-                      coords: coords
-                    };
-                  }).filter(p => p.coords && p.coords.length > 0);
-
-                  let mergedStudentIds: string[] = [];
-                  fencesToMerge.forEach(gf => {
-                    if (gf.studentIds) {
-                      gf.studentIds.forEach(id => {
-                        if (!mergedStudentIds.includes(id)) {
-                          mergedStudentIds.push(id);
-                        }
-                      });
-                    }
-                  });
-
-                  const baseParent = fencesToMerge[0];
-
                   const apiPayload = {
-                    zone_name: mergeTargetName.trim(),
-                    center_lat: baseParent.lat,
-                    center_lng: baseParent.lng,
-                    radius_meters: 100,
-                    coordinates: mergedPolygons.map(p => JSON.stringify(p.coords)),
+                    group_name: mergeTargetName.trim(),
+                    zone_ids: selectedFencesToMerge,
+                    description: `Grouped geofences: ${fencesToMerge.map(f => f.name).join(', ')}`,
                     is_active: 1,
-                    description: `Merged group: ${fencesToMerge.map(f => f.name).join(', ')}`,
-                    studentIds: mergedStudentIds
+                    is_deleted: 0
                   };
 
-                  const savedData = await apiService.createGeofence(apiPayload);
+                  const savedData = await apiService.createGeofenceGroup(apiPayload);
 
                   if (savedData) {
+                    let combinedPolygons: any[] = [];
+                    let combinedStudentIds: string[] = [];
+                    
+                    fencesToMerge.forEach(gf => {
+                      if (gf.polygons) combinedPolygons.push(...gf.polygons);
+                      else if (gf.coords) combinedPolygons.push({ name: gf.name, coords: gf.coords });
+                      
+                      if (gf.studentIds) {
+                        gf.studentIds.forEach((id: string) => {
+                          if (!combinedStudentIds.includes(id)) combinedStudentIds.push(id);
+                        });
+                      }
+                    });
+
+                    const baseParent = fencesToMerge[0];
+
                     const newMergedGeofence = {
-                      id: savedData.zone_id || savedData.id || `GF_MERGED_${Date.now()}`,
+                      id: savedData.group_id || `GF_GROUP_${Date.now()}`,
                       name: mergeTargetName.trim(),
                       shape: 'polygon',
                       color: baseParent.color || '#cbb4d4',
                       targetBatch: 'ALL',
                       lat: baseParent.lat,
                       lng: baseParent.lng,
-                      polygons: mergedPolygons,
-                      studentIds: mergedStudentIds,
+                      polygons: combinedPolygons,
+                      studentIds: combinedStudentIds,
                       description: apiPayload.description
                     };
 
                     setCustomGeofences(prev => {
                       const updated = [newMergedGeofence, ...prev];
-                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                      try {
+                        localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                      } catch {}
                       return updated;
                     });
 
