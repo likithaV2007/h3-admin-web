@@ -470,6 +470,60 @@ export const apiService = {
     }
   },
 
+  assignUserRole: async (userId: string, roles: string[]): Promise<boolean> => {
+    try {
+      if (!userId || userId === "00000000-0000-0000-0000-000000000000") return false;
+      const authHeaders = await getAuthHeader();
+      
+      let existingRoleId = null;
+      let existingRoles: string[] = [];
+      try {
+        const getRes = await fetch(`${BASE_URL}/api/v1/userroles/?limit=10000`, { headers: authHeaders });
+        if (getRes.ok) {
+          const allRoles = await getRes.json();
+          const userRoleRecord = allRoles.find((r: any) => r.user_id === userId);
+          if (userRoleRecord && !userRoleRecord.is_deleted) {
+            existingRoleId = userRoleRecord.id;
+            existingRoles = Array.isArray(userRoleRecord.role) ? userRoleRecord.role : [userRoleRecord.role];
+          }
+        }
+      } catch (e) {
+        console.warn("Could not fetch existing roles", e);
+      }
+
+      const mergedRoles = [...existingRoles];
+      roles.forEach(r => {
+        if (!mergedRoles.some(mr => mr.toLowerCase() === r.toLowerCase())) {
+          mergedRoles.push(r.toLowerCase());
+        }
+      });
+
+      const payload = {
+        user_id: userId,
+        role: mergedRoles,
+        is_active: 1,
+        is_deleted: 0
+      };
+
+      if (existingRoleId) {
+        await fetch(`${BASE_URL}/api/v1/userroles/${existingRoleId}`, {
+          method: 'DELETE',
+          headers: authHeaders
+        });
+      }
+
+      const res = await fetch(`${BASE_URL}/api/v1/userroles/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(payload)
+      });
+      return res.ok;
+    } catch (err) {
+      console.error("Error assigning user role:", err);
+      return false;
+    }
+  },
+
 
   // Create Student via FastAPI Backend
   createStudent: async (payload: any): Promise<any> => {
@@ -484,7 +538,10 @@ export const apiService = {
 
       const existing = await apiService.getStudents();
       const alreadyExists = existing.find((s: any) => s.user_id === userId);
-      if (alreadyExists) return alreadyExists;
+      if (alreadyExists) {
+        await apiService.assignUserRole(userId, ['student']);
+        return alreadyExists;
+      }
 
       const res = await fetch(`${BASE_URL}/api/v1/students/`, {
         method: 'POST',
@@ -496,6 +553,7 @@ export const apiService = {
       });
 
       if (res.ok) {
+        await apiService.assignUserRole(userId, ['student']);
         return await res.json();
       }
 
@@ -529,7 +587,10 @@ export const apiService = {
 
       const existing = await apiService.getVolunteers();
       const alreadyExists = existing.find((v: any) => v.user_id === userId);
-      if (alreadyExists) return alreadyExists;
+      if (alreadyExists) {
+        await apiService.assignUserRole(userId, [payload.specialization === 'Admin' ? 'admin' : 'volunteer']);
+        return alreadyExists;
+      }
 
       const res = await fetch(`${BASE_URL}/api/v1/volunteers/`, {
         method: 'POST',
@@ -541,9 +602,7 @@ export const apiService = {
       });
 
       if (res.ok) {
-        if (payload.specialization === 'Admin') {
-          await apiService.assignUserRole(userId, ['Admin']);
-        }
+        await apiService.assignUserRole(userId, [payload.specialization === 'Admin' ? 'admin' : 'volunteer']);
         return await res.json();
       }
 
@@ -578,7 +637,10 @@ export const apiService = {
       // But we can check if a parent with this exact user_id AND student_id exists
       const existing = await apiFetch<any[]>('/api/v1/parents/', []);
       const alreadyExists = existing?.find((p: any) => p.user_id === userId && p.student_id === cleanPayload.student_id);
-      if (alreadyExists) return alreadyExists;
+      if (alreadyExists) {
+        await apiService.assignUserRole(userId, ['parent']);
+        return alreadyExists;
+      }
 
       const res = await fetch(`${BASE_URL}/api/v1/parents/`, {
         method: 'POST',
@@ -590,6 +652,7 @@ export const apiService = {
       });
 
       if (res.ok) {
+        await apiService.assignUserRole(userId, ['parent']);
         return await res.json();
       }
 
@@ -621,7 +684,10 @@ export const apiService = {
 
       const existing = await apiService.getDonors();
       const alreadyExists = existing.find((d: any) => d.user_id === userId);
-      if (alreadyExists) return alreadyExists;
+      if (alreadyExists) {
+        await apiService.assignUserRole(userId, ['donor']);
+        return alreadyExists;
+      }
 
       const res = await fetch(`${BASE_URL}/api/v1/donors/`, {
         method: 'POST',
@@ -632,7 +698,7 @@ export const apiService = {
         body: JSON.stringify(cleanPayload),
       });
       if (res.ok) {
-        await apiService.assignUserRole(userId, ['Donor']);
+        await apiService.assignUserRole(userId, ['donor']);
         return await res.json();
       }
       
@@ -884,6 +950,8 @@ export const apiService = {
       console.warn("Error deleting geofencezone via API:", err);
       return false;
     }
+  },
+
   // Fetch API Geofence Groups List
   getGeofenceGroups: async (): Promise<any[]> => {
     try {
