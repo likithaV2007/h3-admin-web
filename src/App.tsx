@@ -2079,26 +2079,23 @@ function App() {
                   <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
                   <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
                   
-                  <div className="space-y-1 relative z-10 mt-2">
+                  <div className="space-y-1 relative z-10">
                     <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       Total Students
                     </span>
                     <div className="flex items-baseline gap-1.5 pt-1">
-                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                      <h3 className="text-4xl leading-none font-black tracking-tight font-sans text-white">
                         <CountUp to={dashboardStats?.total_students ?? students.length} duration={1} />
                       </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
-                    <div className="flex gap-1.5 items-end h-10">
+                  <div className="mt-6 relative z-10 flex items-center justify-end">
+                    <div className="flex gap-1.5 items-end h-8 opacity-60">
                       {[4, 7, 5, 8, 10, 6].map((h, i) => (
                         <div 
                           key={i} 
-                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
-                          style={{ 
-                            height: `${h * 10}%`, 
-                            animationDelay: `${i * 150}ms`
-                          }}
+                          className="w-1.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}
                         ></div>
                       ))}
                     </div>
@@ -2110,26 +2107,23 @@ function App() {
                   <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
                   <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
                   
-                  <div className="space-y-1 relative z-10 mt-2">
+                  <div className="space-y-1 relative z-10">
                     <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       {activeRole === 'Student' ? 'My Attendance' : 'Total Volunteers'}
                     </span>
                     <div className="flex items-baseline gap-1.5 pt-1">
-                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                      <h3 className="text-4xl leading-none font-black tracking-tight font-sans text-white">
                         {activeRole === 'Student' ? '94.5%' : <CountUp to={dashboardStats?.total_volunteers ?? volunteers.length} duration={1} />}
                       </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
-                    <div className="flex gap-1.5 items-end h-10">
+                  <div className="mt-6 relative z-10 flex items-center justify-end">
+                    <div className="flex gap-1.5 items-end h-8 opacity-60">
                       {[6, 8, 5, 9, 7, 10].map((h, i) => (
                         <div 
                           key={i} 
-                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
-                          style={{ 
-                            height: `${h * 10}%`, 
-                            animationDelay: `${i * 150}ms`
-                          }}
+                          className="w-1.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}
                         ></div>
                       ))}
                     </div>
@@ -2141,26 +2135,23 @@ function App() {
                   <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
                   <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
                   
-                  <div className="space-y-1 relative z-10 mt-2">
+                  <div className="space-y-1 relative z-10">
                     <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       {activeRole === 'Student' ? 'Sponsor' : 'Total Donors'}
                     </span>
                     <div className="flex items-baseline gap-1.5 pt-1">
-                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                      <h3 className="text-4xl leading-none font-black tracking-tight font-sans text-white">
                         {activeRole === 'Student' ? <span className="text-2xl mt-2">Hope3 Foundation</span> : <CountUp to={dashboardStats?.total_donors ?? donors.length} duration={1} />}
                       </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
-                    <div className="flex gap-1.5 items-end h-10">
+                  <div className="mt-6 relative z-10 flex items-center justify-end">
+                    <div className="flex gap-1.5 items-end h-8 opacity-60">
                       {[5, 4, 7, 6, 9, 8].map((h, i) => (
                         <div 
                           key={i} 
-                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
-                          style={{ 
-                            height: `${h * 10}%`, 
-                            animationDelay: `${i * 150}ms`
-                          }}
+                          className="w-1.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}
                         ></div>
                       ))}
                     </div>
@@ -2172,26 +2163,23 @@ function App() {
                   <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
                   <div className="absolute -bottom-20 -left-10 w-32 h-32 bg-black/10 rounded-full blur-xl mix-blend-overlay"></div>
                   
-                  <div className="space-y-1 relative z-10 mt-2">
+                  <div className="space-y-1 relative z-10">
                     <span className="text-white/80 text-[10px] font-extrabold uppercase tracking-widest inline-block mb-1">
                       Total Contributions
                     </span>
                     <div className="flex items-baseline gap-1.5 pt-1">
-                      <h3 className="text-[2.75rem] leading-none font-black tracking-tight font-sans text-white">
+                      <h3 className="text-4xl leading-none font-black tracking-tight font-sans text-white">
                         <CountUp to={contributions.length} duration={1} />
                       </h3>
                     </div>
                   </div>
-                  <div className="absolute bottom-6 right-6 z-10 flex items-center justify-end opacity-30">
-                    <div className="flex gap-1.5 items-end h-10">
+                  <div className="mt-6 relative z-10 flex items-center justify-end">
+                    <div className="flex gap-1.5 items-end h-8 opacity-60">
                       {[7, 5, 9, 8, 10, 6].map((h, i) => (
                         <div 
                           key={i} 
-                          className="w-2.5 bg-white rounded-t-sm animate-pulse" 
-                          style={{ 
-                            height: `${h * 10}%`, 
-                            animationDelay: `${i * 150}ms`
-                          }}
+                          className="w-1.5 bg-white rounded-t-sm animate-pulse" 
+                          style={{ height: `${h * 10}%`, animationDelay: `${i * 150}ms` }}
                         ></div>
                       ))}
                     </div>
