@@ -2028,12 +2028,12 @@ function App() {
             className={`flex items-center bg-slate-50 dark:bg-[#0c1222] rounded-[1.25rem] border border-slate-200/60 dark:border-slate-800/60 transition-all duration-300 cursor-pointer hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-md p-2.5 ${sidebarOpen ? 'gap-3' : 'justify-center w-14 h-14'}`}
           >
             <div className="relative shrink-0">
-              <div className={`${sidebarOpen ? 'w-10 h-10' : 'w-10 h-10'} rounded-full ${themeClasses.bgGradientMain} flex items-center justify-center text-white font-bold border-2 border-white dark:border-[#0c1222]`}>A</div>
+              <div className={`${sidebarOpen ? 'w-10 h-10' : 'w-10 h-10'} rounded-full ${themeClasses.bgGradientMain} flex items-center justify-center text-white font-bold border-2 border-white dark:border-[#0c1222]`}>{(auth.currentUser?.displayName || auth.currentUser?.email || 'A').charAt(0).toUpperCase()}</div>
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#0c1222] rounded-full"></div>
             </div>
             {sidebarOpen && (
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] font-extrabold text-slate-900 dark:text-slate-100 truncate tracking-tight">Super Admin</p>
+                <p className="text-[12px] font-extrabold text-slate-900 dark:text-slate-100 truncate tracking-tight">{auth.currentUser?.displayName || 'Super Admin'}</p>
                 <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate mt-0.5">Workspace</p>
               </div>
             )}
@@ -6619,19 +6619,19 @@ function App() {
               {/* Avatar overlapping banner */}
               <div className="w-24 h-24 rounded-2xl border-4 border-white dark:border-slate-900 shadow-xl bg-slate-100 dark:bg-slate-800 -mt-12 relative z-10 shrink-0">
                 <div className={`w-full h-full rounded-xl ${themeClasses.bgGradientMain} flex items-center justify-center text-white text-5xl font-black shadow-inner`}>
-                  A
+                  {(auth.currentUser?.displayName || auth.currentUser?.email || 'A').charAt(0).toUpperCase()}
                 </div>
                 <div className="absolute bottom-[-4px] right-[-4px] w-6 h-6 bg-emerald-500 border-4 border-white dark:border-slate-900 rounded-full"></div>
               </div>
               
               {/* Profile Info */}
               <div className="text-center mt-4 mb-8 w-full">
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Hope3 Admin</h3>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{auth.currentUser?.displayName || 'Hope3 Admin'}</h3>
                 <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1.5">Super Administrator</p>
                 <div className="mt-6 px-5 py-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-slate-400">Email</span>
-                    <span className="font-semibold">admin@hope3.org</span>
+                    <span className="font-semibold">{auth.currentUser?.email || 'admin@hope3.org'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-slate-400">Role</span>

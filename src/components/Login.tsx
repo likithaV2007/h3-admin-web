@@ -45,8 +45,27 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
         throw new Error('Access Denied. This email is not registered in our system.');
       }
       
-      const roleStr = (userRecord.role || userRecord.user_role || '').toLowerCase();
-      const isAdmin = roleStr === 'admin' || roleStr === 'superadmin' || userRecord.is_superuser === true || userRecord.is_admin === true;
+      // Fetch the role for this specific user
+      let roleStr = '';
+      try {
+        const roleRes = await fetch(`https://h3apps-api.hope3.org/api/v1/userroles/user/${userRecord.user_id}`, {
+          headers: {
+            'Authorization': `Bearer ${envToken}`
+          }
+        });
+        if (roleRes.ok) {
+          const roleData = await roleRes.json();
+          if (Array.isArray(roleData) && roleData.length > 0 && roleData[0].role) {
+             roleStr = Array.isArray(roleData[0].role) ? roleData[0].role.join(',').toLowerCase() : String(roleData[0].role).toLowerCase();
+          }
+        }
+      } catch (err) {
+         console.warn("Failed to fetch user roles", err);
+      }
+      
+      // Fallback just in case roles were left on the user object directly
+      roleStr = roleStr || (userRecord.role || userRecord.user_role || '').toLowerCase();
+      const isAdmin = roleStr.includes('admin') || roleStr.includes('superadmin') || userRecord.is_superuser === true || userRecord.is_admin === true;
       
       if (!isAdmin) {
         sessionStorage.removeItem('authToken');
