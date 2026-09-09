@@ -359,6 +359,12 @@ function App() {
   const [selectedFencesToMerge, setSelectedFencesToMerge] = useState<string[]>([]);
 
   const [showAddLocationModal, setShowAddLocationModal] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
   const [isFullScreenMapOpen, setIsFullScreenMapOpen] = useState<boolean>(false);
   const [newZoneName, setNewZoneName] = useState<string>('');
   const [newZoneShape, setNewZoneShape] = useState<'polygon' | 'pentagon' | 'hexagon' | 'circle'>('pentagon');
@@ -2789,10 +2795,15 @@ function App() {
                                 <button
                                   onClick={async (e) => {
                                     e.stopPropagation();
-                                    if(confirm(`Are you sure you want to delete ${student.name}?`)) {
-                                      const success = await apiService.deleteStudent(student.id);
-                                      if (success) setStudents(prev => prev.filter(s => s.id !== student.id));
-                                    }
+                                    setDeleteModal({
+                                      isOpen: true,
+                                      title: 'Delete Student',
+                                      message: `Are you sure you want to delete ${student.name}?`,
+                                      onConfirm: async () => {
+                                        const success = await apiService.deleteStudent(student.id);
+                                        if (success) setStudents(prev => prev.filter(s => s.id !== student.id));
+                                      }
+                                    });
                                   }}
                                   title={`Delete ${student.name}`}
                                   className={`p-2.5 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-[1rem] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all outline-none flex items-center justify-center`}
@@ -3689,10 +3700,15 @@ function App() {
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
-                                if(confirm(`Are you sure you want to delete parent ${par.name}?`)) {
-                                  const success = await apiService.deleteParent(par.id);
-                                  if (success) setParents(prev => prev.filter(p => p.id !== par.id));
-                                }
+                                setDeleteModal({
+                                  isOpen: true,
+                                  title: 'Delete Parent',
+                                  message: `Are you sure you want to delete parent ${par.name}?`,
+                                  onConfirm: async () => {
+                                    const success = await apiService.deleteParent(par.id);
+                                    if (success) setParents(prev => prev.filter(p => p.id !== par.id));
+                                  }
+                                });
                               }}
                               title={`Delete ${par.name}`}
                               className={`p-2 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-xl transition-all border outline-none flex items-center justify-center`}
@@ -3790,10 +3806,15 @@ function App() {
                         <button
                           onClick={async (e) => {
                             e.stopPropagation();
-                            if(confirm(`Are you sure you want to delete admin/volunteer ${vol.name}?`)) {
-                              const success = await apiService.deleteVolunteer(vol.id);
-                              if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
-                            }
+                            setDeleteModal({
+                              isOpen: true,
+                              title: 'Delete Admin',
+                              message: `Are you sure you want to delete admin/volunteer ${vol.name}?`,
+                              onConfirm: async () => {
+                                const success = await apiService.deleteVolunteer(vol.id);
+                                if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
+                              }
+                            });
                           }}
                           title={`Delete ${vol.name}`}
                           className="p-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
@@ -3898,10 +3919,15 @@ function App() {
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
-                                if(confirm(`Are you sure you want to delete admin/volunteer ${vol.name}?`)) {
-                                  const success = await apiService.deleteVolunteer(vol.id);
-                                  if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
-                                }
+                                setDeleteModal({
+                                  isOpen: true,
+                                  title: 'Delete Volunteer',
+                                  message: `Are you sure you want to delete admin/volunteer ${vol.name}?`,
+                                  onConfirm: async () => {
+                                    const success = await apiService.deleteVolunteer(vol.id);
+                                    if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
+                                  }
+                                });
                               }}
                               title={`Delete ${vol.name}`}
                               className={`p-2 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-xl transition-all border outline-none flex items-center justify-center`}
@@ -4076,10 +4102,15 @@ function App() {
                             <button
                               onClick={async (e) => {
                                 e.stopPropagation();
-                                if(confirm(`Are you sure you want to delete donor ${donor.name}?`)) {
-                                  const success = await apiService.deleteDonor(donor.id);
-                                  if (success) setDonors(prev => prev.filter(d => d.id !== donor.id));
-                                }
+                                setDeleteModal({
+                                  isOpen: true,
+                                  title: 'Delete Donor',
+                                  message: `Are you sure you want to delete donor ${donor.name}?`,
+                                  onConfirm: async () => {
+                                    const success = await apiService.deleteDonor(donor.id);
+                                    if (success) setDonors(prev => prev.filter(d => d.id !== donor.id));
+                                  }
+                                });
                               }}
                               title={`Delete ${donor.name}`}
                               className={`p-2 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-xl transition-all flex items-center justify-center`}
@@ -6728,6 +6759,36 @@ function App() {
               {(!viewingChildFences.polygons || viewingChildFences.polygons.length === 0) && (
                 <div className="text-center p-4 text-slate-500 text-sm">No child fences found.</div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GLOBAL DELETE CONFIRMATION MODAL */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-sm p-6 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
+            <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 flex items-center justify-center mb-4 mx-auto">
+              <Trash2 size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-2">{deleteModal.title}</h3>
+            <p className="text-sm text-center text-slate-500 dark:text-slate-400 mb-6">{deleteModal.message}</p>
+            <div className="flex items-center gap-3 w-full">
+              <button
+                onClick={() => setDeleteModal({ ...deleteModal, isOpen: false })}
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deleteModal.onConfirm();
+                  setDeleteModal({ ...deleteModal, isOpen: false });
+                }}
+                className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold shadow-md shadow-red-500/20 transition-all hover:scale-[1.02] active:scale-95"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

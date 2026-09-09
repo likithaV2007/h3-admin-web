@@ -150,9 +150,10 @@ export const apiService = {
   getStudents: async (): Promise<Student[]> => {
     const data = await apiFetch<any[]>('/api/v1/students/', []);
     if (!data || data.length === 0) return [];
+    const activeData = data.filter((item: any) => item.is_deleted !== 1);
     
     // Map backend response fields to Student type
-    return data.map((item, idx) => ({
+    return activeData.map((item, idx) => ({
       ...item,
       id: item.student_code || item.student_id || item.id || `STU${idx + 1}`,
       name: item.student_name || item.full_name || item.name || (item.first_name ? `${item.first_name || ''} ${item.last_name || ''}`.trim() : 'N/A'),
@@ -199,7 +200,9 @@ export const apiService = {
       });
     }
 
-    return volsData.map((item, idx) => {
+    const activeVols = volsData.filter((item: any) => item.is_deleted !== 1);
+
+    return activeVols.map((item, idx) => {
       const user = userMap[item.user_id] || {};
       
       // Determine real user name
@@ -247,8 +250,8 @@ export const apiService = {
   getParents: async (studentsList?: Student[]): Promise<Parent[]> => {
     const data = await apiFetch<any[]>('/api/v1/parents/', []);
     if (!data || data.length === 0) return [];
-    
-    return data.map((item, idx) => {
+    const activeData = data.filter((item: any) => item.is_deleted !== 1);
+    return activeData.map((item, idx) => {
       // Find matching student by student_id
       const matchedStudent = studentsList?.find(s => s.id === item.student_id || s.student_code === item.student_id || (s as any).student_id === item.student_id);
 
@@ -310,7 +313,9 @@ export const apiService = {
       });
     }
 
-    return donorsData.map((item, idx) => {
+    const activeDonors = donorsData.filter((item: any) => item.is_deleted !== 1);
+
+    return activeDonors.map((item, idx) => {
       const user = userMap[item.user_id] || {};
 
       let donorName = item.donor_name || item.organization_name || user.user_name || item.full_name || item.name;
