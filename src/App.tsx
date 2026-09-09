@@ -179,7 +179,7 @@ const ActivityCardNode = ({ activity, setViewingActivityImages }: { activity: an
         >
           <img 
             referrerPolicy="no-referrer"
-            src={formatAvatarUrl(activity.images[currentImageIndex].image_url)} 
+            src={formatAvatarUrl(activity.images[currentImageIndex].image_url) || undefined} 
             alt={activity.title}
             className="w-full h-full object-cover transition-transform duration-500"
             onError={(e) => {
@@ -350,6 +350,7 @@ function App() {
   const [showTokenModal, setShowTokenModal] = useState<boolean>(false);
   const [customTokenInput, setCustomTokenInput] = useState<string>(localStorage.getItem('authToken') || '');
   const [editingGeofenceGroup, setEditingGeofenceGroup] = useState<any | null>(null);
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [isMergeModalOpen, setIsMergeModalOpen] = useState<boolean>(false);
   const [mergeTargetName, setMergeTargetName] = useState<string>('');
   const [mergeTargetBatch, setMergeTargetBatch] = useState<string>('ALL');
@@ -4943,6 +4944,7 @@ function App() {
                       return fenceTypeTab === 'grouped' ? isGrouped : !isGrouped;
                     })
                     .map((gf) => {
+                      const isGrouped = gf.polygons && gf.polygons.length > 1;
                       const assignedStudentIds = gf.studentIds || [];
                       const assignedStudents = students.filter(s => assignedStudentIds.includes(s.id));
                       const hasViolation = assignedStudents.some(s => s.location?.status === 'Out of Bounds');
@@ -4972,6 +4974,21 @@ function App() {
                               {getGeofenceIcon(gf.name)}
                             </div>
                             <div className="flex items-center gap-1.5">
+                              {isGrouped && (
+                                <button
+                                  onClick={() => {
+                                    setEditingGroupId(gf.id);
+                                    setMergeTargetName(gf.name);
+                                    setMergeTargetBatch(gf.targetBatch || 'ALL');
+                                    setSelectedFencesToMerge(gf.zone_ids || []);
+                                    setIsMergeModalOpen(true);
+                                  }}
+                                  className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg transition-all"
+                                  title="Edit Geofence Group"
+                                >
+                                  <Pencil size={13} />
+                                </button>
+                              )}
                               <button
                                 onClick={() => {
                                   if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
@@ -5111,7 +5128,7 @@ function App() {
                   <div className="relative">
                     {selectedVolunteer.profile_photo_link && formatAvatarUrl(selectedVolunteer.profile_photo_link) ? (
                       <img
-                        src={formatAvatarUrl(selectedVolunteer.profile_photo_link)}
+                        src={formatAvatarUrl(selectedVolunteer.profile_photo_link) || undefined}
                         alt={selectedVolunteer.name}
                         className="w-20 h-20 rounded-2xl object-cover border-[3px] border-white/90 shadow-xl bg-white/20 backdrop-blur-sm"
                       />
@@ -5242,7 +5259,7 @@ function App() {
                   <div className="relative">
                     {selectedDonor.profile_photo_link && formatAvatarUrl(selectedDonor.profile_photo_link) ? (
                       <img
-                        src={formatAvatarUrl(selectedDonor.profile_photo_link)}
+                        src={formatAvatarUrl(selectedDonor.profile_photo_link) || undefined}
                         alt={selectedDonor.name}
                         className="w-20 h-20 rounded-2xl object-cover border-2 border-white/80 shadow-xl bg-white/20 backdrop-blur-sm"
                       />
@@ -5947,12 +5964,17 @@ function App() {
                   <Layers size={16} />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Merge / Group Fences</h4>
+                  <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                    {editingGroupId ? 'Edit Geofence Group' : 'Merge / Group Fences'}
+                  </h4>
                   <p className="text-[10px] text-slate-400">Combine multiple fences under a single name</p>
                 </div>
               </div>
               <button
-                onClick={() => setIsMergeModalOpen(false)}
+                onClick={() => {
+                  setIsMergeModalOpen(false);
+                  setEditingGroupId(null);
+                }}
                 className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full"
               >
                 <X size={18} />
@@ -6068,7 +6090,12 @@ function App() {
                     is_deleted: 0
                   };
 
-                  const savedData = await apiService.createGeofenceGroup(apiPayload);
+                  let savedData;
+                  if (editingGroupId) {
+                    savedData = await apiService.updateGeofenceGroup(editingGroupId, apiPayload);
+                  } else {
+                    savedData = await apiService.createGeofenceGroup(apiPayload);
+                  }
 
                   if (savedData) {
                     let combinedPolygons: any[] = [];
@@ -6088,7 +6115,7 @@ function App() {
                     const baseParent = fencesToMerge[0];
 
                     const newMergedGeofence = {
-                      id: savedData.group_id || `GF_GROUP_${Date.now()}`,
+                      id: editingGroupId || savedData.group_id || `GF_GROUP_${Date.now()}`,
                       name: mergeTargetName.trim(),
                       shape: 'polygon',
                       color: baseParent.color || '#cbb4d4',
@@ -6097,11 +6124,17 @@ function App() {
                       lng: baseParent.lng,
                       polygons: combinedPolygons,
                       studentIds: combinedStudentIds,
+                      zone_ids: selectedFencesToMerge,
                       description: apiPayload.description
                     };
 
                     setCustomGeofences(prev => {
-                      const updated = [newMergedGeofence, ...prev];
+                      let updated;
+                      if (editingGroupId) {
+                        updated = prev.map(gf => gf.id === editingGroupId ? newMergedGeofence : gf);
+                      } else {
+                        updated = [newMergedGeofence, ...prev];
+                      }
                       try {
                         localStorage.setItem('h3_geofences', JSON.stringify(updated));
                       } catch {}
@@ -6109,18 +6142,19 @@ function App() {
                     });
 
                     setIsMergeModalOpen(false);
+                    setEditingGroupId(null);
                     setMergeTargetName('');
                     setMergeTargetBatch('ALL');
                     setSelectedFencesToMerge([]);
                     setFenceTypeTab('grouped');
                   } else {
-                    alert('Failed to save merged geofence to the server.');
+                    alert('Failed to save geofence group to the server.');
                   }
                 }}
                 disabled={!mergeTargetName.trim() || selectedFencesToMerge.length < 2}
                 className="w-full py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs disabled:cursor-not-allowed"
               >
-                Merge Selected Fences
+                {editingGroupId ? 'Update Geofence Group' : 'Merge Selected Fences'}
               </button>
             </div>
           </div>
