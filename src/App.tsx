@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import toast, { Toaster } from 'react-hot-toast';
 import { themeClasses, colors } from './theme';
+import { auth } from './lib/firebase';
 import {
   LayoutDashboard,
   Users,
@@ -5200,12 +5201,14 @@ function App() {
                   {activeTab === 'Admins' ? 'Admin Profile' : 'Volunteer Profile'}
                 </span>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setCreationModal({ type: activeTab === 'Admins' ? 'Admin' : 'Volunteer', isOpen: true, isEdit: true, initialData: selectedVolunteer })}
-                    className="px-4 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 rounded-xl transition-all hover:scale-105 active:scale-95 text-[10px] font-bold uppercase tracking-wider shadow-sm"
-                  >
-                    Edit
-                  </button>
+                  {!(activeTab === 'Admins' && !(sessionStorage.getItem('userRole') || '').toLowerCase().includes('super')) && (
+                    <button
+                      onClick={() => setCreationModal({ type: activeTab === 'Admins' ? 'Admin' : 'Volunteer', isOpen: true, isEdit: true, initialData: selectedVolunteer })}
+                      className="px-4 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 rounded-xl transition-all hover:scale-105 active:scale-95 text-[10px] font-bold uppercase tracking-wider shadow-sm"
+                    >
+                      Edit
+                    </button>
+                  )}
                   <button
                     onClick={() => setSelectedVolunteer(null)}
                     className="p-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 rounded-full transition-all hover:scale-105 active:scale-95 shadow-sm"
@@ -6576,7 +6579,8 @@ function App() {
       />
 
       {/* FLOATING ACTION BUTTON FOR QUICK ADD */}
-      {['Students', 'Parents', 'Admins', 'Volunteers', 'Donors', 'Location'].includes(activeTab) && (
+      {['Students', 'Parents', 'Admins', 'Volunteers', 'Donors', 'Location'].includes(activeTab) && 
+        !(activeTab === 'Admins' && !(sessionStorage.getItem('userRole') || '').toLowerCase().includes('super')) && (
         <button
           onClick={() => {
             if (activeTab === 'Location') {
@@ -6627,7 +6631,9 @@ function App() {
               {/* Profile Info */}
               <div className="text-center mt-4 mb-8 w-full">
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{auth.currentUser?.displayName || 'Hope3 Admin'}</h3>
-                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1.5">Super Administrator</p>
+                <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1.5">
+                  {(sessionStorage.getItem('userRole') || '').toLowerCase().includes('super') ? 'Super Administrator' : 'Administrator'}
+                </p>
                 <div className="mt-6 px-5 py-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col gap-3 text-sm text-slate-600 dark:text-slate-300">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-slate-400">Email</span>

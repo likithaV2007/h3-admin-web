@@ -73,6 +73,7 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
       }
       
       // Successfully authenticated and verified as admin
+      sessionStorage.setItem('userRole', roleStr);
       onLoginSuccess();
     } catch (err: any) {
       console.error(err);
