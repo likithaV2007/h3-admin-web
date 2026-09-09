@@ -813,6 +813,55 @@ export const apiService = {
     }
   },
 
+  // Delete Entity Methods
+  deleteStudent: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/students/${id}`, { method: 'DELETE', headers: authHeaders });
+      return res.ok;
+    } catch (err) { console.error("Error deleting student:", err); return false; }
+  },
+
+  deleteVolunteer: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/volunteers/${id}`, { method: 'DELETE', headers: authHeaders });
+      return res.ok;
+    } catch (err) { console.error("Error deleting volunteer:", err); return false; }
+  },
+
+  deleteParent: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/parents/${id}`, { method: 'DELETE', headers: authHeaders });
+      return res.ok;
+    } catch (err) { console.error("Error deleting parent:", err); return false; }
+  },
+
+  deleteDonor: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/donors/${id}`, { method: 'DELETE', headers: authHeaders });
+      return res.ok;
+    } catch (err) { console.error("Error deleting donor:", err); return false; }
+  },
+
+  deleteContribution: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/contributions/${id}`, { method: 'DELETE', headers: authHeaders });
+      return res.ok;
+    } catch (err) { console.error("Error deleting contribution:", err); return false; }
+  },
+
+  deleteAdmin: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/users/${id}`, { method: 'DELETE', headers: authHeaders });
+      return res.ok;
+    } catch (err) { console.error("Error deleting admin:", err); return false; }
+  },
+
   // Delete Expense
   deleteExpense: async (expenseId: string): Promise<boolean> => {
     try {

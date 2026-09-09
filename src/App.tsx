@@ -351,6 +351,7 @@ function App() {
   const [customTokenInput, setCustomTokenInput] = useState<string>(localStorage.getItem('authToken') || '');
   const [editingGeofenceGroup, setEditingGeofenceGroup] = useState<any | null>(null);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [viewingChildFences, setViewingChildFences] = useState<any | null>(null);
   const [isMergeModalOpen, setIsMergeModalOpen] = useState<boolean>(false);
   const [mergeTargetName, setMergeTargetName] = useState<string>('');
   const [mergeTargetBatch, setMergeTargetBatch] = useState<string>('ALL');
@@ -2782,6 +2783,21 @@ function App() {
                                 >
                                   <MessageSquare size={14} />
                                 </a>
+
+                                {/* DELETE BUTTON */}
+                                <button
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if(confirm(`Are you sure you want to delete ${student.name}?`)) {
+                                      const success = await apiService.deleteStudent(student.id);
+                                      if (success) setStudents(prev => prev.filter(s => s.id !== student.id));
+                                    }
+                                  }}
+                                  title={`Delete ${student.name}`}
+                                  className={`p-2.5 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-[1rem] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all outline-none flex items-center justify-center`}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -3667,6 +3683,21 @@ function App() {
                             >
                               <MessageSquare size={15} />
                             </a>
+
+                            {/* DELETE BUTTON */}
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if(confirm(`Are you sure you want to delete parent ${par.name}?`)) {
+                                  const success = await apiService.deleteParent(par.id);
+                                  if (success) setParents(prev => prev.filter(p => p.id !== par.id));
+                                }
+                              }}
+                              title={`Delete ${par.name}`}
+                              className={`p-2 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-xl transition-all border outline-none flex items-center justify-center`}
+                            >
+                              <Trash2 size={15} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -3755,6 +3786,19 @@ function App() {
                         >
                           <MessageSquare size={14} />
                         </a>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if(confirm(`Are you sure you want to delete admin/volunteer ${vol.name}?`)) {
+                              const success = await apiService.deleteVolunteer(vol.id);
+                              if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
+                            }
+                          }}
+                          title={`Delete ${vol.name}`}
+                          className="p-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -3850,6 +3894,19 @@ function App() {
                             >
                               <MessageSquare size={14} />
                             </a>
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if(confirm(`Are you sure you want to delete admin/volunteer ${vol.name}?`)) {
+                                  const success = await apiService.deleteVolunteer(vol.id);
+                                  if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
+                                }
+                              }}
+                              title={`Delete ${vol.name}`}
+                              className={`p-2 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-xl transition-all border outline-none flex items-center justify-center`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -3908,15 +3965,30 @@ function App() {
                               <span className={`px-2 py-1 rounded text-[10px] font-bold ${themeClasses.bgPrimaryLight}/20 text-black dark:text-white`}>{c.paymentMethod}</span>
                             </td>
                             <td className="p-4 text-right">
-                              {c.donorName && c.donorName.toLowerCase() !== 'anonymous' && (
+                              <div className="flex items-center justify-end gap-2">
+                                {c.donorName && c.donorName.toLowerCase() !== 'anonymous' && (
+                                  <button
+                                    onClick={() => donorObj && generateContributionReceipt(c, donorObj, true)}
+                                    className={`px-3 py-1.5 rounded-lg text-white ${themeClasses.bgGradientMain} hover:opacity-90 shadow-sm transition-colors inline-flex items-center gap-1.5 font-bold text-xs`}
+                                    title="Download PDF Receipt"
+                                  >
+                                    <Download size={14} /> Download
+                                  </button>
+                                )}
                                 <button
-                                  onClick={() => donorObj && generateContributionReceipt(c, donorObj, true)}
-                                  className={`px-3 py-1.5 rounded-lg text-white ${themeClasses.bgGradientMain} hover:opacity-90 shadow-sm transition-colors inline-flex items-center gap-1.5 font-bold text-xs`}
-                                  title="Download PDF Receipt"
+                                  onClick={async (e) => {
+                                    e.stopPropagation();
+                                    if(confirm(`Are you sure you want to delete this contribution?`)) {
+                                      const success = await apiService.deleteContribution(c.id);
+                                      if (success) setContributions(prev => prev.filter(item => item.id !== c.id));
+                                    }
+                                  }}
+                                  title="Delete Contribution"
+                                  className={`p-1.5 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-lg transition-all flex items-center justify-center`}
                                 >
-                                  <Download size={14} /> Download
+                                  <Trash2 size={14} />
                                 </button>
-                              )}
+                              </div>
                             </td>
                           </tr>
                         );
@@ -4000,6 +4072,19 @@ function App() {
                             >
                               <MessageSquare size={14} className="text-white" />
                             </a>
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if(confirm(`Are you sure you want to delete donor ${donor.name}?`)) {
+                                  const success = await apiService.deleteDonor(donor.id);
+                                  if (success) setDonors(prev => prev.filter(d => d.id !== donor.id));
+                                }
+                              }}
+                              title={`Delete ${donor.name}`}
+                              className={`p-2 bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 dark:bg-red-950/30 dark:hover:bg-red-900/50 rounded-xl transition-all flex items-center justify-center`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -4963,7 +5048,10 @@ function App() {
                       return (
                         <div
                           key={gf.id}
-                          className={`w-full glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 relative overflow-hidden group transition-all border-l-4 ${hasViolation ? 'animate-pulse' : ''}`}
+                          onClick={() => {
+                            if (isGrouped) setViewingChildFences(gf);
+                          }}
+                          className={`w-full glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 relative overflow-hidden group transition-all border-l-4 ${hasViolation ? 'animate-pulse' : ''} ${isGrouped ? 'cursor-pointer hover:shadow-lg hover:-translate-y-0.5' : ''}`}
                           style={{ borderLeftColor: accentColor }}
                         >
                           <div className="flex items-center justify-between mb-3">
@@ -4976,7 +5064,8 @@ function App() {
                             <div className="flex items-center gap-1.5">
                               {isGrouped && (
                                 <button
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     setEditingGroupId(gf.id);
                                     setMergeTargetName(gf.name);
                                     setMergeTargetBatch(gf.targetBatch || 'ALL');
@@ -4990,7 +5079,8 @@ function App() {
                                 </button>
                               )}
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
                                     setCustomGeofences(prev => {
                                       const updated = prev.filter(g => g.id !== gf.id);
@@ -5064,7 +5154,10 @@ function App() {
                             style={{ borderColor: `${accentColor}15` }}
                           >
                             <button
-                              onClick={() => setEditingGeofenceGroup(gf)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingGeofenceGroup(gf);
+                              }}
                               className="text-[10px] font-bold text-slate-800 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-950/80 px-2.5 py-1.5 rounded-xl transition-all flex items-center gap-1"
                             >
                               <Users size={12} />
@@ -6487,7 +6580,15 @@ function App() {
         <button
           onClick={() => {
             if (activeTab === 'Location') {
-              setShowAddLocationModal(true);
+              if (fenceTypeTab === 'grouped') {
+                setEditingGroupId(null);
+                setMergeTargetName('');
+                setMergeTargetBatch('ALL');
+                setSelectedFencesToMerge([]);
+                setIsMergeModalOpen(true);
+              } else {
+                setShowAddLocationModal(true);
+              }
             } else {
               const type = activeTab === 'Students' ? 'Student' : activeTab === 'Parents' ? 'Parent' : activeTab === 'Admins' ? 'Admin' : activeTab === 'Volunteers' ? 'Volunteer' : 'Donor';
               setCreationModal({ type, isOpen: true });
@@ -6585,6 +6686,42 @@ function App() {
                   />
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CHILD FENCES VIEWER MODAL */}
+      {viewingChildFences && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setViewingChildFences(null)}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                <Layers className="text-purple-500" size={20} />
+                Fences in {viewingChildFences.name}
+              </h3>
+              <button
+                onClick={() => setViewingChildFences(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-slate-900 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto pr-2 space-y-2">
+              {viewingChildFences.polygons?.map((poly: any, idx: number) => (
+                <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50">
+                  <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+                    <Compass size={16} />
+                  </div>
+                  <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">
+                    {poly.name || `Fence ${idx + 1}`}
+                  </span>
+                </div>
+              ))}
+              {(!viewingChildFences.polygons || viewingChildFences.polygons.length === 0) && (
+                <div className="text-center p-4 text-slate-500 text-sm">No child fences found.</div>
+              )}
             </div>
           </div>
         </div>
