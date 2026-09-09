@@ -5713,19 +5713,7 @@ function App() {
                 />
               </div>
 
-              <div>
-                <label className="text-[10px] text-slate-400 block font-bold mb-1">ALLOCATE TO STUDENT BATCH</label>
-                <select
-                  value={newZoneTargetBatch}
-                  onChange={(e) => setNewZoneTargetBatch(e.target.value)}
-                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 rounded-xl font-bold focus:outline-none focus:border-purple-500"
-                >
-                  <option value="ALL">All Batches (ALL)</option>
-                  {availableBatches.map(b => (
-                    <option key={b} value={b}>Batch {b} Scholars</option>
-                  ))}
-                </select>
-              </div>
+
 
 
 
@@ -6347,19 +6335,7 @@ function App() {
                 />
               </div>
 
-              <div>
-                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">ALLOCATE TO STUDENT BATCH</label>
-                <select
-                  value={newZoneTargetBatch}
-                  onChange={(e) => setNewZoneTargetBatch(e.target.value)}
-                  className="w-full p-3 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-xl font-bold focus:outline-none focus:border-purple-500"
-                >
-                  <option value="ALL">All Batches (ALL)</option>
-                  {availableBatches.map(b => (
-                    <option key={b} value={b}>Batch {b} Scholars</option>
-                  ))}
-                </select>
-              </div>
+
 
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">BOUNDARY COLOR</label>
