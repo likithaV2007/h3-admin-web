@@ -983,6 +983,26 @@ export const apiService = {
     }
   },
 
+  // Update API Geofence Group
+  updateGeofenceGroup: async (group_id: string, payload: any): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/geofencegroups/${group_id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) return await res.json();
+      return null;
+    } catch (err) {
+      console.warn("Error updating geofencegroup to API:", err);
+      return null;
+    }
+  },
+
   formatAvatarUrl: formatAvatarUrl,
 
   // Fetch Admin Stats Overview
@@ -1042,8 +1062,8 @@ export const apiService = {
       
       // Fallback for missing properties as per schema
       const payload = {
-        student_id: "00000000-0000-0000-0000-000000000000",
-        created_by: "00000000-0000-0000-0000-000000000000",
+        student_id: null,
+        created_by: "03501652-7a03-4d8e-950e-f4de09385dc3",
         is_published: 0,
         is_deleted: 0,
         activity_date: new Date().toISOString(),

@@ -352,6 +352,7 @@ function App() {
   const [editingGeofenceGroup, setEditingGeofenceGroup] = useState<any | null>(null);
   const [isMergeModalOpen, setIsMergeModalOpen] = useState<boolean>(false);
   const [mergeTargetName, setMergeTargetName] = useState<string>('');
+  const [mergeTargetBatch, setMergeTargetBatch] = useState<string>('ALL');
   const [selectedFencesToMerge, setSelectedFencesToMerge] = useState<string[]>([]);
 
   const [showAddLocationModal, setShowAddLocationModal] = useState<boolean>(false);
@@ -4924,6 +4925,7 @@ function App() {
                       onClick={() => {
                         setSelectedFencesToMerge([]);
                         setMergeTargetName('');
+                        setMergeTargetBatch('ALL');
                         setIsMergeModalOpen(true);
                       }}
                       className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold flex items-center gap-2 transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
@@ -5789,6 +5791,28 @@ function App() {
                 />
               </div>
 
+              <div>
+                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">Allocate to Student Batch</label>
+                <select
+                  value={editingGeofenceGroup.targetBatch || 'ALL'}
+                  onChange={(e) => {
+                    const newBatch = e.target.value;
+                    setEditingGeofenceGroup({ ...editingGeofenceGroup, targetBatch: newBatch });
+                    setCustomGeofences(prev => {
+                      const updated = prev.map(gf => gf.id === editingGeofenceGroup.id ? { ...gf, targetBatch: newBatch } : gf);
+                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                      return updated;
+                    });
+                  }}
+                  className="w-full p-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-purple-500 text-xs"
+                >
+                  <option value="ALL">All Batches (ALL)</option>
+                  {availableBatches.map(b => (
+                    <option key={b} value={b}>Batch {b} Scholars</option>
+                  ))}
+                </select>
+              </div>
+
               {/* Batch Filter inside Modal */}
               <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/80 gap-2 flex-wrap">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Filter Students:</span>
@@ -5882,15 +5906,26 @@ function App() {
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
               <button
                 onClick={async () => {
-                  const payload = {
-                    zone_name: editingGeofenceGroup.name,
-                    studentIds: editingGeofenceGroup.studentIds || []
-                  };
-                  const success = await apiService.updateGeofence(editingGeofenceGroup.id, payload);
+                  let success = false;
+                  
+                  if (editingGeofenceGroup.polygons && editingGeofenceGroup.polygons.length > 0) {
+                    const groupPayload = {
+                      group_name: editingGeofenceGroup.name,
+                      batch: editingGeofenceGroup.targetBatch || 'ALL'
+                    };
+                    success = !!(await apiService.updateGeofenceGroup(editingGeofenceGroup.id, groupPayload));
+                  } else {
+                    const payload = {
+                      zone_name: editingGeofenceGroup.name,
+                      studentIds: editingGeofenceGroup.studentIds || []
+                    };
+                    success = await apiService.updateGeofence(editingGeofenceGroup.id, payload);
+                  }
+                  
                   if (success) {
                     setEditingGeofenceGroup(null);
                   } else {
-                    alert('Failed to save group assignment to server');
+                    alert('Failed to save assignment to server');
                   }
                 }}
                 className="w-full py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs"
@@ -5935,6 +5970,20 @@ function App() {
                   onChange={(e) => setMergeTargetName(e.target.value)}
                   className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-purple-500"
                 />
+              </div>
+
+              <div className="mt-3">
+                <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">Allocate to Student Batch</label>
+                <select
+                  value={mergeTargetBatch}
+                  onChange={(e) => setMergeTargetBatch(e.target.value)}
+                  className="w-full p-2.5 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 rounded-xl font-bold focus:outline-none focus:border-purple-500"
+                >
+                  <option value="ALL">All Batches (ALL)</option>
+                  {availableBatches.map(b => (
+                    <option key={b} value={b}>Batch {b} Scholars</option>
+                  ))}
+                </select>
               </div>
 
               <div>
@@ -6014,6 +6063,7 @@ function App() {
                     group_name: mergeTargetName.trim(),
                     zone_ids: selectedFencesToMerge,
                     description: `Grouped geofences: ${fencesToMerge.map(f => f.name).join(', ')}`,
+                    batch: mergeTargetBatch,
                     is_active: 1,
                     is_deleted: 0
                   };
@@ -6042,7 +6092,7 @@ function App() {
                       name: mergeTargetName.trim(),
                       shape: 'polygon',
                       color: baseParent.color || '#cbb4d4',
-                      targetBatch: 'ALL',
+                      targetBatch: mergeTargetBatch,
                       lat: baseParent.lat,
                       lng: baseParent.lng,
                       polygons: combinedPolygons,
@@ -6060,6 +6110,7 @@ function App() {
 
                     setIsMergeModalOpen(false);
                     setMergeTargetName('');
+                    setMergeTargetBatch('ALL');
                     setSelectedFencesToMerge([]);
                     setFenceTypeTab('grouped');
                   } else {
