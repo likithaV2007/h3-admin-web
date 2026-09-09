@@ -162,7 +162,7 @@ export const apiService = {
       batch: item.batch || item.current_year || item.year || (item.grade && item.grade.includes('2nd Year') ? '2026' : item.grade && item.grade.includes('3rd Year') ? '2025' : 'N/A'),
       grade: item.year || item.grade || item.class || 'N/A',
       college: item.college || item.school_name || item.college_name || 'N/A',
-      course: item.course || item.major || 'N/A',
+      course: (item.course && item.major) ? `${item.course} (${item.major})` : (item.course || item.major || 'N/A'),
       hostelRoom: item.hostel_room || 'N/A',
       parentName: item.father_name || item.mother_name || item.guardian_name || item.parent_name || 'N/A',
       parentPhone: item.father_contact_number || item.mother_contact_number || item.emergency_contact || 'N/A',
