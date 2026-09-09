@@ -22,14 +22,18 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
       // We temporarily store the token to authenticate the API request
       sessionStorage.setItem('authToken', token);
 
-      // Verify user against backend
+      // Verify user against backend using the static backend token
+      const envToken = import.meta.env.VITE_API_TOKEN || 'Hope3-Apps-Team';
       const res = await fetch('https://h3apps-api.hope3.org/api/v1/users/?limit=10000', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${envToken}`
         }
       });
       
       if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          throw new Error('Access Denied. Your account does not have administrator privileges or the role assignment failed.');
+        }
         throw new Error('Failed to verify user permissions with the server.');
       }
       

@@ -491,25 +491,29 @@ export const apiService = {
         console.warn("Could not fetch existing roles", e);
       }
 
-      const mergedRoles = [...existingRoles];
+      let finalRoles = [...existingRoles];
       roles.forEach(r => {
-        if (!mergedRoles.some(mr => mr.toLowerCase() === r.toLowerCase())) {
-          mergedRoles.push(r.toLowerCase());
+        if (!finalRoles.some(mr => mr.toLowerCase() === r.toLowerCase())) {
+          finalRoles.push(r.toLowerCase());
         }
       });
 
       const payload = {
         user_id: userId,
-        role: mergedRoles,
-        is_active: 1,
+        role: finalRoles,
+        is_active: 0,
         is_deleted: 0
       };
 
       if (existingRoleId) {
-        await fetch(`${BASE_URL}/api/v1/userroles/${existingRoleId}`, {
-          method: 'DELETE',
-          headers: authHeaders
-        });
+        try {
+          await fetch(`${BASE_URL}/api/v1/userroles/${existingRoleId}`, {
+            method: 'DELETE',
+            headers: authHeaders
+          });
+        } catch (e) {
+          console.warn("Failed to delete existing role", e);
+        }
       }
 
       const res = await fetch(`${BASE_URL}/api/v1/userroles/`, {
