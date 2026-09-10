@@ -395,31 +395,18 @@ export const apiService = {
 
       if (email) {
         const cleanEmail = email.trim().toLowerCase();
-        let foundUserId = null;
         
-        for (let skip = 0; skip <= 1000; skip += 100) {
-          const usersRes = await fetch(`${BASE_URL}/api/v1/users/?skip=${skip}&limit=100`, {
-            headers: authHeaders
-          });
-          
-          if (usersRes.ok) {
-            const users = await usersRes.json();
-            if (Array.isArray(users) && users.length > 0) {
-              const existingUser = users.find((u: any) => u.user_email?.trim().toLowerCase() === cleanEmail);
-              if (existingUser && existingUser.user_id) {
-                foundUserId = existingUser.user_id;
-                break;
-              }
-            } else {
-              break;
+        try {
+          const users = await apiFetch<any[]>('/api/v1/users/?limit=10000', []);
+          if (Array.isArray(users)) {
+            const existingUser = users.find((u: any) => u.user_email?.trim().toLowerCase() === cleanEmail);
+            if (existingUser && existingUser.user_id) {
+              return existingUser.user_id;
             }
-          } else {
-            console.warn("User duplicate check failed:", await usersRes.text());
-            break;
           }
+        } catch (err) {
+          console.warn("User duplicate check failed:", err);
         }
-        
-        if (foundUserId) return foundUserId;
       }
 
       const name = payload.donor_name || payload.student_name || payload.parent_name || payload.full_name || payload.organization_name || 'Unknown';

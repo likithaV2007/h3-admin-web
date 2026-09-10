@@ -1566,12 +1566,15 @@ function App() {
     try {
       if (type === 'Student') {
       const payload = {
+        name: data.name || data.student_name || 'New Student',
+        email: data.email || '',
+        phone: data.phone || '0000000000',
         student_name: data.name || data.student_name || 'New Student',
         student_code: data.rollNo || data.student_code || `STU_${Date.now()}`,
         school_name: data.school_name || data.college || 'Government College',
         college: data.college || 'Government College',
         date_of_birth: data.date_of_birth || "2000-01-01",
-        gender: data.gender || "Not specified",
+        gender: data.gender || "other",
         address: data.address || "Not specified",
         city: data.city || "Not specified",
         state: data.state || "Not specified",
@@ -2873,6 +2876,13 @@ function App() {
                     </div>
 
                     <div className="flex items-center gap-5">
+                      <button
+                        onClick={() => setSelectedStudent(null)}
+                        className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                        title="Back to Database"
+                      >
+                        <ArrowLeft size={20} />
+                      </button>
                       <ProfileAvatar url={selectedStudent.avatar || selectedStudent.profile_photo_link || selectedStudent.profilePhotoUrl} name={selectedStudent.name || (selectedStudent as any).student_name} className="w-20 h-20 rounded-2xl object-cover border-2 border-white dark:border-slate-800 shadow-md shrink-0" fallbackClassName={`w-20 h-20 rounded-2xl flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-md ${themeClasses.bgGradientMain} text-white font-black text-3xl shrink-0`} />
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
@@ -3834,6 +3844,18 @@ function App() {
                         >
                           <MessageSquare size={14} />
                         </a>
+                        {((sessionStorage.getItem('userRole') || '').toLowerCase().includes('super') || vol.email === auth.currentUser?.email) && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setCreationModal({ type: 'Admin', isOpen: true, isEdit: true, initialData: vol });
+                            }}
+                            title={`Edit ${vol.name}`}
+                            className="p-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-colors"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                        )}
                         {(sessionStorage.getItem('userRole') || '').toLowerCase().includes('super') && (
                           <button
                             onClick={async (e) => {
@@ -5311,6 +5333,13 @@ function App() {
               {/* Avatar & Profile Title inside Header */}
               <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
                 <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setSelectedVolunteer(null)}
+                    className="p-2 -ml-2 rounded-xl text-white/70 hover:bg-white/20 transition-colors"
+                    title="Back to List"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
                   <div className="relative">
                     {selectedVolunteer.profile_photo_link && formatAvatarUrl(selectedVolunteer.profile_photo_link) ? (
                       <img
@@ -5442,6 +5471,13 @@ function App() {
               {/* Avatar & Profile Title inside Header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-1">
                 <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setSelectedDonor(null)}
+                    className="p-2 -ml-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    title="Back to List"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
                   <div className="relative">
                     {selectedDonor.profile_photo_link && formatAvatarUrl(selectedDonor.profile_photo_link) ? (
                       <img
@@ -6769,12 +6805,6 @@ function App() {
               
               {/* Actions */}
               <div className="w-full space-y-2">
-                <button 
-                  onClick={() => setIsProfileModalOpen(false)}
-                  className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 font-bold text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  Manage Account
-                </button>
                 <button 
                   onClick={() => { sessionStorage.removeItem('isAuthenticated'); setIsAuthenticated(false); }}
                   className="w-full p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-red-600 dark:text-red-400 font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
