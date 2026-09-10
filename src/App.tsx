@@ -1640,7 +1640,8 @@ function App() {
           setSelectedStudent({ ...selectedStudent, ...payload });
         }
       } else {
-        await apiService.createStudent(payload);
+        const res = await apiService.createStudent(payload);
+        if (!res) throw new Error("Duplicate or soft-deleted record exists");
       }
       await loadDataFromApi();
     } else if (type === 'Parent') {
@@ -1658,7 +1659,8 @@ function App() {
       if (isEdit && editId) {
         await apiService.updateParent(editId, payload);
       } else {
-        await apiService.createParent(payload);
+        const res = await apiService.createParent(payload);
+        if (!res) throw new Error("Duplicate or soft-deleted record exists");
       }
       await loadDataFromApi();
     } else if (type === 'Admin') {
@@ -1680,7 +1682,8 @@ function App() {
           setSelectedVolunteer({ ...selectedVolunteer, name: data.name, email: data.email, phone: data.phone, specialization: 'Admin', availability: 'Flexible' } as any);
         }
       } else {
-        await apiService.createVolunteer(payload);
+        const res = await apiService.createVolunteer(payload);
+        if (!res) throw new Error("Duplicate or soft-deleted record exists");
       }
       await loadDataFromApi();
     } else if (type === 'Volunteer') {
@@ -1702,7 +1705,8 @@ function App() {
           setSelectedVolunteer({ ...selectedVolunteer, name: data.name, email: data.email, phone: data.phone, specialization: data.specialization, availability: data.availability } as any);
         }
       } else {
-        await apiService.createVolunteer(payload);
+        const res = await apiService.createVolunteer(payload);
+        if (!res) throw new Error("Duplicate or soft-deleted record exists");
       }
       await loadDataFromApi();
     } else if (type === 'Donor') {
@@ -1728,7 +1732,8 @@ function App() {
           setSelectedDonor({ ...selectedDonor, name: data.name, email: data.email, phone: data.phone, address: data.address, totalDonated: data.contribution, formattedAmount: `$${Number(data.contribution || 0).toLocaleString()}` });
         }
       } else {
-        await apiService.createDonor(payload);
+        const res = await apiService.createDonor(payload);
+        if (!res) throw new Error("Duplicate or soft-deleted record exists");
       }
       await loadDataFromApi();
     } else if (type === 'activity') {
@@ -2093,7 +2098,7 @@ function App() {
         </header>
 
         {/* PAGE CONTENT CONTAINER */}
-        <main className={`flex-1 p-6 ${activeTab === 'Dashboard' && !selectedStudent ? 'flex flex-col min-h-0' : 'space-y-6'}`}>
+        <main className={`flex-1 p-3 sm:p-4 md:p-6 ${activeTab === 'Dashboard' && !selectedStudent ? 'flex flex-col min-h-0' : 'space-y-6'}`}>
 
           {/* MODULE: DASHBOARD */}
           {activeTab === 'Dashboard' && !selectedStudent && (
@@ -2220,7 +2225,7 @@ function App() {
 
 
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2 min-h-0">
@@ -2499,7 +2504,7 @@ function App() {
             </div>
             {/* TWO COLUMN SUMMARY SECTIONS */}
               {activeRole !== 'Admin' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                 {/* VOLUNTEER VIEW: student requests approval & expense posting */}
                 {activeRole === 'Volunteer' && (
@@ -3025,7 +3030,7 @@ function App() {
                         </div>
 
                         {/* 2. FAMILY & LOCATION INFORMATION */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                           {/* Card 3: Family & Parent Info */}
                           <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
@@ -3100,7 +3105,7 @@ function App() {
                         </div>
 
                         {/* 3. FINANCIAL, BANK & SCHOLARSHIP DETAILS */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                           {/* Card 5: Bank Account Info */}
                           <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4">
@@ -4519,7 +4524,7 @@ function App() {
                 {expenseSubTab === 'analytics' && (
                   <div className="space-y-6 pt-2">
               {/* DOUBLE CHART & MAP SECTION */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2 min-h-0">
@@ -6093,7 +6098,38 @@ function App() {
                 })}
             </div>
 
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0 flex gap-3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingGeofenceGroup(null);
+                  setDeleteModal({
+                    isOpen: true,
+                    title: (editingGeofenceGroup.polygons && editingGeofenceGroup.polygons.length > 1) ? 'Delete Geofence Group' : 'Delete Geofence',
+                    message: `Are you sure you want to delete "${editingGeofenceGroup.name}"?`,
+                    onConfirm: async () => {
+                      const isGrouped = editingGeofenceGroup.polygons && editingGeofenceGroup.polygons.length > 1;
+                      const success = isGrouped 
+                        ? await apiService.deleteGeofenceGroup(editingGeofenceGroup.id)
+                        : await apiService.deleteGeofence(editingGeofenceGroup.id);
+                      if (success) {
+                        setCustomGeofences(prev => {
+                          const updated = prev.filter(g => g.id !== editingGeofenceGroup.id);
+                          localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                          return updated;
+                        });
+                      }
+                    }
+                  });
+                }}
+                className="w-1/3 py-2.5 rounded-2xl font-bold bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50 transition-all border border-red-100 dark:border-red-900/30 flex items-center justify-center gap-2 text-xs shadow-sm"
+                title="Delete"
+              >
+                <Trash2 size={15} />
+                Delete
+              </button>
+              
               <button
                 onClick={async () => {
                   let success = false;
@@ -6118,7 +6154,7 @@ function App() {
                     alert('Failed to save assignment to server');
                   }
                 }}
-                className="w-full py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs"
+                className="w-2/3 py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs"
               >
                 Save Group Assignment
               </button>

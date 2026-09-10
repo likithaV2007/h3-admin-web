@@ -515,22 +515,20 @@ export const apiService = {
       };
 
       if (existingRoleId) {
-        try {
-          await fetch(`${BASE_URL}/api/v1/userroles/${existingRoleId}`, {
-            method: 'DELETE',
-            headers: authHeaders
-          });
-        } catch (e) {
-          console.warn("Failed to delete existing role", e);
-        }
+        const res = await fetch(`${BASE_URL}/api/v1/userroles/${existingRoleId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify(payload)
+        });
+        return res.ok;
+      } else {
+        const res = await fetch(`${BASE_URL}/api/v1/userroles/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify(payload)
+        });
+        return res.ok;
       }
-
-      const res = await fetch(`${BASE_URL}/api/v1/userroles/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(payload)
-      });
-      return res.ok;
     } catch (err) {
       console.error("Error assigning user role:", err);
       return false;
