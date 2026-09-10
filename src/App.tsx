@@ -1671,13 +1671,16 @@ function App() {
         specialization: 'Admin', // default for Admin
         availability: 'Flexible', // default for Admin
         bio: 'Administrator',
-        joined_date: new Date().toISOString().split('T')[0],
-        user_id: "00000000-0000-0000-0000-000000000000",
+        joined_date: (isEdit && selectedVolunteer) ? selectedVolunteer.joined_date : new Date().toISOString().split('T')[0],
+        user_id: (isEdit && selectedVolunteer) ? (selectedVolunteer as any).user_id : "00000000-0000-0000-0000-000000000000",
         is_deleted: 0,
-        profile_photo_link: ""
+        profile_photo_link: (isEdit && selectedVolunteer) ? selectedVolunteer.profile_photo_link : ""
       };
       if (isEdit && editId) {
         await apiService.updateVolunteer(editId, payload);
+        if (payload.user_id && payload.user_id !== "00000000-0000-0000-0000-000000000000") {
+          await apiService.updateUser(payload.user_id, { email: data.email, phone: data.phone, name: data.name });
+        }
         if (selectedVolunteer && (selectedVolunteer.id === editId || (selectedVolunteer as any).volunteer_id === editId)) {
           setSelectedVolunteer({ ...selectedVolunteer, name: data.name, email: data.email, phone: data.phone, specialization: 'Admin', availability: 'Flexible' } as any);
         }
@@ -1694,13 +1697,16 @@ function App() {
         specialization: data.specialization || 'General',
         availability: data.availability || 'Flexible',
         bio: data.specialization || '',
-        joined_date: new Date().toISOString().split('T')[0],
-        user_id: "00000000-0000-0000-0000-000000000000",
+        joined_date: (isEdit && selectedVolunteer) ? selectedVolunteer.joined_date : new Date().toISOString().split('T')[0],
+        user_id: (isEdit && selectedVolunteer) ? (selectedVolunteer as any).user_id : "00000000-0000-0000-0000-000000000000",
         is_deleted: 0,
-        profile_photo_link: ""
+        profile_photo_link: (isEdit && selectedVolunteer) ? selectedVolunteer.profile_photo_link : ""
       };
       if (isEdit && editId) {
         await apiService.updateVolunteer(editId, payload);
+        if (payload.user_id && payload.user_id !== "00000000-0000-0000-0000-000000000000") {
+          await apiService.updateUser(payload.user_id, { email: data.email, phone: data.phone, name: data.name });
+        }
         if (selectedVolunteer && (selectedVolunteer.id === editId || (selectedVolunteer as any).volunteer_id === editId)) {
           setSelectedVolunteer({ ...selectedVolunteer, name: data.name, email: data.email, phone: data.phone, specialization: data.specialization, availability: data.availability } as any);
         }
@@ -2075,7 +2081,7 @@ function App() {
 
 
       {/* MAIN CONTAINER */}
-      <div className={`flex-1 flex flex-col min-w-0 max-h-screen ${activeTab === 'Dashboard' && !selectedStudent ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 max-h-screen ${activeTab === 'Dashboard' && !selectedStudent ? 'overflow-y-auto lg:overflow-hidden' : 'overflow-y-auto'}`}>
 
 
 
@@ -2102,7 +2108,7 @@ function App() {
 
           {/* MODULE: DASHBOARD */}
           {activeTab === 'Dashboard' && !selectedStudent && (
-            <div className="flex flex-col h-full space-y-4 min-h-0 max-w-[1500px] mx-auto w-full">
+            <div className="flex flex-col min-h-full space-y-4 min-h-0 max-w-[1500px] mx-auto w-full">
 
 
 
@@ -2225,7 +2231,7 @@ function App() {
 
 
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 w-full">
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2 min-h-0">
@@ -2233,7 +2239,7 @@ function App() {
                     <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full ${themeClasses.bgGradientBottom}`}></div>
                     Monthly Expenses Chart
                   </h4>
-                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 min-h-0 flex flex-col">
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 min-h-[350px] lg:min-h-0 flex flex-col">
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
@@ -2408,7 +2414,7 @@ function App() {
                     }
 
                     return (
-                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col min-h-0">
+                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col min-h-[350px] lg:min-h-0">
 
                       <div className="flex-1 flex flex-col items-center justify-center pt-2 min-h-0">
                         <div className="relative w-[18vh] h-[18vh] min-w-[120px] min-h-[120px] mb-4 shrink-0">
@@ -2687,7 +2693,7 @@ function App() {
 
                   {/* DATA TABLE */}
                   <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                    <table className="w-full text-left border-collapse text-xs">
+                    <table className="w-full text-left border-collapse text-xs min-w-[800px]">
                       <thead>
                         <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
                           <th className="p-4 align-top">
@@ -2945,7 +2951,7 @@ function App() {
                               <User size={16} className="text-purple-500" />
                               Personal Information
                             </h4>
-                            <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                               <div>
                                 <span className="text-slate-400 block font-semibold text-[10px] uppercase">Student Code</span>
                                 <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{selectedStudent.student_code || selectedStudent.rollNo || selectedStudent.id}</span>
@@ -3413,7 +3419,7 @@ function App() {
                                     <span className="text-[10px] text-slate-400 block font-mono">Submitted: {new Date(req.created_at).toLocaleDateString()}</span>
                                   </div>
                                   
-                                  <div className="grid grid-cols-2 gap-4 text-[11px] pt-1">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-[11px] pt-1">
                                     <div>
                                       <span className="text-slate-400 block uppercase text-[9px] font-bold tracking-wider mb-0.5">Leave Start Date</span>
                                       <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">📅 {req.leave_date}</span>
@@ -3647,7 +3653,7 @@ function App() {
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
                       <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Parent / Guardian Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setParentColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
@@ -3828,24 +3834,26 @@ function App() {
                         >
                           <MessageSquare size={14} />
                         </a>
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            setDeleteModal({
-                              isOpen: true,
-                              title: 'Delete Admin',
-                              message: `Are you sure you want to delete admin/volunteer ${vol.name}?`,
-                              onConfirm: async () => {
-                                const success = await apiService.deleteVolunteer(vol.id);
-                                if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
-                              }
-                            });
-                          }}
-                          title={`Delete ${vol.name}`}
-                          className="p-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        {(sessionStorage.getItem('userRole') || '').toLowerCase().includes('super') && (
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              setDeleteModal({
+                                isOpen: true,
+                                title: 'Delete Admin',
+                                message: `Are you sure you want to delete admin/volunteer ${vol.name}?`,
+                                onConfirm: async () => {
+                                  const success = await apiService.deleteVolunteer(vol.id);
+                                  if (success) setVolunteers(prev => prev.filter(v => v.id !== vol.id));
+                                }
+                              });
+                            }}
+                            title={`Delete ${vol.name}`}
+                            className="p-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -3873,7 +3881,7 @@ function App() {
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
                       <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Admin Name</span><input type="text" placeholder="Filter..." onClick={(e)=>e.stopPropagation()} onChange={(e) => setAdminColFilters(prev => ({...prev, 'name': e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200" /></div></th>
@@ -3988,7 +3996,7 @@ function App() {
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50 mt-4">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
                       <th className="p-4">Receipt ID</th>
@@ -4063,7 +4071,7 @@ function App() {
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
-                <table className="w-full text-left border-collapse text-xs">
+                <table className="w-full text-left border-collapse text-xs min-w-[800px]">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-black dark:text-white font-bold">
                       <th className="p-4 align-top"><div className="flex flex-col gap-1.5"><span>Donor Name</span><select onClick={(e)=>e.stopPropagation()} onChange={(e) => setDonorColFilters(prev => ({...prev, 'name': e.target.value === 'ALL' ? '' : e.target.value}))} className="w-full min-w-[80px] px-2 py-1 text-[10px] rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 font-normal focus:outline-none focus:border-purple-500 text-slate-800 dark:text-slate-200"><option value="ALL">All</option>{Array.from(new Set(donors.map(d => d.name).filter(Boolean))).sort().map(v => <option key={v} value={v}>{v}</option>)}</select></div></th>
@@ -4159,7 +4167,7 @@ function App() {
               {/* TOP HERO BANNER & STATS CARD (MATCHING MOBILE SCREENSHOT) */}
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Total Spend Cards - Left Side */}
-                <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                   {/* INR Card */}
                   <div className={`relative overflow-hidden rounded-[2rem] p-6 text-white ${themeClasses.bgGradientMain} shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-col justify-between min-h-[160px]`}>
                     <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/10 rounded-full blur-2xl mix-blend-overlay"></div>
@@ -4524,7 +4532,7 @@ function App() {
                 {expenseSubTab === 'analytics' && (
                   <div className="space-y-6 pt-2">
               {/* DOUBLE CHART & MAP SECTION */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 flex-1 min-h-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12 w-full">
 
                 {/* Visual Chart Column */}
                 <div className="flex flex-col gap-3 w-full lg:col-span-2 min-h-0">
@@ -4532,7 +4540,7 @@ function App() {
                     <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-5 rounded-full ${themeClasses.bgGradientBottom}`}></div>
                     Monthly Expenses Chart
                   </h4>
-                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 min-h-0 flex flex-col">
+                  <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 min-h-[350px] lg:min-h-0 flex flex-col">
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
@@ -4707,7 +4715,7 @@ function App() {
                     }
 
                     return (
-                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col min-h-0">
+                      <div className="glass-panel rounded-2xl bg-[#f4f8f4] dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 p-5 space-y-4 w-full flex-1 flex flex-col min-h-[350px] lg:min-h-0">
 
                       <div className="flex-1 flex flex-col items-center justify-center pt-2 min-h-0">
                         <div className="relative w-[18vh] h-[18vh] min-w-[120px] min-h-[120px] mb-4 shrink-0">
@@ -5283,7 +5291,7 @@ function App() {
                   {activeTab === 'Admins' ? 'Admin Profile' : 'Volunteer Profile'}
                 </span>
                 <div className="flex items-center gap-2">
-                  {!(activeTab === 'Admins' && !(sessionStorage.getItem('userRole') || '').toLowerCase().includes('super')) && (
+                  {!(activeTab === 'Admins' && !(sessionStorage.getItem('userRole') || '').toLowerCase().includes('super') && selectedVolunteer?.email !== auth.currentUser?.email) && (
                     <button
                       onClick={() => setCreationModal({ type: activeTab === 'Admins' ? 'Admin' : 'Volunteer', isOpen: true, isEdit: true, initialData: selectedVolunteer })}
                       className="px-4 py-1.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 rounded-xl transition-all hover:scale-105 active:scale-95 text-[10px] font-bold uppercase tracking-wider shadow-sm"
@@ -5349,7 +5357,7 @@ function App() {
             </div>
 
             {/* Profile Overview */}
-            <div className="p-6 space-y-6 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-3xl">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-3xl">
 
               {/* Bio */}
               {selectedVolunteer.bio && (
@@ -5362,7 +5370,7 @@ function App() {
               )}
 
               {/* Details Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                 {activeTab !== 'Admins' && (
                   <>
                     <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
@@ -5410,7 +5418,7 @@ function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 dark:border-slate-800">
             {/* Header Banner */}
-            <div className="relative bg-white dark:bg-slate-900 rounded-t-3xl p-6 pt-5 pb-6 flex flex-col justify-between border-b border-slate-200 dark:border-slate-800">
+            <div className="relative bg-white dark:bg-slate-900 rounded-t-3xl p-4 sm:p-6 pt-4 sm:pt-5 pb-4 sm:pb-6 flex flex-col justify-between border-b border-slate-200 dark:border-slate-800">
               <div className="flex justify-between items-center w-full mb-3">
                 <span className="bg-white/20 backdrop-blur-md text-slate-900 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border border-white/20">
                   Donor Benefactor Profile
@@ -5479,7 +5487,7 @@ function App() {
             </div>
 
             {/* Profile Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
 
               {/* Highlight Contribution Box */}
               <div className="glass-panel p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center relative overflow-hidden">
@@ -5494,7 +5502,7 @@ function App() {
               </div>
 
               {/* Details Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                 <div className="p-3.5 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 space-y-1">
                   <span className="text-[10px] font-bold text-slate-400 uppercase">Donor Type</span>
                   <span className="font-bold text-xs block text-slate-800 dark:text-slate-200">{selectedDonor.donorType}</span>
@@ -5547,7 +5555,7 @@ function App() {
       {/* CREATE EXPENSE MODAL */}
       {showExpenseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-slate-800 flex items-center justify-center font-bold">
@@ -5573,7 +5581,7 @@ function App() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-extrabold text-slate-400 block mb-1 uppercase tracking-wider">CATEGORY</label>
                   <select
@@ -5698,7 +5706,7 @@ function App() {
       {/* EXPENSE DETAIL / APPROVAL MODAL */}
       {selectedExpense && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[85vh]">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">
@@ -5719,7 +5727,7 @@ function App() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Title / Description</span>
                   <span className="font-extrabold text-sm text-white mt-0.5 block">{selectedExpense.title}</span>
@@ -5730,7 +5738,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Date Submitted</span>
                   <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block">
@@ -5745,7 +5753,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Refund Requested</span>
                   <span className={`inline-block font-extrabold text-[10px] mt-0.5 px-2 py-0.5 rounded-full ${selectedExpense.refund_requested ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-400' : 'bg-slate-100 text-slate-500'}`}>
@@ -5760,7 +5768,7 @@ function App() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-b border-slate-100 dark:border-slate-800/60 pb-3">
                 <div>
                   <span className="text-[9px] text-slate-400 font-bold uppercase block">Submitted By</span>
                   <span className="font-bold text-xs text-slate-800 dark:text-slate-200 mt-0.5 block">{selectedExpense.uploaded_by || selectedExpense.created_by_name || 'System Admin'}</span>
@@ -5811,7 +5819,7 @@ function App() {
 
             {/* SUPER ADMIN APPROVAL/DISAPPROVAL CONTROLS */}
             {activeRole === 'Admin' && (
-              <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0">
                 <button
                   onClick={() => handleApproveExpense(selectedExpense.id, false)}
                   className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all border ${selectedExpense.status === 'REJECTED'
@@ -5841,7 +5849,7 @@ function App() {
       {/* CREATE CUSTOM GEOFENCE SHAPE MODAL FOR OPENSTREETMAP */}
       {showAddLocationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-slate-800 flex items-center justify-center font-bold">
@@ -5946,7 +5954,7 @@ function App() {
       {/* MANAGE GEOFENCE GROUP MODAL */}
       {editingGeofenceGroup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh]">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh]">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 mb-4 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-slate-800 dark:text-purple-400 flex items-center justify-center font-bold">
@@ -6098,7 +6106,7 @@ function App() {
                 })}
             </div>
 
-            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0 flex gap-3">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4 shrink-0 flex flex-col sm:flex-row gap-3">
               <button
                 type="button"
                 onClick={(e) => {
@@ -6123,7 +6131,7 @@ function App() {
                     }
                   });
                 }}
-                className="w-1/3 py-2.5 rounded-2xl font-bold bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50 transition-all border border-red-100 dark:border-red-900/30 flex items-center justify-center gap-2 text-xs shadow-sm"
+                className="w-full sm:w-1/3 py-2.5 rounded-2xl font-bold bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50 transition-all border border-red-100 dark:border-red-900/30 flex items-center justify-center gap-2 text-xs shadow-sm"
                 title="Delete"
               >
                 <Trash2 size={15} />
@@ -6154,7 +6162,7 @@ function App() {
                     alert('Failed to save assignment to server');
                   }
                 }}
-                className="w-2/3 py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs"
+                className="w-full sm:w-2/3 py-2.5 gradient-btn-tab hover:opacity-90 font-extrabold rounded-2xl shadow-lg transition-all text-xs"
               >
                 Save Group Assignment
               </button>
@@ -6166,7 +6174,7 @@ function App() {
       {/* MERGE GEOFENCES MODAL */}
       {isMergeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh] space-y-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col max-h-[80vh] space-y-4">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-purple-500/10 text-slate-800 dark:text-purple-400 flex items-center justify-center font-bold">
@@ -6526,7 +6534,7 @@ function App() {
       {/* DRAWN GEOFENCE NAMING & SAVE DIALOG MODAL */}
       {pendingDrawnShape && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-2xl bg-purple-500/15 text-slate-800 flex items-center justify-center font-bold">
@@ -6849,7 +6857,7 @@ function App() {
       {/* GLOBAL DELETE CONFIRMATION MODAL */}
       {deleteModal.isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-sm p-6 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-sm p-4 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-800 animate-in zoom-in-95">
             <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 flex items-center justify-center mb-4 mx-auto">
               <Trash2 size={24} />
             </div>

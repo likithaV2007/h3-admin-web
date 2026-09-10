@@ -199,11 +199,11 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
             <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><UserPlus size={16} className="text-purple-500" /> Basic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <CustomInput required name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
+                <CustomInput name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} />
                 <CustomInput required name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} />
                 <CustomInput required name="rollNo" placeholder="Roll Number / Student Code" value={formData.rollNo} onChange={handleChange} />
                 <CustomInput name="date_of_birth" type="date" placeholder="Date of Birth" value={formData.date_of_birth} onChange={handleChange} />
-                <CustomSelect required name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange} options={["male", "female", "other"]} />
+                <CustomSelect name="gender" placeholder="Gender" value={formData.gender} onChange={handleChange} options={["male", "female", "other"]} />
                 <CustomInput name="blood_group" placeholder="Blood Group (e.g. O+)" value={formData.blood_group} onChange={handleChange} />
                 <CustomSelect name="physically_challenged" placeholder="Physically Challenged" value={formData.physically_challenged?.toString() || "0"} onChange={(e: any) => setFormData({...formData, physically_challenged: parseInt(e.target.value)})} options={["0", "1"]} />
                 <CustomInput name="religion" placeholder="Religion" value={formData.religion} onChange={handleChange} />
@@ -216,12 +216,12 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
               <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><BookOpen size={16} className="text-blue-500" /> Academic Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <CustomInput required name="college" placeholder="College / University" value={formData.college} onChange={handleChange} />
+                  <CustomInput name="college" placeholder="College / University" value={formData.college} onChange={handleChange} />
                 </div>
-                <CustomInput required name="grade" placeholder="Course & Year (e.g. B.Tech 2nd Year)" value={formData.grade} onChange={handleChange} />
+                <CustomInput name="grade" placeholder="Course & Year (e.g. B.Tech 2nd Year)" value={formData.grade} onChange={handleChange} />
                 <CustomInput name="major" placeholder="Major / Specialization" value={formData.major} onChange={handleChange} />
                 <CustomInput name="college_address" placeholder="College Address" value={formData.college_address} onChange={handleChange} />
-                <CustomSelect required name="batch" placeholder="Allocated Batch" value={formData.batch} onChange={handleChange} options={["Batch 2026", "Batch 2025", "Batch 2024", "Batch 2023", "Rcd-1", "Rcd-2", "Rcd-3"]} />
+                <CustomSelect name="batch" placeholder="Allocated Batch" value={formData.batch} onChange={handleChange} options={["Batch 2026", "Batch 2025", "Batch 2024", "Batch 2023", "Rcd-1", "Rcd-2", "Rcd-3"]} />
                 <CustomInput name="school_name" placeholder="School Name" value={formData.school_name} onChange={handleChange} />
                 <CustomInput name="school_name_10th" placeholder="10th School Name" value={formData.school_name_10th} onChange={handleChange} />
                 <CustomInput name="school_name_12th" placeholder="12th School Name" value={formData.school_name_12th} onChange={handleChange} />
@@ -232,7 +232,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
             <div className="bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-xl border border-slate-200/60 dark:border-slate-700/50 space-y-4">
               <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2"><Heart size={16} className="text-rose-500" /> Contact & Address</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <CustomPhoneInput required name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} onCountryCodeChange={(e: any) => setFormData({...formData, countryCode: e.target.value})} countryCodeValue={formData.countryCode} />
+                <CustomPhoneInput name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} onCountryCodeChange={(e: any) => setFormData({...formData, countryCode: e.target.value})} countryCodeValue={formData.countryCode} />
                 <CustomInput name="emergency_contact" placeholder="Emergency Contact" value={formData.emergency_contact} onChange={handleChange} />
                 <div className="md:col-span-2">
                   <CustomInput name="address" placeholder="Street Address" value={formData.address} onChange={handleChange} />
@@ -409,7 +409,7 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
         </div>
 
         {/* Form Body - Scrollable */}
-        <div className="overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
+        <div className="overflow-y-auto p-4 sm:p-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
           <form id="entity-form" onSubmit={handleSubmit}>
             {renderFields()}
           </form>

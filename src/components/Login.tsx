@@ -90,7 +90,7 @@ export const Login = ({ onLoginSuccess }: LoginProps) => {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-md p-8 bg-white/60 backdrop-blur-3xl border border-slate-200/50 rounded-[2rem] shadow-2xl shadow-purple-900/5 z-10 mx-4">
+      <div className="w-full max-w-md p-6 sm:p-8 bg-white/60 backdrop-blur-3xl border border-slate-200/50 rounded-[2rem] shadow-2xl shadow-purple-900/5 z-10 mx-4">
         <div className="flex flex-col items-center mb-8">
           <img
             src="/hope3_logo-removebg-preview.png"

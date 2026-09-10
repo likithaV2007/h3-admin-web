@@ -155,7 +155,7 @@ export const apiService = {
     // Map backend response fields to Student type
     return activeData.map((item, idx) => ({
       ...item,
-      id: item.student_code || item.student_id || item.id || `STU${idx + 1}`,
+      id: item.student_id || item.id || item.student_code || `STU${idx + 1}`,
       name: item.student_name || item.full_name || item.name || (item.first_name ? `${item.first_name || ''} ${item.last_name || ''}`.trim() : 'N/A'),
       rollNo: item.student_code || 'N/A',
       age: item.age || null,
@@ -783,10 +783,19 @@ export const apiService = {
   updateVolunteer: async (id: string, payload: any): Promise<any> => {
     try {
       const authHeaders = await getAuthHeader();
+      const cleanPayload = {
+        user_id: payload.user_id || "00000000-0000-0000-0000-000000000000",
+        is_deleted: payload.is_deleted || 0,
+        address: payload.address || "string",
+        profile_photo_link: payload.profile_photo_link || "string",
+        bio: payload.bio || payload.specialization || "string",
+        joined_date: payload.joined_date || new Date().toISOString().split('T')[0],
+        volunteer_id: id
+      };
       const res = await fetch(`${BASE_URL}/api/v1/volunteers/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(cleanPayload),
       });
       if (res.ok) return await res.json();
       return null;
