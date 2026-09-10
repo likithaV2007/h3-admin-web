@@ -154,7 +154,7 @@ const getDriveImageUrl = (photoLink?: string | null, driveLink?: string | null) 
   return clean || null;
 };
 
-const ActivityCardNode = ({ activity, setViewingActivityImages }: { activity: any, setViewingActivityImages: (urls: string[]) => void }) => {
+const ActivityCardNode = ({ activity, setViewingActivityImages, onDelete }: { activity: any, setViewingActivityImages: (urls: string[]) => void, onDelete?: (id: string, name: string) => void }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const handleNext = (e: React.MouseEvent) => {
@@ -236,9 +236,24 @@ const ActivityCardNode = ({ activity, setViewingActivityImages }: { activity: an
           )}
         </div>
         
-        <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line line-clamp-4 mt-auto">
+        <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-line line-clamp-4 mt-auto mb-3">
           {activity.description}
         </p>
+        
+        {onDelete && (
+          <div className="flex justify-end mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(activity.activity_id || activity.id, activity.title);
+              }}
+              className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
+              title="Delete Activity"
+            >
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -925,21 +940,26 @@ function App() {
         if (event) {
           event.stopPropagation();
         }
-        if (confirm('Are you sure you want to delete this geofence boundary?')) {
-          map.closePopup();
-          const success = await apiService.deleteGeofence(geofenceId);
-          if (success) {
-            setCustomGeofences(prev => {
-              const updated = prev.filter(g => g.id !== geofenceId);
-              try {
-                localStorage.setItem('h3_geofences', JSON.stringify(updated));
-              } catch { }
-              return updated;
-            });
-          } else {
-            alert('Failed to delete geofence from server.');
+        setDeleteModal({
+          isOpen: true,
+          title: 'Delete Geofence',
+          message: 'Are you sure you want to delete this geofence boundary?',
+          onConfirm: async () => {
+            map.closePopup();
+            const success = await apiService.deleteGeofence(geofenceId);
+            if (success) {
+              setCustomGeofences(prev => {
+                const updated = prev.filter(g => g.id !== geofenceId);
+                try {
+                  localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                } catch { }
+                return updated;
+              });
+            } else {
+              alert('Failed to delete geofence from server.');
+            }
           }
-        }
+        });
       };
 
       // Initialize Leaflet FeatureGroup for user-drawn items
@@ -4795,7 +4815,22 @@ function App() {
                   </div>
                 ) : (
                   activities.map(activity => (
-                    <ActivityCardNode key={activity.activity_id} activity={activity} setViewingActivityImages={setViewingActivityImages} />
+                    <ActivityCardNode 
+                      key={activity.activity_id} 
+                      activity={activity} 
+                      setViewingActivityImages={setViewingActivityImages} 
+                      onDelete={(id, name) => {
+                        setDeleteModal({
+                          isOpen: true,
+                          title: 'Delete Activity',
+                          message: `Are you sure you want to delete the activity "${name}"?`,
+                          onConfirm: async () => {
+                            const success = await apiService.deleteActivity(id);
+                            if (success) setActivities(prev => prev.filter(a => a.activity_id !== id));
+                          }
+                        });
+                      }}
+                    />
                   ))
                 )}
               </div>
@@ -5111,16 +5146,27 @@ function App() {
                                 </button>
                               )}
                               <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (confirm(`Are you sure you want to delete the geofence "${gf.name}"?`)) {
-                                    setCustomGeofences(prev => {
-                                      const updated = prev.filter(g => g.id !== gf.id);
-                                      localStorage.setItem('h3_geofences', JSON.stringify(updated));
-                                      return updated;
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteModal({
+                                      isOpen: true,
+                                      title: isGrouped ? 'Delete Geofence Group' : 'Delete Geofence',
+                                      message: `Are you sure you want to delete the ${isGrouped ? 'group' : 'geofence'} "${gf.name}"?`,
+                                      onConfirm: async () => {
+                                        const success = isGrouped 
+                                          ? await apiService.deleteGeofenceGroup(gf.id)
+                                          : await apiService.deleteGeofence(gf.id);
+                                        
+                                        if (success) {
+                                          setCustomGeofences(prev => {
+                                            const updated = prev.filter(g => g.id !== gf.id);
+                                            localStorage.setItem('h3_geofences', JSON.stringify(updated));
+                                            return updated;
+                                          });
+                                        }
+                                      }
                                     });
-                                  }
-                                }}
+                                  }}
                                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all"
                                 title="Delete Geofence"
                               >

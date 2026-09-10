@@ -147,10 +147,10 @@ export const apiService = {
   },
 
   // Fetch Students
-  getStudents: async (): Promise<Student[]> => {
+  getStudents: async (includeDeleted: boolean = false): Promise<Student[]> => {
     const data = await apiFetch<any[]>('/api/v1/students/', []);
     if (!data || data.length === 0) return [];
-    const activeData = data.filter((item: any) => item.is_deleted !== 1);
+    const activeData = includeDeleted ? data : data.filter((item: any) => item.is_deleted !== 1);
     
     // Map backend response fields to Student type
     return activeData.map((item, idx) => ({
@@ -178,13 +178,15 @@ export const apiService = {
       },
       leaveRequests: item.leave_requests || [],
       academicProgress: item.academic_progress || [],
+      achievements: item.achievements || [],
+      is_deleted: item.is_deleted,
       subjects: item.subjects || [],
       notes: item.notes || []
     }));
   },
 
   // Fetch Volunteers
-  getVolunteers: async (): Promise<Volunteer[]> => {
+  getVolunteers: async (includeDeleted: boolean = false): Promise<Volunteer[]> => {
     const [volsData, usersData] = await Promise.all([
       apiFetch<any[]>('/api/v1/volunteers/', []),
       apiFetch<any[]>('/api/v1/users/?limit=10000', [])
@@ -200,7 +202,7 @@ export const apiService = {
       });
     }
 
-    const activeVols = volsData.filter((item: any) => item.is_deleted !== 1);
+    const activeVols = includeDeleted ? volsData : volsData.filter((item: any) => item.is_deleted !== 1);
 
     return activeVols.map((item, idx) => {
       const user = userMap[item.user_id] || {};
@@ -247,10 +249,10 @@ export const apiService = {
   },
 
   // Fetch Parents
-  getParents: async (studentsList?: Student[]): Promise<Parent[]> => {
+  getParents: async (studentsList?: Student[], includeDeleted: boolean = false): Promise<Parent[]> => {
     const data = await apiFetch<any[]>('/api/v1/parents/', []);
     if (!data || data.length === 0) return [];
-    const activeData = data.filter((item: any) => item.is_deleted !== 1);
+    const activeData = includeDeleted ? data : data.filter((item: any) => item.is_deleted !== 1);
     return activeData.map((item, idx) => {
       // Find matching student by student_id
       const matchedStudent = studentsList?.find(s => s.id === item.student_id || s.student_code === item.student_id || (s as any).student_id === item.student_id);
@@ -292,13 +294,14 @@ export const apiService = {
         relationship: rel,
         relation: rel,
         occupation: occupation,
-        address: item.address || matchedStudent?.address || 'N/A'
+        address: item.address || matchedStudent?.address || 'N/A',
+        is_deleted: item.is_deleted
       };
     });
   },
 
   // Fetch Donors
-  getDonors: async (): Promise<Donor[]> => {
+  getDonors: async (includeDeleted: boolean = false): Promise<Donor[]> => {
     const [donorsData, usersData] = await Promise.all([
       apiFetch<any[]>('/api/v1/donors/?limit=10000', []),
       apiFetch<any[]>('/api/v1/users/?limit=10000', [])
@@ -313,7 +316,7 @@ export const apiService = {
       });
     }
 
-    const activeDonors = donorsData.filter((item: any) => item.is_deleted !== 1);
+    const activeDonors = includeDeleted ? donorsData : donorsData.filter((item: any) => item.is_deleted !== 1);
 
     return activeDonors.map((item, idx) => {
       const user = userMap[item.user_id] || {};
@@ -352,7 +355,8 @@ export const apiService = {
         status: 'Active Sponsor' as "Active Sponsor" | "Past Benefactor",
         profile_photo_link: formatAvatarUrl(item.profile_photo_link || user.profile_photo_link),
         joined_date: item.created_at ? item.created_at.split('T')[0] : 'N/A',
-        address: item.address || 'N/A'
+        address: item.address || 'N/A',
+        is_deleted: item.is_deleted
       };
     });
   },
@@ -545,9 +549,15 @@ export const apiService = {
       delete cleanPayload.phone;
       delete cleanPayload.name;
 
-      const existing = await apiService.getStudents();
+      const existing = await apiService.getStudents(true);
       const alreadyExists = existing.find((s: any) => s.user_id === userId);
       if (alreadyExists) {
+        if (alreadyExists.is_deleted === 1) {
+          await apiService.updateStudent(alreadyExists.id, {
+            ...cleanPayload,
+            is_deleted: 0
+          });
+        }
         await apiService.assignUserRole(userId, ['student']);
         return alreadyExists;
       }
@@ -594,9 +604,15 @@ export const apiService = {
         joined_date: payload.joined_date || new Date().toISOString().split('T')[0]
       };
 
-      const existing = await apiService.getVolunteers();
+      const existing = await apiService.getVolunteers(true);
       const alreadyExists = existing.find((v: any) => v.user_id === userId);
       if (alreadyExists) {
+        if (alreadyExists.is_deleted === 1) {
+          await apiService.updateVolunteer(alreadyExists.id || (alreadyExists as any).volunteer_id, {
+            ...cleanPayload,
+            is_deleted: 0
+          });
+        }
         await apiService.assignUserRole(userId, [payload.specialization === 'Admin' ? 'admin' : 'volunteer']);
         return alreadyExists;
       }
@@ -647,6 +663,12 @@ export const apiService = {
       const existing = await apiFetch<any[]>('/api/v1/parents/', []);
       const alreadyExists = existing?.find((p: any) => p.user_id === userId && p.student_id === cleanPayload.student_id);
       if (alreadyExists) {
+        if (alreadyExists.is_deleted === 1) {
+          await apiService.updateParent(alreadyExists.parent_id || alreadyExists.id, {
+            ...cleanPayload,
+            is_deleted: 0
+          });
+        }
         await apiService.assignUserRole(userId, ['parent']);
         return alreadyExists;
       }
@@ -691,9 +713,15 @@ export const apiService = {
         profile_photo_link: payload.profile_photo_link || null
       };
 
-      const existing = await apiService.getDonors();
+      const existing = await apiService.getDonors(true);
       const alreadyExists = existing.find((d: any) => d.user_id === userId);
       if (alreadyExists) {
+        if (alreadyExists.is_deleted === 1 || (alreadyExists as any).status === 'Past Benefactor') {
+          await apiService.updateDonor(alreadyExists.donor_id || alreadyExists.id, {
+            ...cleanPayload,
+            is_deleted: 0
+          });
+        }
         await apiService.assignUserRole(userId, ['donor']);
         return alreadyExists;
       }
@@ -999,13 +1027,39 @@ export const apiService = {
       const authHeaders = await getAuthHeader();
       const res = await fetch(`${BASE_URL}/api/v1/geofences/${id}`, {
         method: 'DELETE',
-        headers: {
-          ...authHeaders,
-        }
+        headers: authHeaders
       });
       return res.ok;
-    } catch (err) {
-      console.warn("Error deleting geofencezone via API:", err);
+    } catch (e) {
+      console.error('Error deleting geofence:', e);
+      return false;
+    }
+  },
+
+  deleteGeofenceGroup: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/geofencegroups/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Error deleting geofence group:', e);
+      return false;
+    }
+  },
+
+  deleteActivity: async (id: string): Promise<boolean> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/activities/${id}`, {
+        method: 'DELETE',
+        headers: authHeaders
+      });
+      return res.ok;
+    } catch (e) {
+      console.error('Error deleting activity:', e);
       return false;
     }
   },
