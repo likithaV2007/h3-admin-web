@@ -370,16 +370,10 @@ export const EntityCreationModal: React.FC<EntityCreationModalProps> = ({ type, 
                     <div 
                       key={student.id || student.student_id} 
                       onClick={() => toggleStudentLink(student.id || student.student_id)}
-                      className={`p-3 rounded-xl border cursor-pointer transition-all ${isSelected ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}`}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${isSelected ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'}`}
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                          {student.profile_photo_link ? <img src={student.profile_photo_link} className="w-full h-full object-cover" /> : <BookOpen size={14} className="text-slate-400" />}
-                        </div>
-                        {isSelected && <div className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center"><Check size={12} className="text-white" /></div>}
-                      </div>
-                      <div className="font-bold text-sm text-slate-800 dark:text-white truncate">{student.student_name}</div>
-                      <div className="text-xs text-slate-500 truncate">{student.student_code}</div>
+                      <div className="font-bold text-sm text-slate-800 dark:text-white truncate pr-2">{student.student_name}</div>
+                      {isSelected && <div className="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center shrink-0"><Check size={12} className="text-white" /></div>}
                     </div>
                   );
                 })}
