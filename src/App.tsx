@@ -355,6 +355,7 @@ function App() {
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
+  const [selectedDonorMappings, setSelectedDonorMappings] = useState<any[]>([]);
   const [isLoadingApi, setIsLoadingApi] = useState<boolean>(false);
   const [apiStatus, setApiStatus] = useState<{ status: 'CONNECTED' | 'UNAUTHORIZED' | 'ERROR' | 'LOADING'; url: string }>({
     status: 'LOADING',
@@ -1293,6 +1294,17 @@ function App() {
       setStudentSemesters([]);
     }
   }, [selectedStudent]);
+
+  useEffect(() => {
+    if (selectedDonor) {
+      const donorId = selectedDonor.donor_id || selectedDonor.id;
+      if (donorId) {
+        apiService.getDonorStudentMappings(donorId).then(setSelectedDonorMappings);
+      }
+    } else {
+      setSelectedDonorMappings([]);
+    }
+  }, [selectedDonor]);
 
   const [profileTab, setProfileTab] = useState<'Overview' | 'Attendance' | 'Fees Requests' | 'Leave Requests' | 'Academic Details' | 'Achievements' | 'Notes'>('Overview');
   const [newNoteText, setNewNoteText] = useState<string>('');
@@ -4103,6 +4115,16 @@ function App() {
                   <h4 className="font-bold text-base">Donors & Financial Benefactors</h4>
                   <p className="text-xs text-slate-400">Tracking contributions, CSR sponsors, and individual education funds</p>
                 </div>
+                <div className="relative w-full sm:w-auto">
+                  <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Search donors..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full sm:w-64 pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-purple-500 transition-colors"
+                  />
+                </div>
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-slate-200/50 dark:border-slate-800/50">
@@ -5593,6 +5615,36 @@ function App() {
                     {selectedDonor.status}
                   </span>
                 </div>
+
+                {selectedDonorMappings.length > 0 && (
+                  <div className="sm:col-span-2 space-y-3 mt-2">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Linked Students</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {selectedDonorMappings.filter(m => m.is_active === 1).map(mapping => {
+                        const student = students.find(s => (s.id || s.student_id) === mapping.student_id);
+                        if (!student) return null;
+                        return (
+                          <div 
+                            key={mapping.student_id}
+                            onClick={() => {
+                              setSelectedStudent(student);
+                              setSelectedDonor(null);
+                            }}
+                            className="p-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex justify-between items-center cursor-pointer hover:border-purple-300 dark:hover:border-purple-500/50 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="overflow-hidden">
+                                <div className="font-bold text-sm text-slate-800 dark:text-white truncate">{student.student_name}</div>
+                                <div className="text-[10px] text-slate-500 truncate">{student.student_code}</div>
+                              </div>
+                            </div>
+                            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

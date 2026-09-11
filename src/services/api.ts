@@ -734,6 +734,22 @@ export const apiService = {
     }
   },
 
+  getDonorStudentMappings: async (donorId: string): Promise<any[]> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      const res = await fetch(`${BASE_URL}/api/v1/donorstudentmapping/donor/${donorId}`, {
+        headers: authHeaders
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      return [];
+    } catch (err) {
+      console.error("Error fetching donor-student mappings:", err);
+      return [];
+    }
+  },
+
   createDonorStudentMapping: async (payload: {
     donor_id: string;
     student_ids: string[];
