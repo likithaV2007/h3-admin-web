@@ -516,6 +516,8 @@ function App() {
     lng: number;
     polygons: Array<{ name: string; coords: Array<[number, number]> }>;
     studentIds?: string[];
+    zone_ids?: string[];
+    coords?: Array<[number, number]>;
   }>>(() => {
     try {
       const saved = localStorage.getItem('h3_geofences');
@@ -1743,6 +1745,17 @@ function App() {
       } else {
         const res = await apiService.createDonor(payload);
         if (!res) throw new Error("Duplicate or soft-deleted record exists");
+        
+        if (data.linkedStudentIds && data.linkedStudentIds.length > 0) {
+          const donorId = res.donor_id || res.id;
+          if (donorId) {
+            await apiService.createDonorStudentMapping({
+              donor_id: donorId,
+              student_ids: data.linkedStudentIds,
+              amount_per_month: payload.contribution
+            });
+          }
+        }
       }
       await loadDataFromApi();
     } else if (type === 'activity') {
@@ -6706,6 +6719,7 @@ function App() {
 
       {/* ENTITY CREATION MODAL (STUDENT, PARENT, VOLUNTEER, DONOR) */}
       <EntityCreationModal
+        students={students}
         type={creationModal.type}
         isOpen={creationModal.isOpen}
         initialData={creationModal.initialData}

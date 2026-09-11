@@ -734,6 +734,45 @@ export const apiService = {
     }
   },
 
+  createDonorStudentMapping: async (payload: {
+    donor_id: string;
+    student_ids: string[];
+    mapping_type?: string;
+    amount_per_month?: number | string | null;
+  }): Promise<any> => {
+    try {
+      const authHeaders = await getAuthHeader();
+      
+      const mappingPayload = {
+        donor_id: payload.donor_id,
+        student_ids: payload.student_ids,
+        mapping_type: payload.mapping_type || (payload.student_ids.length > 1 ? "multiple" : "single"),
+        is_active: 1,
+        started_at: new Date().toISOString().split('T')[0],
+        is_deleted: 0,
+        amount_per_month: payload.amount_per_month || null,
+        ended_at: null
+      };
+
+      const res = await fetch(`${BASE_URL}/api/v1/donorstudentmapping/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify(mappingPayload),
+      });
+
+      if (res.ok) {
+        return await res.json();
+      } else {
+        const errorText = await res.text();
+        console.error("Failed to create donor-student mapping:", errorText);
+        return null;
+      }
+    } catch (err) {
+      console.error("Error creating donor-student mapping:", err);
+      return null;
+    }
+  },
+
   // Update Methods
   updateStudent: async (id: string, payload: any): Promise<any> => {
     try {
