@@ -1,0 +1,8 @@
+{
+    "zeroDrop.additionalRemotes": [
+        {
+            "url": "https://github.com/likithaV2007/h3-admin-web.git",
+            "branch": "main"
+        }
+    ]
+}
