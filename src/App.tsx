@@ -2297,18 +2297,17 @@ function App() {
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
-                    // Dynamically get the last 6 months up to current month
+                    // Dynamically get the 12 months from Jan to Dec
                     let monthIndices: number[] = [];
                     let monthLabels: string[] = [];
                     let monthlyCosts: number[] = [];
 
-                    const currentMonth = new Date().getMonth();
+                    const currentYear = new Date().getFullYear();
                     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-                    for (let i = 11; i >= 0; i--) {
-                      let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
-                      monthIndices.push(d.getMonth());
-                      monthLabels.push(monthNames[d.getMonth()]);
+                    for (let i = 0; i < 12; i++) {
+                      monthIndices.push(i);
+                      monthLabels.push(monthNames[i]);
                     }
 
                     if (expenseAnalytics?.monthly_expenses) {
@@ -2321,7 +2320,7 @@ function App() {
                         return expenses.filter(e => {
                           if (!e.date) return false;
                           const d = new Date(e.date);
-                          return d.getMonth() === monthIdx;
+                          return d.getMonth() === monthIdx && d.getFullYear() === currentYear;
                         }).reduce((sum, e) => sum + e.amount, 0);
                       });
                     }
@@ -4627,18 +4626,17 @@ function App() {
 
                   {/* CUSTOM BAR/LINE CHART USING SVG */}
                   {(() => {
-                    // Dynamically get the last 6 months up to current month
+                    // Dynamically get the 12 months from Jan to Dec
                     let monthIndices: number[] = [];
                     let monthLabels: string[] = [];
                     let monthlyCosts: number[] = [];
 
-                    const currentMonth = new Date().getMonth();
+                    const currentYear = new Date().getFullYear();
                     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-                    for (let i = 11; i >= 0; i--) {
-                      let d = new Date(new Date().getFullYear(), currentMonth - i, 1);
-                      monthIndices.push(d.getMonth());
-                      monthLabels.push(monthNames[d.getMonth()]);
+                    for (let i = 0; i < 12; i++) {
+                      monthIndices.push(i);
+                      monthLabels.push(monthNames[i]);
                     }
 
                     if (expenseAnalytics?.monthly_expenses) {
@@ -4651,7 +4649,7 @@ function App() {
                         return expenses.filter(e => {
                           if (!e.date) return false;
                           const d = new Date(e.date);
-                          return d.getMonth() === monthIdx;
+                          return d.getMonth() === monthIdx && d.getFullYear() === currentYear;
                         }).reduce((sum, e) => sum + e.amount, 0);
                       });
                     }
