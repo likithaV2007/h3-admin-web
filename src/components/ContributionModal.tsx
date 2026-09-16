@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Receipt, Download, Mail, CheckCircle2, Eye, Calendar } from 'lucide-react';
+import { X, Receipt, Download, Mail, CheckCircle2, Eye, Calendar, ChevronDown } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { generateContributionReceipt } from '../services/pdfGenerator';
@@ -47,6 +47,8 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
       donorId: formData.donorId,
       donorName: selectedDonor.name,
       amount: parseFloat(formData.amount),
+      amountUsd: currency === 'USD' ? parseFloat(formData.amount) : undefined,
+      amountInr: currency === 'INR' ? parseFloat(formData.amount) : undefined,
       date: formData.date,
       paymentMethod: formData.paymentMethod,
       receiptSent: false
@@ -74,6 +76,8 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
         donorId: formData.donorId,
         donorName: selectedDonor.name,
         amount: parseFloat(formData.amount),
+        amountUsd: currency === 'USD' ? parseFloat(formData.amount) : undefined,
+        amountInr: currency === 'INR' ? parseFloat(formData.amount) : undefined,
         date: formData.date,
         paymentMethod: formData.paymentMethod,
         receiptSent: true
@@ -103,6 +107,8 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
         donorId: isAnonymous ? null : formData.donorId,
         donorName: isAnonymous ? 'Anonymous' : selectedDonor?.name,
         amount: parseFloat(formData.amount),
+        amountUsd: currency === 'USD' ? parseFloat(formData.amount) : undefined,
+        amountInr: currency === 'INR' ? parseFloat(formData.amount) : undefined,
         currency,
         date: formData.date,
         paymentMethod: formData.paymentMethod,
@@ -194,21 +200,34 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider ml-1 mb-1 block">Amount</label>
-                <div className="relative flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus-within:ring-2 focus-within:ring-[#cbb4d4]/40 focus-within:border-[#cbb4d4]">
-                  <div className="absolute left-0 inset-y-0 flex items-center">
-                    <div className="h-full py-0 pl-4 pr-3 flex items-center bg-transparent text-slate-600 dark:text-slate-300 font-bold text-sm border-r border-slate-200 dark:border-slate-700/50 rounded-l-xl">
-                      $ USD
-                    </div>
+                <div className="flex gap-2">
+                  <div className="relative">
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value as 'USD' | 'INR')}
+                      className={`w-[85px] pl-4 pr-8 py-3 bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl outline-none transition-all duration-200 ${themeClasses.focusRingLight} hover:border-slate-300 dark:hover:border-slate-600 text-sm font-bold text-slate-900 dark:text-white appearance-none text-left cursor-pointer`}
+                    >
+                      <option value="INR">INR</option>
+                      <option value="USD">USD</option>
+                    </select>
+                    <ChevronDown size={16} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
-                  <input
-                    required
-                    type="number"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleChange}
-                    placeholder="e.g. 5000"
-                    className="w-full pl-[85px] pr-4 py-3 bg-transparent outline-none text-sm font-medium text-slate-900 dark:text-white"
-                  />
+                  <div className="relative flex-1 flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus-within:ring-2 focus-within:ring-[#0E275D]/40 focus-within:border-[#0E275D]">
+                    <div className="absolute left-0 inset-y-0 flex items-center">
+                      <div className="h-full py-0 pl-4 pr-3 flex items-center bg-transparent text-slate-600 dark:text-slate-300 font-bold text-sm border-r border-slate-200 dark:border-slate-700/50 rounded-l-xl">
+                        {currency === 'USD' ? '$' : '₹'}
+                      </div>
+                    </div>
+                    <input
+                      required
+                      type="number"
+                      name="amount"
+                      value={formData.amount}
+                      onChange={handleChange}
+                      placeholder={currency === 'USD' ? "e.g. 50" : "e.g. 5000"}
+                      className="w-full pl-[45px] pr-4 py-3 bg-transparent outline-none text-sm font-medium text-slate-900 dark:text-white"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="space-y-1.5 flex flex-col">
@@ -270,7 +289,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
                     setFormData(prev => ({ ...prev, donorId: '' }));
                   }
                 }}
-                className="w-4 h-4 text-[#20002c] rounded border-gray-300 focus:ring-[#cbb4d4]"
+                className="w-4 h-4 text-[#20002c] rounded border-gray-300 focus:ring-[#0E275D]"
               />
               <label htmlFor="anonymous" className="text-sm font-bold text-slate-700 dark:text-slate-300 select-none cursor-pointer">
                 Anonymous Donation (No donor info required, no receipt sent)

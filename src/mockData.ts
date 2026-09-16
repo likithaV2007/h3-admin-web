@@ -17,6 +17,8 @@ export interface Contribution {
   donorId: string;
   donorName: string;
   amount: number;
+  amountUsd?: number;
+  amountInr?: number;
   date: string;
   paymentMethod: string;
   receiptSent: boolean;

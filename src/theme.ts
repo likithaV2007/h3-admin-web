@@ -1,18 +1,18 @@
 export const colors = {
   primaryDark: '#20002c',
-  primaryLight: '#cbb4d4',
+  primaryLight: '#0E275D',
 };
 
 export const themeClasses = {
-  bgGradientMain: 'bg-gradient-to-br from-[#20002c] to-[#cbb4d4]',
-  bgGradientRight: 'bg-gradient-to-r from-[#20002c] to-[#cbb4d4]',
-  bgGradientBottom: 'bg-gradient-to-b from-[#20002c] to-[#cbb4d4]',
+  bgGradientMain: 'bg-[#0E275D]',
+  bgGradientRight: 'bg-[#0E275D]',
+  bgGradientBottom: 'bg-[#0E275D]',
   textPrimaryDark: 'text-[#20002c]',
-  textPrimaryLight: 'text-[#cbb4d4]',
+  textPrimaryLight: 'text-[#0E275D]',
   bgPrimaryDark: 'bg-[#20002c]',
-  bgPrimaryLight: 'bg-[#cbb4d4]',
+  bgPrimaryLight: 'bg-[#0E275D]',
   borderPrimaryDark: 'border-[#20002c]',
-  borderPrimaryLight: 'border-[#cbb4d4]',
-  focusRingLight: 'focus:ring-[#cbb4d4]/40 focus:border-[#cbb4d4]',
+  borderPrimaryLight: 'border-[#0E275D]',
+  focusRingLight: 'focus:ring-[#0E275D]/40 focus:border-[#0E275D]',
   shadowPrimaryDark: 'shadow-[#20002c]/20',
 };

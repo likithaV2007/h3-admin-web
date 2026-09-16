@@ -62,8 +62,15 @@ export const generateContributionReceipt = async (contribution: Contribution, do
   
   doc.text(donor.name, 15, 82);
   doc.text(donor.email, 15, 87);
+  let yPos = 92;
   if (donor.phone) {
-    doc.text(donor.phone, 15, 92);
+    doc.text(donor.phone, 15, yPos);
+    yPos += 5;
+  }
+  if (donor.address && donor.address !== 'N/A') {
+    const splitAddress = doc.splitTextToSize(donor.address, 90);
+    doc.text(splitAddress, 15, yPos);
+    yPos += (splitAddress.length * 5);
   }
   
   // Donation Info on right
@@ -73,10 +80,23 @@ export const generateContributionReceipt = async (contribution: Contribution, do
   
   // Contribution Details Table
   doc.setFont('helvetica', 'normal');
-  const amountStr = contribution.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  
+  let amountStr = '';
+  if (contribution.amountUsd && contribution.amountInr) {
+    amountStr = `${contribution.amountUsd.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} / ${contribution.amountInr.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}`;
+  } else if (contribution.amountInr) {
+    amountStr = contribution.amountInr.toLocaleString('en-IN', { style: 'currency', currency: 'INR' });
+  } else if (contribution.amountUsd) {
+    amountStr = contribution.amountUsd.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  } else {
+    // Fallback
+    amountStr = contribution.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+  }
+  
+  const tableStartY = Math.max(105, yPos + 5);
   
   autoTable(doc, {
-    startY: 105,
+    startY: tableStartY,
     margin: { left: 15, right: 15 },
     headStyles: { 
       fillColor: [225, 238, 246], // Light blue header background

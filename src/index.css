@@ -210,8 +210,8 @@ body,
 /* Custom Gradient for Buttons and Tabs */
 .gradient-btn-tab {
   background: #20002c !important;
-  background: -webkit-linear-gradient(to right, #20002c, #cbb4d4) !important;
-  background: linear-gradient(to right, #20002c, #cbb4d4) !important;
+  background: #0E275D !important;
+  background: #0E275D !important;
   color: white !important;
   border: none !important;
 }
