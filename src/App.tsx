@@ -18,6 +18,7 @@ import {
   User,
   Send,
   Menu,
+  UserPlus,
   X,
   ClipboardList,
   Plus,
@@ -356,6 +357,9 @@ function App() {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [selectedDonor, setSelectedDonor] = useState<Donor | null>(null);
   const [selectedDonorMappings, setSelectedDonorMappings] = useState<any[]>([]);
+  const [showLinkStudentModal, setShowLinkStudentModal] = useState<boolean>(false);
+  const [studentToLink, setStudentToLink] = useState<string>('');
+  const [isLinkingStudent, setIsLinkingStudent] = useState<boolean>(false);
   const [isLoadingApi, setIsLoadingApi] = useState<boolean>(false);
   const [apiStatus, setApiStatus] = useState<{ status: 'CONNECTED' | 'UNAUTHORIZED' | 'ERROR' | 'LOADING'; url: string }>({
     status: 'LOADING',
@@ -1305,6 +1309,28 @@ function App() {
       setSelectedDonorMappings([]);
     }
   }, [selectedDonor]);
+
+  const handleLinkStudent = async () => {
+    if (!selectedDonor || !studentToLink) return;
+    setIsLinkingStudent(true);
+    const donorId = selectedDonor.donor_id || selectedDonor.id;
+    try {
+      await apiService.createDonorStudentMapping({
+        donor_id: donorId,
+        student_ids: [studentToLink]
+      });
+      toast.success("Student linked successfully");
+      setShowLinkStudentModal(false);
+      setStudentToLink('');
+      const mappings = await apiService.getDonorStudentMappings(donorId);
+      setSelectedDonorMappings(mappings);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to link student");
+    } finally {
+      setIsLinkingStudent(false);
+    }
+  };
 
   const [profileTab, setProfileTab] = useState<'Overview' | 'Attendance' | 'Fees Requests' | 'Leave Requests' | 'Academic Details' | 'Achievements' | 'Notes'>('Overview');
   const [newNoteText, setNewNoteText] = useState<string>('');
@@ -5616,11 +5642,55 @@ function App() {
                   </span>
                 </div>
 
-                {selectedDonorMappings.length > 0 && (
-                  <div className="sm:col-span-2 space-y-3 mt-2">
+                <div className="sm:col-span-2 space-y-3 mt-4 border-t border-slate-200/60 dark:border-slate-800 pt-4">
+                  <div className="flex justify-between items-center">
                     <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Linked Students</h4>
+                    {!showLinkStudentModal && (
+                      <button onClick={() => setShowLinkStudentModal(true)} className={`px-3 py-1.5 text-[10px] font-bold text-white ${themeClasses.bgGradientMain} rounded-lg flex items-center gap-1.5 shadow-sm hover:opacity-90 transition-all`}>
+                        <UserPlus size={12} />
+                        Link Student
+                      </button>
+                    )}
+                  </div>
+                  
+                  {showLinkStudentModal && (
+                    <div className="p-4 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 animate-fade-in mb-3">
+                      <h5 className="text-xs font-bold mb-3 uppercase tracking-wider text-slate-500">Select Student to Link</h5>
+                      <select
+                        value={studentToLink}
+                        onChange={(e) => setStudentToLink(e.target.value)}
+                        className="w-full p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium"
+                      >
+                        <option value="">-- Choose a student --</option>
+                        {students.filter(s => s.status !== 'Inactive' && s.status !== 'Graduated' && s.is_deleted !== 1).map(s => (
+                          <option key={s.id || s.student_id} value={s.id || s.student_id}>{s.name || s.student_name} {s.student_code ? `(${s.student_code})` : ''}</option>
+                        ))}
+                      </select>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => { setShowLinkStudentModal(false); setStudentToLink(''); }}
+                          className="px-4 py-2 text-xs font-bold rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleLinkStudent}
+                          disabled={!studentToLink || isLinkingStudent}
+                          className={`px-4 py-2 text-xs font-bold text-white rounded-lg ${themeClasses.bgGradientMain} hover:opacity-90 transition-all disabled:opacity-50`}
+                        >
+                          {isLinkingStudent ? 'Linking...' : 'Confirm Link'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedDonorMappings.filter(m => m.is_active !== 0 && m.is_active !== false).length === 0 ? (
+                    <div className="text-center py-6 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+                      <p className="text-sm font-medium text-slate-500">No students linked to this donor yet.</p>
+                    </div>
+                  ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {selectedDonorMappings.filter(m => m.is_active === 1).map(mapping => {
+                      {selectedDonorMappings.filter(m => m.is_active !== 0 && m.is_active !== false).map(mapping => {
                         const student = students.find(s => (s.id || s.student_id) === mapping.student_id);
                         if (!student) return null;
                         return (
@@ -5630,12 +5700,12 @@ function App() {
                               setSelectedStudent(student);
                               setSelectedDonor(null);
                             }}
-                            className="p-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex justify-between items-center cursor-pointer hover:border-purple-300 dark:hover:border-purple-500/50 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-colors"
+                            className="p-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex justify-between items-center cursor-pointer hover:border-[#062A78]/30 dark:hover:border-[#062A78]/50 hover:bg-[#062A78]/5 dark:hover:bg-[#062A78]/20 transition-colors"
                           >
                             <div className="flex items-center gap-3">
                               <div className="overflow-hidden">
-                                <div className="font-bold text-sm text-slate-800 dark:text-white truncate">{student.student_name}</div>
-                                <div className="text-[10px] text-slate-500 truncate">{student.student_code}</div>
+                                <div className="font-bold text-sm text-slate-800 dark:text-white truncate">{student.student_name || student.name}</div>
+                                <div className="text-[10px] text-slate-500 truncate">{student.student_code || student.rollNo}</div>
                               </div>
                             </div>
                             <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
@@ -5643,8 +5713,8 @@ function App() {
                         );
                       })}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
