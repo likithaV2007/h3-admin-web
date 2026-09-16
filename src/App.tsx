@@ -5699,6 +5699,8 @@ function App() {
                             onClick={() => {
                               setSelectedStudent(student);
                               setSelectedDonor(null);
+                              setActiveTab('Students');
+                              setProfileTab('Overview');
                             }}
                             className="p-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex justify-between items-center cursor-pointer hover:border-[#062A78]/30 dark:hover:border-[#062A78]/50 hover:bg-[#062A78]/5 dark:hover:bg-[#062A78]/20 transition-colors"
                           >
