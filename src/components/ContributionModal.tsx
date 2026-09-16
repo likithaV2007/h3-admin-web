@@ -212,7 +212,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
                     </select>
                     <ChevronDown size={16} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                   </div>
-                  <div className="relative flex-1 flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus-within:ring-2 focus-within:ring-[#0E275D]/40 focus-within:border-[#0E275D]">
+                  <div className="relative flex-1 flex items-center bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 rounded-xl transition-all duration-200 hover:border-slate-300 dark:hover:border-slate-600 focus-within:ring-2 focus-within:ring-[#062A78]/40 focus-within:border-[#062A78]">
                     <div className="absolute left-0 inset-y-0 flex items-center">
                       <div className="h-full py-0 pl-4 pr-3 flex items-center bg-transparent text-slate-600 dark:text-slate-300 font-bold text-sm border-r border-slate-200 dark:border-slate-700/50 rounded-l-xl">
                         {currency === 'USD' ? '$' : '₹'}
@@ -289,7 +289,7 @@ export const ContributionModal: React.FC<ContributionModalProps> = ({ isOpen, on
                     setFormData(prev => ({ ...prev, donorId: '' }));
                   }
                 }}
-                className="w-4 h-4 text-[#20002c] rounded border-gray-300 focus:ring-[#0E275D]"
+                className="w-4 h-4 text-[#20002c] rounded border-gray-300 focus:ring-[#062A78]"
               />
               <label htmlFor="anonymous" className="text-sm font-bold text-slate-700 dark:text-slate-300 select-none cursor-pointer">
                 Anonymous Donation (No donor info required, no receipt sent)

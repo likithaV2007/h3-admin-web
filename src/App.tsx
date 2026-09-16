@@ -172,7 +172,7 @@ const ActivityCardNode = ({ activity, setViewingActivityImages, onDelete }: { ac
   };
 
   return (
-    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#0E275D]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+    <div className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#062A78]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
       {activity.images && activity.images.length > 0 ? (
         <div 
           className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 cursor-pointer group/carousel"
@@ -283,7 +283,7 @@ const ProfileAvatar = ({ url, name, className, fallbackClassName }: { url?: stri
   );
 };
 
-const AchievementImage = ({ url, className = "w-12 h-12 object-contain rounded-lg shrink-0", fallbackClassName = "w-12 h-12 rounded-lg bg-[#0E275D]/20 flex items-center justify-center shrink-0" }: { url: string, className?: string, fallbackClassName?: string }) => {
+const AchievementImage = ({ url, className = "w-12 h-12 object-contain rounded-lg shrink-0", fallbackClassName = "w-12 h-12 rounded-lg bg-[#062A78]/20 flex items-center justify-center shrink-0" }: { url: string, className?: string, fallbackClassName?: string }) => {
   const [error, setError] = useState(false);
   const parsedUrl = getDriveImageUrl(url);
 
@@ -384,7 +384,7 @@ function App() {
   const [isFullScreenMapOpen, setIsFullScreenMapOpen] = useState<boolean>(false);
   const [newZoneName, setNewZoneName] = useState<string>('');
   const [newZoneShape, setNewZoneShape] = useState<'polygon' | 'pentagon' | 'hexagon' | 'circle'>('pentagon');
-  const [newZoneColor, setNewZoneColor] = useState<string>('#0E275D');
+  const [newZoneColor, setNewZoneColor] = useState<string>('#062A78');
   const [newZoneTargetBatch, setNewZoneTargetBatch] = useState<string>('ALL');
   const [selectedBatchFilter, setSelectedBatchFilter] = useState<string>('ALL');
   const [selectedGeofenceFilter, setSelectedGeofenceFilter] = useState<string>('ALL');
@@ -417,7 +417,7 @@ function App() {
       id: '06d77b3b-bf43-4bbc-b841-ed68db46665b',
       name: 'Hope3 Office Polygon',
       shape: 'polygon',
-      color: '#0E275D',
+      color: '#062A78',
       targetBatch: 'ALL',
       lat: 10.0815515,
       lng: 78.7463343,
@@ -713,7 +713,7 @@ function App() {
             ];
           }
 
-          const colors = ['#ef4444', '#10b981', '#0E275D', '#a855f7', '#f59e0b', '#ec4899'];
+          const colors = ['#ef4444', '#10b981', '#062A78', '#a855f7', '#f59e0b', '#ec4899'];
           const color = colors[idx % colors.length];
 
           mappedGeofences.push({
@@ -1064,8 +1064,8 @@ function App() {
               showArea: true,
               guidelineDistance: 10,
               shapeOptions: {
-                color: '#0E275D',
-                fillColor: '#0E275D',
+                color: '#062A78',
+                fillColor: '#062A78',
                 fillOpacity: 0.35,
                 weight: 3
               }
@@ -2337,8 +2337,8 @@ function App() {
                             {/* Grid lines */}
                             <defs>
                               <linearGradient id="costsGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#0E275D" stopOpacity="0.4" />
-                                <stop offset="100%" stopColor="#0E275D" stopOpacity="0" />
+                                <stop offset="0%" stopColor="#062A78" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#062A78" stopOpacity="0" />
                               </linearGradient>
                               <clipPath id="chart-sweep-dashboard">
                                 <motion.rect x="0" y="0" width="600" height="580" initial={{ width: 0 }} animate={{ width: 600 }} transition={{ duration: 1.5, ease: "easeOut" }} />
@@ -2353,7 +2353,7 @@ function App() {
                             <path d={costPolygonPath} fill="url(#costsGrad)" clipPath="url(#chart-sweep-dashboard)" />
 
                             {/* Chart Lines */}
-                            <path d={costPath} fill="none" stroke="#0E275D" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" clipPath="url(#chart-sweep-dashboard)" />
+                            <path d={costPath} fill="none" stroke="#062A78" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" clipPath="url(#chart-sweep-dashboard)" />
 
                             {/* Data Points */}
                             {costPoints.map((p, i) => (
@@ -2800,7 +2800,7 @@ function App() {
                             </td>
                             <td className="p-4 font-mono font-medium text-black/70 dark:text-white/70">{student.rollNo}</td>
                             <td className="p-4">
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono ${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white border border-[#0E275D]/20 dark:border-[#0E275D]/80`}>
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold font-mono ${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white border border-[#062A78]/20 dark:border-[#062A78]/80`}>
                                 {student.batch || student.current_year || (student.grade && student.grade.includes('2nd Year') ? '2026' : student.grade && student.grade.includes('3rd Year') ? '2025' : '2024')}
                               </span>
                             </td>
@@ -2834,7 +2834,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Call ${student.name} / Parent via WhatsApp (${student.parentPhone})`}
-                                  className={`p-2.5 ${themeClasses.bgGradientMain} hover:opacity-90 text-white rounded-[1rem] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-2 focus:ring-[#0E275D]/50 flex items-center justify-center`}
+                                  className={`p-2.5 ${themeClasses.bgGradientMain} hover:opacity-90 text-white rounded-[1rem] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-2 focus:ring-[#062A78]/50 flex items-center justify-center`}
                                 >
                                   <PhoneCall size={14} />
                                 </a>
@@ -2845,7 +2845,7 @@ function App() {
                                   target="_blank" 
                                   rel="noreferrer"
                                   title={`Message ${student.name} / Parent on WhatsApp (${student.parentPhone})`}
-                                  className={`p-2.5 ${themeClasses.bgGradientMain} hover:opacity-90 text-white rounded-[1rem] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-2 focus:ring-[#0E275D]/50 flex items-center justify-center`}
+                                  className={`p-2.5 ${themeClasses.bgGradientMain} hover:opacity-90 text-white rounded-[1rem] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all outline-none focus:ring-2 focus:ring-[#062A78]/50 flex items-center justify-center`}
                                 >
                                   <MessageSquare size={14} />
                                 </a>
@@ -3274,7 +3274,7 @@ function App() {
                                 cy="50"
                                 r="40"
                                 fill="transparent"
-                                stroke="#0E275D"
+                                stroke="#062A78"
                                 strokeWidth="8"
                                 strokeDasharray={2 * Math.PI * 40}
                                 strokeDashoffset={2 * Math.PI * 40 * (1 - selectedStudent.attendance / 100)}
@@ -3393,10 +3393,10 @@ function App() {
                                         </a>
                                       )}
                                       {req.submitted_marksheets === 1 && (
-                                        <span className={`text-[10px] font-bold text-slate-700 ${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.textPrimaryLight} border border-[#0E275D]/40 px-3 py-1 rounded-full inline-flex items-center gap-1`}>✓ Marksheet</span>
+                                        <span className={`text-[10px] font-bold text-slate-700 ${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.textPrimaryLight} border border-[#062A78]/40 px-3 py-1 rounded-full inline-flex items-center gap-1`}>✓ Marksheet</span>
                                       )}
                                       {req.submitted_payment_receipts === 1 && (
-                                        <span className={`text-[10px] font-bold text-slate-700 ${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.textPrimaryLight} border border-[#0E275D]/40 px-3 py-1 rounded-full inline-flex items-center gap-1`}>✓ Receipt</span>
+                                        <span className={`text-[10px] font-bold text-slate-700 ${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.textPrimaryLight} border border-[#062A78]/40 px-3 py-1 rounded-full inline-flex items-center gap-1`}>✓ Receipt</span>
                                       )}
                                     </div>
                                   )}
@@ -3509,14 +3509,14 @@ function App() {
                             <p className="text-xs text-slate-400 py-4 col-span-full text-center">No academic records found.</p>
                           ) : (
                             studentSemesters.map(sem => (
-                              <div key={sem.semester_id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#0E275D]/20 hover:-translate-y-1 transition-all duration-300 flex flex-col p-5">
+                              <div key={sem.semester_id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#062A78]/20 hover:-translate-y-1 transition-all duration-300 flex flex-col p-5">
                                 <div className="flex justify-between items-start mb-4">
                                   <div>
                                     <h5 className="font-bold text-base leading-tight text-slate-900 dark:text-white mb-1">{sem.semester_name}</h5>
                                     <span className="text-[10px] font-bold text-slate-500 font-mono tracking-wider uppercase">Year: {sem.academic_year}</span>
                                   </div>
                                   {sem.is_active === 1 && (
-                                    <span className={`text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold ${themeClasses.bgPrimaryLight}/10 text-slate-800 dark:text-white rounded-full border border-[#0E275D]/30`}>Active</span>
+                                    <span className={`text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold ${themeClasses.bgPrimaryLight}/10 text-slate-800 dark:text-white rounded-full border border-[#062A78]/30`}>Active</span>
                                   )}
                                 </div>
                                 {sem.subject && sem.subject.length > 0 && (
@@ -3559,7 +3559,7 @@ function App() {
                             <p className="text-xs text-slate-400 py-4 col-span-full text-center">No achievements recorded yet.</p>
                           ) : (
                             studentAchievements.map(ach => (
-                              <div key={ach.id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#0E275D]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                              <div key={ach.id} className="glass-panel rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:shadow-[#062A78]/20 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
                                 <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 flex items-center justify-center">
                                   <AchievementImage 
                                     url={ach.photo_drive_link || ach.badge_image_url} 
@@ -3572,7 +3572,7 @@ function App() {
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="text-[10px] font-bold text-slate-500 font-mono tracking-wider uppercase">{ach.date}</span>
                                     {ach.status && ach.status !== 'string' && (
-                                      <span className={`text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold ${themeClasses.bgPrimaryLight}/10 text-slate-800 dark:text-white rounded-full border border-[#0E275D]/30`}>{ach.status}</span>
+                                      <span className={`text-[9px] px-2 py-0.5 uppercase tracking-wider font-bold ${themeClasses.bgPrimaryLight}/10 text-slate-800 dark:text-white rounded-full border border-[#062A78]/30`}>{ach.status}</span>
                                     )}
                                   </div>
                                   <h5 className="font-bold text-base leading-tight text-slate-900 dark:text-white mb-2">{ach.title}</h5>
@@ -3735,7 +3735,7 @@ function App() {
                             <button
                               onClick={() => setCreationModal({ type: 'Parent', isOpen: true, isEdit: true, initialData: par })}
                               title={`Edit ${par.name}`}
-                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#0E275D]/50 border-[#0E275D]/20 dark:border-none flex items-center justify-center`}
+                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#062A78]/50 border-[#062A78]/20 dark:border-none flex items-center justify-center`}
                             >
                               <Pencil size={15} />
                             </button>
@@ -3746,7 +3746,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${par.name} via WhatsApp (${par.phone})`}
-                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#0E275D]/50 border-[#0E275D]/20 dark:border-none flex items-center justify-center`}
+                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#062A78]/50 border-[#062A78]/20 dark:border-none flex items-center justify-center`}
                             >
                               <PhoneCall size={15} />
                             </a>
@@ -3757,7 +3757,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${par.name} on WhatsApp (${par.phone})`}
-                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#0E275D]/50 border-[#0E275D]/20 dark:border-none flex items-center justify-center`}
+                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#062A78]/50 border-[#062A78]/20 dark:border-none flex items-center justify-center`}
                             >
                               <MessageSquare size={15} />
                             </a>
@@ -3974,7 +3974,7 @@ function App() {
                           <div className="flex items-center justify-end gap-2">
                             <button 
                               onClick={() => setSelectedVolunteer(vol)}
-                              className={`text-xs ${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.bgPrimaryLight}/50 hover:${themeClasses.bgPrimaryLight}/20 text-black dark:text-white  font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#0E275D]/20 dark:border-[#0E275D]/60`}
+                              className={`text-xs ${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.bgPrimaryLight}/50 hover:${themeClasses.bgPrimaryLight}/20 text-black dark:text-white  font-bold px-3 py-1.5 rounded-xl transition-colors border border-[#062A78]/20 dark:border-[#062A78]/60`}
                             >
                               View Profile
                             </button>
@@ -3983,7 +3983,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Call ${vol.name} via WhatsApp (${vol.phone})`}
-                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#0E275D]/50 border-[#0E275D]/20 dark:border-none flex items-center justify-center`}
+                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#062A78]/50 border-[#062A78]/20 dark:border-none flex items-center justify-center`}
                             >
                               <PhoneCall size={14} />
                             </a>
@@ -3992,7 +3992,7 @@ function App() {
                               target="_blank" 
                               rel="noreferrer"
                               title={`Message ${vol.name} on WhatsApp (${vol.phone})`}
-                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#0E275D]/50 border-[#0E275D]/20 dark:border-none flex items-center justify-center`}
+                              className={`p-2 ${themeClasses.bgPrimaryLight}/10 hover:${themeClasses.bgPrimaryLight}/20 dark:${themeClasses.bgPrimaryLight}/40 dark:hover:${themeClasses.bgPrimaryLight}/60 text-black dark:text-white  rounded-xl transition-all border outline-none focus:ring-2 focus:ring-[#062A78]/50 border-[#062A78]/20 dark:border-none flex items-center justify-center`}
                             >
                               <MessageSquare size={14} />
                             </a>
@@ -4155,7 +4155,7 @@ function App() {
                           </div>
                         </td>
                         <td className="p-4 font-semibold text-black dark:text-white">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.bgPrimaryLight}/40 text-black dark:text-white border border-[#0E275D]/20`}>
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${themeClasses.bgPrimaryLight}/10 dark:${themeClasses.bgPrimaryLight}/40 text-black dark:text-white border border-[#062A78]/20`}>
                             {donor.donorType}
                           </span>
                         </td>
@@ -4290,14 +4290,14 @@ function App() {
                 <div className="w-full lg:w-1/2 flex flex-col">
                   {/* Mini Stats Grid */}
                   <div className={`grid grid-cols-1 sm:grid-cols-2 gap-6 flex-1 h-full transition-all`}>
-                    <div className="relative overflow-hidden bg-[#0E275D] dark:from-[#0E275D]/10 dark:to-[#0E275D]/5 border border-[#0E275D]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
-                      <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#0E275D]/30 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                      <div className="w-12 h-12 rounded-2xl bg-[#0E275D]/30 text-[#20002c] dark:text-[#0E275D] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#0E275D]/40">
+                    <div className="relative overflow-hidden bg-[#062A78] dark:from-[#062A78]/10 dark:to-[#062A78]/5 border border-[#062A78]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group h-full">
+                      <div className="absolute -right-10 -top-10 w-32 h-32 bg-[#062A78]/30 rounded-full blur-3xl opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                      <div className="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center mb-4 relative z-10 shadow-sm border border-white/20">
                         <FileText size={24} strokeWidth={2} />
                       </div>
                       <div className="relative z-10">
-                        <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#0E275D]/80 mb-1 block">Total Records</span>
-                        <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">{expenses.length}</strong>
+                        <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/80 mb-1 block">Total Records</span>
+                        <strong className="text-5xl text-white font-extrabold tracking-tight">{expenses.length}</strong>
                       </div>
                       
                       {/* Decorative mini chart */}
@@ -4311,14 +4311,14 @@ function App() {
 
                     
                     {expenseCategoryFilter !== 'ALL' && (
-                      <div className="relative overflow-hidden bg-[#0E275D] dark:from-[#0E275D]/10 dark:to-[#0E275D]/5 border border-[#0E275D]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group animate-fade-in h-full">
-                        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#0E275D]/30 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
-                        <div className="w-12 h-12 rounded-2xl bg-[#0E275D]/30 text-[#20002c] dark:text-[#0E275D] flex items-center justify-center mb-4 relative z-10 shadow-sm border border-[#0E275D]/40">
+                      <div className="relative overflow-hidden bg-[#062A78] dark:from-[#062A78]/10 dark:to-[#062A78]/5 border border-[#062A78]/30 rounded-[2rem] p-6 shadow-sm flex flex-col justify-center items-center text-center group animate-fade-in h-full">
+                        <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-[#062A78]/30 rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-500 pointer-events-none"></div>
+                        <div className="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center mb-4 relative z-10 shadow-sm border border-white/20">
                           <Filter size={24} strokeWidth={2} />
                         </div>
                         <div className="relative z-10">
-                          <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#20002c]/70 dark:text-[#0E275D]/80 mb-1 block">{expenseCategoryFilter} Records</span>
-                          <strong className="text-5xl text-[#20002c] dark:text-white font-extrabold tracking-tight">
+                          <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/80 mb-1 block">{expenseCategoryFilter} Records</span>
+                          <strong className="text-5xl text-white font-extrabold tracking-tight">
                             {expenses.filter(e => e.category && e.category.toLowerCase() === expenseCategoryFilter.toLowerCase()).length}
                           </strong>
                         </div>
@@ -4504,7 +4504,7 @@ function App() {
                                           <img referrerPolicy="no-referrer" src={getDriveImageUrl(item.receipt_photo_link, item.receipt_drive_link) || "https://placehold.co/40"} alt="Receipt" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement!.innerHTML = '<span class="text-[8px] font-bold text-slate-400 p-1 text-center leading-tight">Private</span>'; }} />
                                         </div>
                                       ) : (
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-sm ${themeClasses.bgPrimaryLight}/10 ${themeClasses.textPrimaryLight} border-[#0E275D]/20`}>
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-sm ${themeClasses.bgPrimaryLight}/10 ${themeClasses.textPrimaryLight} border-[#062A78]/20`}>
                                           <CategoryIcon size={18} />
                                         </div>
                                       )}
@@ -4667,8 +4667,8 @@ function App() {
                             {/* Grid lines */}
                             <defs>
                               <linearGradient id="costsGradFinance" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#0E275D" stopOpacity="0.4" />
-                                <stop offset="100%" stopColor="#0E275D" stopOpacity="0" />
+                                <stop offset="0%" stopColor="#062A78" stopOpacity="0.4" />
+                                <stop offset="100%" stopColor="#062A78" stopOpacity="0" />
                               </linearGradient>
                               <clipPath id="chart-sweep-finance">
                                 <motion.rect x="0" y="0" width="600" height="580" initial={{ width: 0 }} animate={{ width: 600 }} transition={{ duration: 1.5, ease: "easeOut" }} />
@@ -4683,7 +4683,7 @@ function App() {
                             <path d={costPolygonPath} fill="url(#costsGradFinance)" clipPath="url(#chart-sweep-finance)" />
 
                             {/* Chart Lines */}
-                            <path d={costPath} fill="none" stroke="#0E275D" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" clipPath="url(#chart-sweep-finance)" />
+                            <path d={costPath} fill="none" stroke="#062A78" strokeWidth="3" vectorEffect="non-scaling-stroke" className="drop-shadow-sm" clipPath="url(#chart-sweep-finance)" />
 
                             {/* Data Points */}
                             {costPoints.map((p, i) => (
@@ -4977,7 +4977,7 @@ function App() {
                                   id: `GF_SEARCH_${Date.now()}`,
                                   name: result.display_name.split(',')[0] + ' Geofence',
                                   shape: 'polygon',
-                                  color: '#0E275D',
+                                  color: '#062A78',
                                   lat,
                                   lng: lon,
                                   targetBatch: 'ALL',
@@ -5061,8 +5061,8 @@ function App() {
                                   map.setView([latitude, longitude], 16);
                                   L.circleMarker([latitude, longitude], {
                                     radius: 8,
-                                    color: '#0E275D',
-                                    fillColor: '#0E275D',
+                                    color: '#062A78',
+                                    fillColor: '#062A78',
                                     fillOpacity: 0.5
                                   }).addTo(map).bindPopup('You are here!').openPopup();
                                 }
@@ -5180,7 +5180,7 @@ function App() {
                         return <Compass size={20} />;
                       };
 
-                      const accentColor = hasViolation ? '#ef4444' : (gf.color || '#0E275D');
+                      const accentColor = hasViolation ? '#ef4444' : (gf.color || '#062A78');
 
                       return (
                         <div
@@ -5449,7 +5449,7 @@ function App() {
 
                     <div className="p-4 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-1.5 hover:shadow-md transition-shadow">
                       <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Total Service Hours</span>
-                      <span className="font-mono font-black text-sm text-[#20002c] dark:text-[#0E275D] block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
+                      <span className="font-mono font-black text-sm text-[#20002c] dark:text-[#062A78] block">{selectedVolunteer.hoursContributed} Hours Contributed</span>
                     </div>
                   </>
                 )}
@@ -5562,10 +5562,10 @@ function App() {
 
               {/* Highlight Contribution Box */}
               <div className="glass-panel p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-[#0E275D] pointer-events-none"></div>
+                <div className="absolute inset-0 bg-[#062A78] pointer-events-none"></div>
                 <div className="relative z-10">
-                  <span className="text-[10px] font-bold text-[#20002c] dark:text-[#0E275D] uppercase tracking-wider block">Total Financial Contribution</span>
-                  <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">{selectedDonor.formattedAmount}</span>
+                  <span className="text-[10px] font-bold text-white/80 uppercase tracking-wider block">Total Financial Contribution</span>
+                  <span className="text-2xl font-black text-white font-mono">{selectedDonor.formattedAmount}</span>
                 </div>
                 <span className={`relative z-10 ${themeClasses.bgGradientRight} text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm`}>
                   {selectedDonor.donorType}
@@ -5993,8 +5993,8 @@ function App() {
                     }
                     const polygonDrawer = new L.Draw.Polygon(map, {
                       shapeOptions: {
-                        color: newZoneColor || '#0E275D',
-                        fillColor: newZoneColor || '#0E275D',
+                        color: newZoneColor || '#062A78',
+                        fillColor: newZoneColor || '#062A78',
                         fillOpacity: 0.3,
                         weight: 3
                       }
@@ -6026,7 +6026,7 @@ function App() {
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1">MAP BOUNDARY COLOR</label>
                 <div className="flex items-center gap-3">
-                  {['#0E275D', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
+                  {['#062A78', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
                     <button
                       key={col}
                       type="button"
@@ -6436,7 +6436,7 @@ function App() {
                       id: editingGroupId || savedData.group_id || `GF_GROUP_${Date.now()}`,
                       name: mergeTargetName.trim(),
                       shape: 'polygon',
-                      color: baseParent.color || '#0E275D',
+                      color: baseParent.color || '#062A78',
                       targetBatch: mergeTargetBatch,
                       lat: baseParent.lat,
                       lng: baseParent.lng,
@@ -6607,8 +6607,8 @@ function App() {
                     }
                     const polygonDrawer = new L.Draw.Polygon(map, {
                       shapeOptions: {
-                        color: '#0E275D',
-                        fillColor: '#0E275D',
+                        color: '#062A78',
+                        fillColor: '#062A78',
                         fillOpacity: 0.3,
                         weight: 3
                       }
@@ -6684,7 +6684,7 @@ function App() {
                     id: savedData.zone_id || savedData.id || `GF_DRAWN_${Date.now()}`,
                     name: nameToSave,
                     shape: 'polygon',
-                    color: newZoneColor || '#0E275D',
+                    color: newZoneColor || '#062A78',
                     targetBatch: newZoneTargetBatch || 'ALL',
                     lat: pendingDrawnShape.center.lat,
                     lng: pendingDrawnShape.center.lng,
@@ -6743,7 +6743,7 @@ function App() {
               <div>
                 <label className="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-wider">BOUNDARY COLOR</label>
                 <div className="flex items-center gap-3">
-                  {['#0E275D', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
+                  {['#062A78', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6'].map(col => (
                     <button
                       key={col}
                       type="button"
